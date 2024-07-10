@@ -13,7 +13,7 @@
 
 ---
 
-## 💡 PR Convetion
+## 💡 PR Convention
 
 | 아이콘 | 코드 | 설명 |
 | --- | --- | --- |
