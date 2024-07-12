@@ -1,0 +1,3 @@
+# Selenium and WebDriver Manager for browser automation
+selenium==4.4.3
+webdriver-manager==3.8.5
