@@ -20,12 +20,7 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseDto<Page<UserDto>> getAllUsers(@RequestParam(required = false) String name, Pageable pageable) {
-        Page<UserDto> users;
-        if(StringUtils.hasText(name)) {
-            users = userService.getUsersByName(name, pageable);
-        }else{
-            users = userService.getAllUsers(pageable);
-        }
+        Page<UserDto> users = userService.searchUsers(name, pageable);
         return ResponseDto.ok(users);
     }
 }

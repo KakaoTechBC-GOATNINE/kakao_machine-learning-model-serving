@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -15,12 +16,10 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Page<UserDto> getAllUsers(Pageable pageable) {
+    public Page<UserDto> searchUsers(String name, Pageable pageable) {
+        if(StringUtils.hasText(name)) {
+            return userRepository.findByNicknameContaining(name, pageable).map(UserDto::from);
+        }
         return userRepository.findAll(pageable).map(UserDto::from);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<UserDto> getUsersByName(String name, Pageable pageable) {
-        return userRepository.findByNickname(name, pageable).map(UserDto::from);
     }
 }
