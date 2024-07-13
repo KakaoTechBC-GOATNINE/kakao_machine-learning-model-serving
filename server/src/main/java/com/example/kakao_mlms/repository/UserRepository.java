@@ -3,6 +3,8 @@ package com.example.kakao_mlms.repository;
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.EProvider;
 import com.example.kakao_mlms.domain.type.ERole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +18,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying(clearAutomatically = true)
     @Query(value = "update User u set u.refreshToken = :refreshToken where u.id = :userId")
     void updateRefreshToken(@Param("userId") Long userId, @Param("refreshToken") String refreshToken);
+
+    Page<User> findByNickname(String nickname, Pageable pageable);
 
     Optional<User> findByIdAndProvider(Long userId, EProvider provider);
 
