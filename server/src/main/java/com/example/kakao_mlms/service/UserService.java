@@ -16,11 +16,11 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserDto> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(UserDto::new);
+        return userRepository.findAll(pageable).map(UserDto::from);
     }
 
     @Transactional(readOnly = true)
     public Page<UserDto> getUsersByName(String name, Pageable pageable) {
-        return userRepository.findByNickname(name, pageable).map(UserDto::new);
+        return userRepository.findByNickname(name, pageable).map(UserDto::from);
     }
 }

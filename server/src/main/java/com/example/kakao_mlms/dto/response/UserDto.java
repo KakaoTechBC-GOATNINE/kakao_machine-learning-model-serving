@@ -21,8 +21,8 @@ public record UserDto(
         Boolean isLogin,
         String refreshToken
 ) {
-    public UserDto(User user) {
-        this(
+    public static UserDto from(User user) {
+        return new UserDto(
                 user.getId(),
                 user.getSerialId(),
                 user.getPassword(),
