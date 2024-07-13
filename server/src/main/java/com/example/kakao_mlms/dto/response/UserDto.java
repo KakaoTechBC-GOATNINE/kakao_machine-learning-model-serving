@@ -20,7 +20,7 @@ public record UserDto(
         String nickname,
         Boolean isLogin,
         String refreshToken
-) implements Serializable {
+) {
     public UserDto(User user) {
         this(
                 user.getId(),
