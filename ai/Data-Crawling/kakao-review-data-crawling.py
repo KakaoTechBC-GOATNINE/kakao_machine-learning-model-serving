@@ -2,7 +2,8 @@
 ## 1. 크롤링속도가 너무느림 (슬립줄이고 병렬로 크롤링가능?)
 ## -> time.sleep 호출을 최소화하고 WebDriverWait를 사용하여 요소가 로드될 때까지 기다림
 ## -> ThreadPoolExecutor, 여러 페이지를 병렬로 크롤링
-## 2. 리뷰 페이지수가 적을때도 있음 (현재는 crawl_restaurant_reviews 여기서 인스턴스로 직접 수정해야함)
+## 30개 식당 크롤링하는대 대략 60초 90초 기존 방식 -> 120초 
+## 2. 리뷰 페이지수가 적을때도 있음 (현재는 crawl_restaurant_reviews 여기서 인스턴스로 직접 수정해야함) / 또는 아예 없는경우
 ## 3. 모든 리뷰를 긁어오는것이 아닌 처음에 보이는 3개의 리뷰만 긁어옴 -> 후기더보기 눌러서 다른 것들도 긁어와야함 (후기 더보기가 없는곳도 존재함)
 ## 4. 카카오 맵 자체에 데이터가 그리 많지않음 
 ## 검색키워드 나중에 카카오 api로 받아서 진행하게끔 수정해야함
@@ -88,7 +89,7 @@ def extract_restaurant_info(driver):
 
     return restaurant_list
 
-def crawl_restaurant_reviews(location, pages=2):
+def crawl_restaurant_reviews(location, pages):
     """특정 위치에서 여러 페이지에 걸쳐 음식점 리뷰를 크롤링합니다."""
     driver = setup_driver()
     search_location(driver, location)
@@ -96,7 +97,7 @@ def crawl_restaurant_reviews(location, pages=2):
 
     for i in range(1, pages + 1):
         try:
-            if i > 5:
+            if i > 5: #페이지 넘어갈때
                 xpath = f'/html/body/div[5]/div[2]/div[1]/div[7]/div[6]/div/a[{i-5}]'
             else:
                 xpath = f'/html/body/div[5]/div[2]/div[1]/div[7]/div[6]/div/a[{i}]'
@@ -104,12 +105,14 @@ def crawl_restaurant_reviews(location, pages=2):
                 EC.element_to_be_clickable((By.XPATH, xpath))
             )
             driver.execute_script("arguments[0].click();", page_button)
+            time.sleep(1)  # 페이지 로드 시간을 충분히 기다리기 위해 추가
             all_restaurants.extend(extract_restaurant_info(driver))
-            if i % 5 == 0:
+            if i % 5 == 0: # 5페이지시 다음버튼
                 next_button = WebDriverWait(driver, 10).until(
                     EC.element_to_be_clickable((By.XPATH, '//*[@id="info.search.page.next"]'))
                 )
                 driver.execute_script("arguments[0].click();", next_button)
+                time.sleep(1)  # 페이지 로드 시간을 충분히 기다리기 위해 추가
         except Exception as e:
             print(f"Error on page {i}: {e}")
             break
@@ -120,6 +123,6 @@ def crawl_restaurant_reviews(location, pages=2):
 
 if __name__ == "__main__":
     location = '판교 이자카야'
-    restaurant_reviews = crawl_restaurant_reviews(location)
+    restaurant_reviews = crawl_restaurant_reviews(location, pages=2)
     for restaurant in restaurant_reviews:
         print(restaurant)
