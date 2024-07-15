@@ -1,6 +1,7 @@
-
 ## Issues -> 서비스배포하려면 개선해야함
 ## 1. 크롤링속도가 너무느림 (슬립줄이고 병렬로 크롤링가능?)
+## -> time.sleep 호출을 최소화하고 WebDriverWait를 사용하여 요소가 로드될 때까지 기다림
+## -> ThreadPoolExecutor, 여러 페이지를 병렬로 크롤링
 ## 2. 리뷰 페이지수가 적을때도 있음 (현재는 crawl_restaurant_reviews 여기서 인스턴스로 직접 수정해야함)
 ## 3. 모든 리뷰를 긁어오는것이 아닌 처음에 보이는 3개의 리뷰만 긁어옴 -> 후기더보기 눌러서 다른 것들도 긁어와야함 (후기 더보기가 없는곳도 존재함)
 ## 4. 카카오 맵 자체에 데이터가 그리 많지않음 
@@ -32,11 +33,20 @@ def search_location(driver, location):
     """카카오 맵에서 특정 위치를 검색합니다."""
     url = "https://map.kakao.com/"
     driver.get(url)
-    search_area = driver.find_element(By.XPATH, r'//*[@id="search.keyword.query"]')
+    search_area = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="search.keyword.query"]'))
+    )
     search_area.send_keys(location)
-    driver.find_element(By.XPATH, r'//*[@id="search.keyword.submit"]').send_keys(Keys.ENTER)
-    time.sleep(5)
-    driver.find_element(By.XPATH, r'//*[@id="info.main.options"]/li[2]/a').send_keys(Keys.ENTER)
+    driver.find_element(By.XPATH, '//*[@id="search.keyword.submit"]').send_keys(Keys.ENTER)
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, '//*[@id="info.main.options"]/li[2]/a'))
+    )
+    # 가려진 요소를 숨기기
+    driver.execute_script("document.getElementById('dimmedLayer').style.display = 'none';")
+    # 요소가 클릭 가능할 때까지 기다림
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '//*[@id="info.main.options"]/li[2]/a'))
+    ).click()
 
 def extract_reviews(driver):
     """음식점의 리뷰를 추출합니다."""
@@ -48,18 +58,18 @@ def extract_reviews(driver):
         reviews.append(' ')
     driver.close()
     driver.switch_to.window(driver.window_handles[0])
-    time.sleep(2)
+    time.sleep(1)
     return reviews
 
 def extract_restaurant_info(driver):
     """음식점의 정보를 추출하고 리뷰를 추가합니다."""
-    time.sleep(0.2)
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     restaurant_elements = soup.select('.placelist > .PlaceItem')
     restaurant_list = []
 
     for i, restaurant in enumerate(restaurant_elements):
+        temp = []
         name = restaurant.select('.head_item > .tit_name > .link_name')[0].text
         score = restaurant.select('.rating > .score > em')[0].text
         addr = restaurant.select('.addr > p')[0].text
@@ -68,13 +78,17 @@ def extract_restaurant_info(driver):
         )
         driver.execute_script("arguments[0].click();", more_reviews_button)
         driver.switch_to.window(driver.window_handles[-1])
-        time.sleep(2)
+        time.sleep(1)
         reviews = extract_reviews(driver)
-        restaurant_list.append([name, score, addr[3:], reviews])
+        temp.append(name)
+        temp.append(score)
+        temp.append(addr[3:])
+        temp.append(reviews)
+        restaurant_list.append(temp)
 
     return restaurant_list
 
-def crawl_restaurant_reviews(location, pages=3):
+def crawl_restaurant_reviews(location, pages=2):
     """특정 위치에서 여러 페이지에 걸쳐 음식점 리뷰를 크롤링합니다."""
     driver = setup_driver()
     search_location(driver, location)
@@ -93,7 +107,7 @@ def crawl_restaurant_reviews(location, pages=3):
             all_restaurants.extend(extract_restaurant_info(driver))
             if i % 5 == 0:
                 next_button = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.XPATH, r'//*[@id="info.search.page.next"]'))
+                    EC.element_to_be_clickable((By.XPATH, '//*[@id="info.search.page.next"]'))
                 )
                 driver.execute_script("arguments[0].click();", next_button)
         except Exception as e:
