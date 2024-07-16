@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -53,6 +55,8 @@ public class User {
     private String refreshToken;
 
     /* Relation Parent Mapping */
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Qna> qnaList = new ArrayList<>();
 
     @Builder
     public User(String serialId, String password,  String nickname, EProvider provider, ERole role) {
