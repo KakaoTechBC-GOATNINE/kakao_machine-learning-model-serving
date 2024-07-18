@@ -22,7 +22,7 @@
 
 ## 5. 검색키워드 나중에 카카오 api로 받아서 진행하게끔 수정해야함
 
-import time, csv, warnings
+import time, csv, os, warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -197,8 +197,20 @@ def crawl_restaurant_reviews(location, pages):
     print('\n크롤링 완료')
     return all_restaurants
 
+def save_to_csv(restaurants, filename):
+    """크롤링한 데이터를 CSV 파일로 저장합니다."""
+    file_exists = os.path.isfile(filename)
+    mode = 'a' if file_exists else 'w'
+    with open(filename, mode=mode, newline='', encoding='utf-8-sig') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(["Name", "Score", "Address", "Reviews"])
+        for restaurant in restaurants:
+            writer.writerow([restaurant[0], restaurant[1], restaurant[2], '|'.join(restaurant[3])])
+
 if __name__ == "__main__":
     location = '판교 이자카야'
     restaurant_reviews = crawl_restaurant_reviews(location, pages=5)  # 최대 5페이지 크롤링
+    save_to_csv(restaurant_reviews, 'restaurant_reviews.csv')  # CSV 파일로 저장
     for restaurant in restaurant_reviews:
         print(restaurant)
