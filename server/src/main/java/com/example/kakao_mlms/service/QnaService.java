@@ -98,4 +98,18 @@ public class QnaService {
 
         return Boolean.TRUE;
     }
+
+    public Page<QnaDtoWithImages> searchQnas(String title, Category category, Pageable pageable) {
+        if (StringUtils.hasText(title)) {
+            return qnaRepository.findByTitleContainingAndCategory(title, category, pageable).map(QnaDtoWithImages::from);
+        }
+        return qnaRepository.findAll(pageable).map(QnaDtoWithImages::from);
+    }
+
+    public Page<QnaDtoWithImages> searchQnasByUser(String title, Long userId, Category category, Pageable pageable) {
+        if (StringUtils.hasText(title)) {
+            return qnaRepository.findByUser_IdAndTitleContainingAndCategory(userId, title, category, pageable).map(QnaDtoWithImages::from);
+        }
+        return qnaRepository.findByUser_Id(userId, pageable).map(QnaDtoWithImages::from);
+    }
 }
