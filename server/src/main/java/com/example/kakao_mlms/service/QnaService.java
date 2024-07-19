@@ -2,8 +2,10 @@ package com.example.kakao_mlms.service;
 
 import com.example.kakao_mlms.domain.Qna;
 import com.example.kakao_mlms.domain.User;
+import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.domain.type.ERole;
 import com.example.kakao_mlms.dto.PageInfo;
+import com.example.kakao_mlms.dto.QnaDtoWithImages;
 import com.example.kakao_mlms.dto.request.QnaRequestDto;
 import com.example.kakao_mlms.dto.response.AllDto;
 import com.example.kakao_mlms.dto.response.QnaDetailDto;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +40,7 @@ public class QnaService {
         qnaRepository.save(Qna.builder()
                 .title(requestDto.title())
                 .content(requestDto.content())
-                .category(requestDto.category())
+                .category(Category.valueOf(requestDto.category()))
                 .user(user).build());
 
         return Boolean.TRUE;

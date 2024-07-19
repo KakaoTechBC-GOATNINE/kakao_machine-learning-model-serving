@@ -49,11 +49,10 @@ public class Qna {
     private List<Image> images;
 
     @Builder
-    private Qna(String content, Category category, Boolean isAnswer, Boolean isBlind, User user) {
+    private Qna(String title, String content, Category category, User user) {
+        this.title = title;
         this.content = content;
         this.category = category;
-        this.isAnswer = isAnswer;
-        this.isBlind = isBlind;
         this.user = user;
     }
 
@@ -73,6 +72,6 @@ public class Qna {
     public void update(String title, String content, String category) {
         this.title = title;
         this.content = content;
-        this.category = category;
+        this.category = Category.valueOf(category);
     }
 }

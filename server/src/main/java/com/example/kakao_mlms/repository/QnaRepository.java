@@ -1,11 +1,14 @@
 package com.example.kakao_mlms.repository;
 
 import com.example.kakao_mlms.domain.Qna;
+import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.QnaDtoWithImages;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
 
 public interface QnaRepository extends JpaRepository<Qna, Long> {
     Page<Qna> findByTitleContainingAndCategory(String title, Category category, Pageable pageable);

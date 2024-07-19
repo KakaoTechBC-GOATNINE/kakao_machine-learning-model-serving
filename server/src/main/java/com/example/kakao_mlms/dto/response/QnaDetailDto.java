@@ -17,8 +17,7 @@ public record QnaDetailDto(
         String content,
 
         @JsonProperty("category")
-        @NotNull
-        String category,
+        com.example.kakao_mlms.domain.type.Category category,
 
         @JsonProperty("date")
         @NotNull
