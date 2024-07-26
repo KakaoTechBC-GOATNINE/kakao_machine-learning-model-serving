@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/KakaoTechBC-GOATNINE/kakao_machine-learning-model-serving/compare/v1.1.0...v1.2.0) (2024-07-26)
+
+
+### Features
+
+* DS_Store 파일 gitignore 추가 ([073b7fb](https://github.com/KakaoTechBC-GOATNINE/kakao_machine-learning-model-serving/commit/073b7fb73938a8934c203ecda838f62f8e83c281))
+
 ## 1.1.0 (2024-07-26)
 
 
