@@ -7,6 +7,9 @@ import com.example.kakao_mlms.dto.QnaDtoWithImages;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -19,4 +22,8 @@ public interface QnaRepository extends JpaRepository<Qna, Long> {
     Optional<Qna> findQnaByTitle(String title);
     Optional<Qna> findQnaByIdAndUser(Long id, User user);
     Page<Qna> findQnaByTitleContaining(String title, Pageable pageable);
+
+    @Query(value = "UPDATE qnas q set q.user_id = 1 where q.user_id = :userId", nativeQuery = true)
+    @Modifying
+    void updateQnaByUserId(@Param("userId") Long userId);
 }
