@@ -1,6 +1,7 @@
 package com.example.kakao_mlms.dto.response;
 
 import com.example.kakao_mlms.domain.Qna;
+import com.example.kakao_mlms.domain.type.Category;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
@@ -18,8 +19,7 @@ public record QnaListDto(
         String content,
 
         @JsonProperty("category")
-        @NotNull
-        String category,
+        Category category,
 
         @JsonProperty("date")
         @NotNull
