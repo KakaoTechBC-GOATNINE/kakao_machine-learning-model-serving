@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Getter
 @Entity
-@Table(name = "Qnas")
+@Table(name = "qnas")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Qna {
