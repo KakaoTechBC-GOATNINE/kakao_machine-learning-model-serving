@@ -33,7 +33,7 @@ def get_location_name(latitude: float, longitude: float) -> str:
 # 주소에서 동네 이름을 추출하는 함수
 def extract_dong_name(address: str) -> str:
     parts = address.split()
-    # 주소의 세 번째 부분을 동네 이름으로 가정
+    # 주소의 첫 번째부터 세 번째 부분을 결합하여 동네 이름으로 사용
     if len(parts) >= 3:
-        return parts[2]
+        return ' '.join(parts[:3])
     return address
