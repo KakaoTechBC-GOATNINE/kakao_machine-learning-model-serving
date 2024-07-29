@@ -1,6 +1,3 @@
-## 1. 카카오 맵 자체에 데이터가 그리 많지않음 (식당수가 비교적 적음)
-## 2. 검색키워드 나중에 카카오 api로 받아서 진행하게끔 수정해야함
-
 import time, csv, os, warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium import webdriver
@@ -176,20 +173,45 @@ def crawl_restaurant_reviews(location, pages):
     print('\n크롤링 완료')
     return all_restaurants
 
+def save_to_csv(location):
+    """크롤링한 데이터를 CSV 파일로 저장합니다."""
+    reviews = crawl_restaurant_reviews(location)
+    # 데이터 저장 경로 설정
+    current_dir = os.path.dirname(__file__)
+    data_crawling_folder = os.path.join(current_dir, 'review_data')
+    os.makedirs(data_crawling_folder, exist_ok=True)
+    csv_file_path = os.path.join(data_crawling_folder, 'restaurant_reviews.csv')
+
+    # 데이터 저장
+    file_exists = os.path.isfile(csv_file_path)
+    mode = 'a' if file_exists else 'w'
+    with open(csv_file_path, mode=mode, newline='', encoding='utf-8-sig') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(["Name", "Score", "Address", "Reviews"])
+        for restaurant in reviews:
+            writer.writerow([restaurant[0], restaurant[1], restaurant[2], '|'.join(restaurant[3])])
+
 def save_to_csv(restaurants, filename):
     """크롤링한 데이터를 CSV 파일로 저장합니다."""
-    file_exists = os.path.isfile(filename)
+    # 데이터 저장 폴더 설정
+    folder_name = 'review_data'
+    current_dir = os.path.dirname(__file__)
+    data_crawling_folder = os.path.join(current_dir, folder_name)
+    os.makedirs(data_crawling_folder, exist_ok=True)
+
+    # CSV 파일 경로 설정
+    csv_file_path = os.path.join(data_crawling_folder, filename)
+
+    # 파일 존재 여부 확인 및 열기 모드 설정
+    file_exists = os.path.isfile(csv_file_path)
     mode = 'a' if file_exists else 'w'
-    with open(filename, mode=mode, newline='', encoding='utf-8-sig') as file:
+
+    # CSV 파일에 데이터 저장
+    with open(csv_file_path, mode=mode, newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
         if not file_exists:
             writer.writerow(["Name", "Score", "Address", "Reviews"])
         for restaurant in restaurants:
-            writer.writerow([restaurant[0], restaurant[1], restaurant[2], '|'.join(restaurant[3])])
-
-if __name__ == "__main__":
-    location = '판교 이자카야'
-    restaurant_reviews = crawl_restaurant_reviews(location, pages=5)  # 최대 5페이지 크롤링
-    save_to_csv(restaurant_reviews, 'restaurant_reviews.csv')  # CSV 파일로 저장
-    for restaurant in restaurant_reviews:
-        print(restaurant)
+            reviews_joined = '|'.join(restaurant[3])
+            writer.writerow([restaurant[0], restaurant[1], restaurant[2], reviews_joined])
