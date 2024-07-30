@@ -195,13 +195,14 @@ def save_to_csv(location):
 def save_to_csv(restaurants, filename):
     """크롤링한 데이터를 CSV 파일로 저장합니다."""
     # 데이터 저장 폴더 설정
-    folder_name = 'review_data'
-    current_dir = os.path.dirname(__file__)
-    data_crawling_folder = os.path.join(current_dir, folder_name)
-    os.makedirs(data_crawling_folder, exist_ok=True)
+    folder_name = 'data/raw'
+    current_dir = os.path.dirname(os.path.abspath(__file__)) 
+    project_root = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir)) 
+    data_raw_folder = os.path.join(project_root, folder_name)
+    os.makedirs(data_raw_folder, exist_ok=True)
 
     # CSV 파일 경로 설정
-    csv_file_path = os.path.join(data_crawling_folder, filename)
+    csv_file_path = os.path.join(data_raw_folder, filename)
 
     # 파일 존재 여부 확인 및 열기 모드 설정
     file_exists = os.path.isfile(csv_file_path)

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from data_crawling.location_keyword import get_location_name, extract_dong_name
-from data_crawling.kakao_review_data_crawling import crawl_restaurant_reviews, save_to_csv
+from src.data_processing.location_keyword import get_location_name, extract_dong_name
+from src.data_processing.kakao_review_data_crawling import crawl_restaurant_reviews, save_to_csv
 
 app = FastAPI() # FastAPI 애플리케이션 생성
 
