@@ -1,7 +1,7 @@
 package com.example.kakao_mlms.controller;
 
 import com.example.kakao_mlms.domain.type.Category;
-import com.example.kakao_mlms.dto.QnaDtoWithImages;
+import com.example.kakao_mlms.dto.response.QnaDtoResponse;
 import com.example.kakao_mlms.dto.response.UserDto;
 import com.example.kakao_mlms.exception.ResponseDto;
 import com.example.kakao_mlms.service.QnaService;
@@ -33,11 +33,13 @@ public class AdminController {
     }
 
     @GetMapping("/qnas")
-    public ResponseDto<Page<QnaDtoWithImages>> getAllQnas(
+    public ResponseDto<Page<QnaDtoResponse>> getAllQnas(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Category Category,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<QnaDtoWithImages> qnaDtoWithImages = qnaService.searchQnas(title, Category, pageable);
-        return ResponseDto.ok(qnaDtoWithImages);
+        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnas(title, Category, pageable)
+                .map(QnaDtoResponse::from);
+        return ResponseDto.ok(qnaResponse);
     }
+
 }
