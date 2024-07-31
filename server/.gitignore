@@ -28,6 +28,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 application-dev.yml
+application-test.yml
 application-local.yml
 application-debug.yml
 application-prod.yml

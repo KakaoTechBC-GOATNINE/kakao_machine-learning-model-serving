@@ -1,5 +1,6 @@
 package com.example.kakao_mlms.security;
 
+import com.example.kakao_mlms.domain.type.ERole;
 import com.example.kakao_mlms.security.info.JwtUserInfo;
 import com.example.kakao_mlms.security.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         CustomUserDetails userPrincipal = (CustomUserDetails) customUserDetailService.loadUserById(jwtUserInfo.id());
 
-        if (userPrincipal.getRole() != jwtUserInfo.role()) {
+        if (userPrincipal.getRole() != jwtUserInfo.role() && userPrincipal.getRole() != ERole.ADMIN) {
             throw new AuthenticationException("Invalid Role") {};
         }
 
