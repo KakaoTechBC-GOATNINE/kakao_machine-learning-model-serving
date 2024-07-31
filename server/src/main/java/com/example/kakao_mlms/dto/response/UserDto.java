@@ -3,8 +3,8 @@ package com.example.kakao_mlms.dto.response;
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.EProvider;
 import com.example.kakao_mlms.domain.type.ERole;
+import lombok.Builder;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -34,4 +34,9 @@ public record UserDto(
                 user.getRefreshToken()
         );
     }
+
+    public static UserDto of(String serialId, ERole role) {
+        return new UserDto(1L, serialId, null, EProvider.KAKAO, role, LocalDate.now(), null, false, null);
+    }
+
 }

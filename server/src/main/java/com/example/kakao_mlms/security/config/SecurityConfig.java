@@ -1,20 +1,17 @@
 package com.example.kakao_mlms.security.config;
 
 import com.example.kakao_mlms.constant.Constants;
-import com.example.kakao_mlms.security.BasicAuthenticationProvider;
+import com.example.kakao_mlms.domain.type.ERole;
 import com.example.kakao_mlms.security.CustomAuthenticationProvider;
 import com.example.kakao_mlms.security.JwtAuthEntryPoint;
 import com.example.kakao_mlms.security.filter.JwtExceptionFilter;
 import com.example.kakao_mlms.security.filter.JwtFilter;
-import com.example.kakao_mlms.security.handler.*;
-import com.example.kakao_mlms.security.handler.signin.DefaultSignInFailureHandler;
-import com.example.kakao_mlms.security.handler.signin.DefaultSignInSuccessHandler;
+import com.example.kakao_mlms.security.handler.JwtAccessDeniedHandler;
 import com.example.kakao_mlms.security.handler.signin.OAuth2LoginFailureHandler;
 import com.example.kakao_mlms.security.handler.signin.OAuth2LoginSuccessHandler;
 import com.example.kakao_mlms.security.handler.signout.CustomSignOutProcessHandler;
 import com.example.kakao_mlms.security.handler.signout.CustomSignOutResultHandler;
 import com.example.kakao_mlms.security.service.CustomOAuth2UserService;
-import com.example.kakao_mlms.security.service.CustomUserDetailService;
 import com.example.kakao_mlms.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,23 +23,25 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final DefaultSignInSuccessHandler defaultSignInSuccessHandler;
-    private final DefaultSignInFailureHandler defaultSignInFailureHandler;
+//    private final DefaultSignInSuccessHandler defaultSignInSuccessHandler;
+//    private final DefaultSignInFailureHandler defaultSignInFailureHandler;
+//    private final CustomUserDetailService customUserDetailService;
+//    private final BasicAuthenticationProvider basicAuthenticationProvider;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtUtil jwtUtil;
-    private final CustomUserDetailService customUserDetailService;
     private final CustomSignOutProcessHandler customSignOutProcessHandler;
     private final CustomSignOutResultHandler customSignOutResultHandler;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomAuthenticationProvider customAuthenticationProvider;
-    private final BasicAuthenticationProvider basicAuthenticationProvider;
 
 
     @Bean
@@ -55,6 +54,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
                         .requestMatchers(Constants.NO_NEED_AUTH_URLS).permitAll()
+                        .requestMatchers("/api/v1/admins/**").hasRole(ERole.ADMIN.name())
                         .anyRequest().authenticated())
                 //폼 기반 로그인 설정
 //                .formLogin(configurer ->

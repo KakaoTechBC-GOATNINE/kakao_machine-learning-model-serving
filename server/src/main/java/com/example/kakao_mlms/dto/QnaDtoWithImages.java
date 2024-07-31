@@ -32,4 +32,8 @@ public record QnaDtoWithImages(
             qna.getImages().stream().map(ImageDto::from).toList()
     );
   }
+
+  public static QnaDtoWithImages of() {
+    return new QnaDtoWithImages(1L, null, null, null, null, null, null, null);
+  }
 }

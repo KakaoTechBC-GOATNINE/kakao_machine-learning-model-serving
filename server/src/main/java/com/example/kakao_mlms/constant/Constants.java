@@ -10,5 +10,6 @@ public class Constants {
             "/api/auth/basic", "/sign-in", "/api/auth/kakao", "/oauth2/authorization/kakao",
             "/login/oauth2/code/kakao"
     };
+    public static final String IMAGE_FILE_PATH_LOCAL = "server/src/main/resources/images/";
 
 }
