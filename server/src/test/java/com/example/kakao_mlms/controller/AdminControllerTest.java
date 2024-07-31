@@ -41,12 +41,28 @@ class AdminControllerTest {
     void getAllQnas() throws Exception {
         // Given
         given(qnaService.searchQnas(eq(null), eq(null), any(Pageable.class))).willReturn(Page.empty());
+    @Test
+    void replyQna() throws Exception {
+        // Given
+        Long qnaId = 1L;
+        String content = "content";
 
         // When & Then
-        mvc.perform(get(BASE_URL + "/qnas"))
-                .andExpect(status().isUnauthorized());
-//        then(qnaService).should().searchQnas(eq(null), eq(null), any(Pageable.class));
+        mvc.perform(post(BASE_URI + "/qnas/" + qnaId)
+                .content(mapper.writeValueAsString(content))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data").value(qnaId));
+        then(answerService).should().replyQna(anyLong(), qnaId, content);
     }
 
+    private Page<UserDto> createUsers(String serialId, ERole role) {
+        return new PageImpl<>(List.of(UserDto.of(serialId, role)), PageRequest.of(0, 1), 1);
+    }
+
+    private Page<QnaDtoWithImages> createQnas() {
+        return new PageImpl<>(List.of(QnaDtoWithImages.of()), PageRequest.of(0, 1), 1);
+    }
 
 }
