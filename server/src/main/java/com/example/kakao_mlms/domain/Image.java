@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Getter
 @Entity
-@Table(name = "image")
+@Table(name = "images")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Image {
