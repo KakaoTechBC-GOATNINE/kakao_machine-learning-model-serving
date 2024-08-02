@@ -224,10 +224,3 @@ def save_to_csv(restaurants, filename):
         for restaurant in restaurants:
             reviews_joined = '|'.join(restaurant[3])
             writer.writerow([restaurant[0], restaurant[1], restaurant[2], reviews_joined])
-
-if __name__ == "__main__":
-    location = '판교 이자카야'
-    restaurant_reviews = crawl_restaurant_reviews(location, pages=5)  # 최대 5페이지 크롤링
-    save_to_csv(restaurant_reviews, 'restaurant_reviews.csv')  # CSV 파일로 저장
-    for restaurant in restaurant_reviews:
-        print(restaurant)
