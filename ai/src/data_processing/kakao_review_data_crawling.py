@@ -17,7 +17,15 @@ def setup_driver():
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    try:
+        # 크롬드라이버 설치하도록 시도
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    except Exception as e:
+        print(f"Error using ChromeDriverManager: {e}")
+        print("Falling back to the default ChromeDriver")
+        # 버젼이슈 생길경우, 로컬에 설치되어있는 크롬사용하도록 변경
+        driver = webdriver.Chrome(options=options)
+    
     return driver
 
 def search_location(driver, location):
@@ -216,3 +224,10 @@ def save_to_csv(restaurants, filename):
         for restaurant in restaurants:
             reviews_joined = '|'.join(restaurant[3])
             writer.writerow([restaurant[0], restaurant[1], restaurant[2], reviews_joined])
+
+if __name__ == "__main__":
+    location = '판교 이자카야'
+    restaurant_reviews = crawl_restaurant_reviews(location, pages=5)  # 최대 5페이지 크롤링
+    save_to_csv(restaurant_reviews, 'restaurant_reviews.csv')  # CSV 파일로 저장
+    for restaurant in restaurant_reviews:
+        print(restaurant)
