@@ -20,7 +20,7 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         log.info(username);
-        UserRepository.UserSecurityForm user = userRepository.findUserIdAndRoleBySerialId(Long.valueOf(username))
+        UserRepository.UserSecurityForm user = userRepository.findUserIdAndRoleBySerialId(username)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
         return CustomUserDetails.create(user);

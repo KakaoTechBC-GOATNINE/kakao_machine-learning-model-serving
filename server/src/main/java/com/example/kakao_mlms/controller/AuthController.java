@@ -2,6 +2,7 @@ package com.example.kakao_mlms.controller;
 
 import com.example.kakao_mlms.annotation.UserId;
 import com.example.kakao_mlms.constant.Constants;
+import com.example.kakao_mlms.dto.request.UserSignUpDto;
 import com.example.kakao_mlms.dto.response.JwtTokenDto;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
@@ -9,6 +10,7 @@ import com.example.kakao_mlms.exception.ResponseDto;
 import com.example.kakao_mlms.service.AuthService;
 import com.example.kakao_mlms.util.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private AuthService authService;
+    private final AuthService authService;
+
+    //회원가입
+    @PostMapping("/basic")
+    public ResponseDto<?> resisterUser(@RequestBody @Valid UserSignUpDto requestDto) {
+        return ResponseDto.ok(authService.resisterUser(requestDto));
+    }
 
     //accessToken 다시 받기
     @PostMapping("/reissue")

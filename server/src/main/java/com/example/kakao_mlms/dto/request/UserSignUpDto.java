@@ -15,10 +15,6 @@ public record UserSignUpDto(@JsonProperty("serialId")
                             @JsonProperty("nickname")
                             @NotNull
                             @NotBlank
-                            String nickname,
-                            @JsonProperty("phoneNumber")
-                            @NotNull
-                            @NotBlank
-                            String phoneNumber) {
+                            String nickname) {
 
 }
