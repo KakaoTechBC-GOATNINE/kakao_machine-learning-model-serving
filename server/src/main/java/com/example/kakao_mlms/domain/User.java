@@ -4,10 +4,7 @@ import com.example.kakao_mlms.domain.type.EProvider;
 import com.example.kakao_mlms.domain.type.ERole;
 import com.example.kakao_mlms.dto.request.AuthSignUpDto;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
@@ -15,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@ToString
 @Entity
 @Getter
 @DynamicUpdate
@@ -55,11 +53,13 @@ public class User {
     private String refreshToken;
 
     /* Relation Parent Mapping */
+    @ToString.Exclude
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Qna> qnaList = new ArrayList<>();
 
     @Builder
-    public User(String serialId, String password,  String nickname, EProvider provider, ERole role) {
+    public User(Long id, String serialId, String password,  String nickname, EProvider provider, ERole role) {
+        this.id = id;
         this.serialId = serialId;
         this.password = password;
         this.nickname = nickname;
@@ -69,7 +69,7 @@ public class User {
         this.isLogin = false;
     }
 
-
+    @Builder
     public User(String serialId, String password, EProvider provider, ERole role) {
         this.serialId = serialId;
         this.password = password;
