@@ -38,7 +38,7 @@ public class ImageService {
     private String uploadDir;
 
     public List<ImageDto> uploadFiles(List<MultipartFile> images) {
-        if (images.isEmpty()) {
+        if (images == null || images.isEmpty()) {
             return null;
         }
 
