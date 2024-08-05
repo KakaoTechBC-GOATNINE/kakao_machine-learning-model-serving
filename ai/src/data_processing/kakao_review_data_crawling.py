@@ -17,6 +17,14 @@ def setup_driver():
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-extensions")
+    options.add_argument("start-maximized")
+    options.add_argument("disable-infobars")
+    options.add_argument("--disable-browser-side-navigation")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
     
     try:
         # 크롬드라이버 설치하도록 시도
