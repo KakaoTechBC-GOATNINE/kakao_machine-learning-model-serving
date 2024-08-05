@@ -17,11 +17,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class QnaController {
     private final QnaService qnaService;
+    private final ImageService imageService;
 
-    @PostMapping("")
-    public ResponseDto<?> createQna(@UserId Long id, @RequestBody QnaRequestDto requestDto) {
-        return ResponseDto.ok(qnaService.createQna(id, requestDto));
+    @PostMapping
+    public ResponseEntity<Void> createQna(@UserId Long id,
+                                    @RequestPart QnaRequestDto qnaRequestDto,
+                                    @RequestPart List<MultipartFile> images) {
+        User user = userService.getUserInfo(id);
+        List<ImageDto> imageDtos = imageService.uploadFiles(images);
+        qnaService.createQna(qnaRequestDto.toDto(UserDto.from(user)), imageDtos);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+    @GetMapping("/image/{filename}")
+    public Resource downloadImage(@PathVariable("filename") String storeFilename) throws MalformedURLException {
+         return imageService.downloadImage(storeFilename);
+    }
+
 
     @PatchMapping("/{qnaId}")
     public ResponseDto<?> updateQna(@UserId Long id, @PathVariable("qnaId") Long qnaId, @RequestBody QnaRequestDto requestDto) {
