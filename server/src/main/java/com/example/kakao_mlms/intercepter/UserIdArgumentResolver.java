@@ -30,8 +30,8 @@ public class UserIdArgumentResolver implements HandlerMethodArgumentResolver {
         final Object userIdObj = webRequest.getAttribute("USER_ID", WebRequest.SCOPE_REQUEST);
 
         //없으면 예외처리
-        if (userIdObj == null) {
-            log.info("업다");
+        if ("anonymousUser".equals(userIdObj) || userIdObj == null) {
+            log.info("없다");
             throw new CommonException(ErrorCode.ACCESS_DENIED_ERROR);
         }
         //Long 타입으로 변환해 반환

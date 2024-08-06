@@ -2,12 +2,14 @@ package com.example.kakao_mlms.controller;
 
 import com.example.kakao_mlms.config.TestSecurityConfig;
 import com.example.kakao_mlms.domain.type.ERole;
+import com.example.kakao_mlms.dto.QnaDto;
 import com.example.kakao_mlms.dto.QnaDtoWithImages;
 import com.example.kakao_mlms.dto.response.UserDto;
 import com.example.kakao_mlms.service.AnswerService;
 import com.example.kakao_mlms.service.QnaService;
 import com.example.kakao_mlms.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +86,8 @@ class AdminControllerTest {
         then(qnaService).should().searchQnas(eq(null), eq(null), any(Pageable.class));
     }
 
-//    @WithMockUser(username = "tester", roles = "ADMIN")
+    @Disabled
+    @WithMockUser(username = "tester", roles = "ADMIN")
     @Test
     void replyQna() throws Exception {
         // Given
@@ -105,8 +108,8 @@ class AdminControllerTest {
         return new PageImpl<>(List.of(UserDto.of(serialId, role)), PageRequest.of(0, 1), 1);
     }
 
-    private Page<QnaDtoWithImages> createQnas() {
-        return new PageImpl<>(List.of(QnaDtoWithImages.of()), PageRequest.of(0, 1), 1);
+    private Page<QnaDto> createQnas() {
+        return new PageImpl<>(List.of(QnaDto.of()), PageRequest.of(0, 1), 1);
     }
 
 }

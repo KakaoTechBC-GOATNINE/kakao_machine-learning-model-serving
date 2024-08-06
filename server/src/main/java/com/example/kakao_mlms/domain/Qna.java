@@ -1,15 +1,18 @@
 package com.example.kakao_mlms.domain;
 
 import com.example.kakao_mlms.domain.type.Category;
+import com.example.kakao_mlms.dto.ImageDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@ToString
 @Getter
 @Entity
 @Table(name = "qnas")
@@ -46,14 +49,20 @@ public class Qna {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL)
-    private List<Image> images;
+    private List<Image> images = new ArrayList<>();
 
     @Builder
-    private Qna(String title, String content, Category category, User user) {
+    public Qna(String title, String content, Category category, Boolean isAnswer, Boolean isBlind, User user) {
         this.title = title;
         this.content = content;
         this.category = category;
+        this.isAnswer = isAnswer;
+        this.isBlind = isBlind;
         this.user = user;
+    }
+
+    public void addImages(List<Image> images) {
+        this.images = images;
     }
 
     @Override

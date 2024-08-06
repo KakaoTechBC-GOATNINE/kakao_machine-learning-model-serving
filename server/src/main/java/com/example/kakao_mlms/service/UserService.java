@@ -26,6 +26,7 @@ public class UserService {
         return userRepository.findAll(pageable).map(UserDto::from);
     }
 
+    @Transactional(readOnly = true)
     public User getUserInfo(final Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));

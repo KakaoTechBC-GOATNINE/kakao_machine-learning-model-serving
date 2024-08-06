@@ -1,6 +1,7 @@
 package com.example.kakao_mlms.service;
 
 import com.example.kakao_mlms.domain.type.Category;
+import com.example.kakao_mlms.dto.QnaDto;
 import com.example.kakao_mlms.dto.QnaDtoWithImages;
 import com.example.kakao_mlms.repository.QnaRepository;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class QnaServiceTest {
         given(qnaRepository.findAll(pageable)).willReturn(Page.empty(pageable));
 
         // When
-        Page<QnaDtoWithImages> qnaDtoWithImages = sut.searchQnas(null, null, pageable);
+        Page<QnaDto> qnaDtoWithImages = sut.searchQnas(null, null, pageable);
 
         // Then
         assertThat(qnaDtoWithImages).isEmpty();
@@ -43,7 +44,7 @@ class QnaServiceTest {
         given(qnaRepository.findByTitleContainingAndCategory(title, category, pageable)).willReturn(Page.empty(pageable));
 
         // When
-        Page<QnaDtoWithImages> qnaDtoWithImages = sut.searchQnas(title, category, pageable);
+        Page<QnaDto> qnaDtoWithImages = sut.searchQnas(title, category, pageable);
 
         // Then
         assertThat(qnaDtoWithImages).isEmpty();
@@ -55,15 +56,16 @@ class QnaServiceTest {
     void searchQnasByUser() {
         // Given
         Long userId = 1L;
+        Boolean isBlind = false;
         Pageable pageable = Pageable.ofSize(5);
-        given(qnaRepository.findByUser_Id(userId, pageable)).willReturn(Page.empty(pageable));
+        given(qnaRepository.findByUser_IdOrIsBlind(userId, isBlind, pageable)).willReturn(Page.empty(pageable));
 
         // When
-        Page<QnaDtoWithImages> qnaDtoWithImages = sut.searchQnasByUser(null, userId, null, pageable);
+        Page<QnaDto> qnaDtoWithImages = sut.searchQnasByUser(null, userId, null, pageable);
 
         // Then
         assertThat(qnaDtoWithImages).isEmpty();
-        then(qnaRepository).should().findByUser_Id(userId, pageable);
+        then(qnaRepository).should().findByUser_IdOrIsBlind(userId, isBlind, pageable);
 
     }
 
@@ -72,16 +74,17 @@ class QnaServiceTest {
         // Given
         Long userId = 1L;
         String title = "title";
+        Boolean isBlind = false;
         Category category = Category.ACCOUNT;
         Pageable pageable = Pageable.ofSize(5);
-        given(qnaRepository.findByUser_IdAndTitleContainingAndCategory(userId, title, category, pageable)).willReturn(Page.empty(pageable));
+        given(qnaRepository.findByUserIdOrIsBlindAndTitleAndCategory(userId, isBlind, title, category, pageable)).willReturn(Page.empty(pageable));
 
         // When
-        Page<QnaDtoWithImages> qnaDtoWithImages = sut.searchQnasByUser(title, userId, category, pageable);
+        Page<QnaDto> qnaDtoWithImages = sut.searchQnasByUser(title, userId, category, pageable);
 
         // Then
         assertThat(qnaDtoWithImages).isEmpty();
-        then(qnaRepository).should().findByUser_IdAndTitleContainingAndCategory(userId, title, category, pageable);
+        then(qnaRepository).should().findByUserIdOrIsBlindAndTitleAndCategory(userId, isBlind, title, category, pageable);
 
     }
 }
