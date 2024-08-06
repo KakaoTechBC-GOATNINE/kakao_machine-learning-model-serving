@@ -27,13 +27,13 @@ def setup_driver():
     options.add_experimental_option("prefs", prefs)
     
     try:
-        # 크롬드라이버 설치하도록 시도
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        # 로컬에 설치되어있는 크롬사용하도록 변경
+        driver = webdriver.Chrome(options=options)
     except Exception as e:
         print(f"Error using ChromeDriverManager: {e}")
         print("Falling back to the default ChromeDriver")
-        # 버젼이슈 생길경우, 로컬에 설치되어있는 크롬사용하도록 변경
-        driver = webdriver.Chrome(options=options)
+        # 이슈 생길경우, 크롬드라이버 설치하도록 시도
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
     return driver
 
