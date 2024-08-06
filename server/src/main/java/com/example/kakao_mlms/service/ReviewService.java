@@ -6,6 +6,7 @@ import com.example.kakao_mlms.dto.response.ReviewResponseDto;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
 import com.example.kakao_mlms.repository.UserRepository;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import jakarta.transaction.Transactional;
@@ -17,6 +18,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -59,11 +62,25 @@ public class ReviewService {
 
         // 각 키 값 가져오기
         String status = jsonObject.get("status").getAsString();
-        String keyword = jsonObject.get("keyword").getAsString();
-        String result = jsonObject.get("result").getAsString();
+        String location = jsonObject.get("location").getAsString();
+        JsonArray reviewsArray = jsonObject.getAsJsonArray("reviews");
 
 
-        return new ReviewResponseDto(requestDto.latitude(), requestDto.longitude(), keyword);
+        List<ReviewResponseDto.Review> reviews = new ArrayList<>();
+        for (int i = 0; i < reviewsArray.size(); i++) {
+            JsonArray reviewData = reviewsArray.get(i).getAsJsonArray();
+            String storeName = reviewData.get(0).getAsString();
+            double rating = reviewData.get(1).getAsDouble();
+            String address = reviewData.get(2).getAsString();
+            List<String> comments = new ArrayList<>();
+            JsonArray commentsArray = reviewData.get(3).getAsJsonArray();
+            for (int j = 0; j < commentsArray.size(); j++) {
+                comments.add(commentsArray.get(j).getAsString());
+            }
+            reviews.add(new ReviewResponseDto.Review(storeName, rating, address, comments));
+        }
+
+        return new ReviewResponseDto(requestDto.latitude(), requestDto.longitude(), location, reviews);
     }
 
 
