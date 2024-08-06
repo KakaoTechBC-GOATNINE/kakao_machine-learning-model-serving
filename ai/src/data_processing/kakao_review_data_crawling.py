@@ -73,8 +73,9 @@ def extract_reviews(driver):
                     level = review.select_one('a > div > div > span:nth-of-type(2)').text.strip()
                     num_reviews = review.select_one('div > span:nth-of-type(3)').text.strip()
                     avg_reviews = review.select_one('div > span:nth-of-type(5)').text.strip()
+                    star = review.select_one('.ico_star.inner_star')['style'].split(':')[1].strip()
                     text = review.select_one('.txt_comment > span').text.strip()
-                    combined_review = f"{level} | {num_reviews} | {avg_reviews} | {text}"
+                    combined_review = f"{level} | {num_reviews} | {avg_reviews} | {star} | {text}"
                     new_reviews.append(combined_review)
                 except (IndexError, AttributeError) as e:
                     print(f"Error extracting review parts: {e}")
@@ -228,13 +229,3 @@ def save_to_csv(restaurants, filename):
         for restaurant in restaurants:
             reviews_joined = '||'.join(restaurant[3])
             writer.writerow([restaurant[0], restaurant[1], restaurant[2], reviews_joined])
-
-
-
-# testing
-if __name__ == "__main__":
-    location = '강남 샐러드'
-    restaurant_reviews = crawl_restaurant_reviews(location, pages=5)  # 최대 5페이지 크롤링
-    save_to_csv(restaurant_reviews, 'restaurant_reviews.csv')  # CSV 파일로 저장
-    for restaurant in restaurant_reviews:
-        print(restaurant)
