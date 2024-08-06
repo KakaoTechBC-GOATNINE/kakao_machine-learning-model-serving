@@ -27,7 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT u.id as id, u.password as password, u.role as role" +
             " FROM User u WHERE u.serialId = :userId")
-    Optional<UserSecurityForm> findUserIdAndRoleBySerialId(@Param("userId") Long userId);
+    Optional<UserSecurityForm> findUserIdAndRoleBySerialId(@Param("userId") String userId);
 
     Optional<User> findUserBySerialId(String userId);
 

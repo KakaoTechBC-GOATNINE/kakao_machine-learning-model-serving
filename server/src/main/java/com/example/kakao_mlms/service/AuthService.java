@@ -2,6 +2,8 @@ package com.example.kakao_mlms.service;
 
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.ERole;
+import com.example.kakao_mlms.dto.request.AuthSignUpDto;
+import com.example.kakao_mlms.dto.request.UserSignUpDto;
 import com.example.kakao_mlms.dto.response.JwtTokenDto;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
@@ -11,6 +13,7 @@ import com.example.kakao_mlms.util.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -21,6 +24,20 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final QnaRepository qnaRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public Boolean resisterUser(UserSignUpDto requestDto) {
+        userRepository.findBySerialIdOrNickname(requestDto.serialId(), requestDto.nickname())
+                .ifPresent(u -> {
+                    throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
+                });
+
+        userRepository.save(User.signUp(new AuthSignUpDto(requestDto.serialId(),
+                        requestDto.nickname()),
+                passwordEncoder.encode(requestDto.password())));
+
+        return Boolean.TRUE;
+    }
 
     @Transactional
     public JwtTokenDto reissue(final String refreshToken) {

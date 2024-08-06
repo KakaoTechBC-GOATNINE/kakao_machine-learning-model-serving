@@ -96,12 +96,12 @@ public class User {
                 .provider(EProvider.DEFAULT)
                 .role(ERole.USER)
                 .build();
-        user.register(authSignUpDto.nickname(), authSignUpDto.phoneNumber());
+        user.register(authSignUpDto.nickname());
 
         return user;
     }
 
-    public void register(String nickname, String phoneNumber) {
+    public void register(String nickname) {
         this.nickname = nickname;
         this.role = ERole.USER;
     }

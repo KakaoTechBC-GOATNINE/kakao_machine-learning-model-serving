@@ -2,16 +2,20 @@ package com.example.kakao_mlms.security.config;
 
 import com.example.kakao_mlms.constant.Constants;
 import com.example.kakao_mlms.domain.type.ERole;
+import com.example.kakao_mlms.security.BasicAuthenticationProvider;
 import com.example.kakao_mlms.security.CustomAuthenticationProvider;
 import com.example.kakao_mlms.security.JwtAuthEntryPoint;
 import com.example.kakao_mlms.security.filter.JwtExceptionFilter;
 import com.example.kakao_mlms.security.filter.JwtFilter;
 import com.example.kakao_mlms.security.handler.JwtAccessDeniedHandler;
+import com.example.kakao_mlms.security.handler.signin.DefaultSignInFailureHandler;
+import com.example.kakao_mlms.security.handler.signin.DefaultSignInSuccessHandler;
 import com.example.kakao_mlms.security.handler.signin.OAuth2LoginFailureHandler;
 import com.example.kakao_mlms.security.handler.signin.OAuth2LoginSuccessHandler;
 import com.example.kakao_mlms.security.handler.signout.CustomSignOutProcessHandler;
 import com.example.kakao_mlms.security.handler.signout.CustomSignOutResultHandler;
 import com.example.kakao_mlms.security.service.CustomOAuth2UserService;
+import com.example.kakao_mlms.security.service.CustomUserDetailService;
 import com.example.kakao_mlms.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,16 +27,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-//    private final DefaultSignInSuccessHandler defaultSignInSuccessHandler;
-//    private final DefaultSignInFailureHandler defaultSignInFailureHandler;
-//    private final CustomUserDetailService customUserDetailService;
-//    private final BasicAuthenticationProvider basicAuthenticationProvider;
+    private final DefaultSignInSuccessHandler defaultSignInSuccessHandler;
+    private final DefaultSignInFailureHandler defaultSignInFailureHandler;
+    private final CustomUserDetailService customUserDetailService;
+    private final BasicAuthenticationProvider basicAuthenticationProvider;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtUtil jwtUtil;
@@ -57,15 +59,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admins/**").hasRole(ERole.ADMIN.name())
                         .anyRequest().authenticated())
                 //폼 기반 로그인 설정
-//                .formLogin(configurer ->
-//                        configurer
-//                                .loginPage("/login")
-//                                .loginProcessingUrl("/sign-in") //로그인 처리 URL (POST)
-//                                .usernameParameter("serialId") //사용자 아이디 파라미터 이름
-//                                .passwordParameter("password") //비밀번호 파라미터 이름
-//                                .successHandler(defaultSignInSuccessHandler) //로그인 성공 핸들러
-//                                .failureHandler(defaultSignInFailureHandler) // 로그인 실패 핸들러
-//                )//.userDetailsService(customUserDetailService) //사용자 검색할 서비스 설정
+                .formLogin(configurer ->
+                        configurer
+                                .loginPage("/login")
+                                .loginProcessingUrl("/sign-in") //로그인 처리 URL (POST)
+                                .usernameParameter("serialId") //사용자 아이디 파라미터 이름
+                                .passwordParameter("password") //비밀번호 파라미터 이름
+                                .successHandler(defaultSignInSuccessHandler) //로그인 성공 핸들러
+                                .failureHandler(defaultSignInFailureHandler) // 로그인 실패 핸들러
+                )//.userDetailsService(customUserDetailService) //사용자 검색할 서비스 설정
                 //소셜 로그인
                 .oauth2Login(configurer ->
                         configurer
