@@ -1,6 +1,7 @@
 package com.example.kakao_mlms.dto;
 
 import com.example.kakao_mlms.domain.Image;
+import com.example.kakao_mlms.domain.Qna;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.domain.type.Extension;
 
@@ -12,7 +13,6 @@ public record ImageDto(
         String originName,
         String uuidName,
         Extension extension,
-        Category category,
         QnaDto qna
 ) {
   public static ImageDto from(Image image) {
@@ -21,8 +21,15 @@ public record ImageDto(
             image.getOriginName(),
             image.getUuidName(),
             image.getExtension(),
-            image.getCategory(),
             QnaDto.from(image.getQna())
     );
+  }
+
+  public Image toEntity(Qna qna) {
+    return Image.builder().originName(originName).uuidName(uuidName).extension(extension).qna(qna).build();
+  }
+
+  public static ImageDto of(String originName, String uuidName, Extension extension) {
+    return new ImageDto(null, originName, uuidName, extension, null);
   }
 }

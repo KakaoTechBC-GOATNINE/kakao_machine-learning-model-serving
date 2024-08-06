@@ -39,4 +39,7 @@ public record UserDto(
         return new UserDto(1L, serialId, null, EProvider.KAKAO, role, LocalDate.now(), null, false, null);
     }
 
+    public User toEntity() {
+        return User.builder().id(id).serialId(serialId).password(password).nickname(nickname).provider(provider).role(role).build();
+    }
 }

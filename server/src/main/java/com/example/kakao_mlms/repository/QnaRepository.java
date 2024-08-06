@@ -15,8 +15,11 @@ import java.util.Optional;
 
 public interface QnaRepository extends JpaRepository<Qna, Long> {
     Page<Qna> findByTitleContainingAndCategory(String title, Category category, Pageable pageable);
-    Page<Qna> findByUser_Id(Long userId, Pageable pageable);
-    Page<Qna> findByUser_IdAndTitleContainingAndCategory(Long userId, String title, Category category, Pageable pageable);
+    Page<Qna> findByUser_IdOrIsBlind(Long userId, boolean isBlind, Pageable pageable);
+
+    @Query("SELECT q FROM Qna q WHERE (q.user.id = :userId OR q.isBlind = :isBlind) AND q.title LIKE %:title% AND q.category = :category")
+    Page<Qna> findByUserIdOrIsBlindAndTitleAndCategory(@Param("userId") Long userId, @Param("isBlind") boolean isBlind, @Param("title") String title, @Param("category") Category category, Pageable pageable);
+
 
     Optional<Qna> findQnaById(Long id);
     Optional<Qna> findQnaByTitle(String title);

@@ -31,33 +31,27 @@ public class Image {
     @Column(name = "extension", nullable = false)
     private Extension extension;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category", nullable = false)
-    private Category category;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "qna_id", foreignKey = @ForeignKey(name = "fk_image_qna_id"))
     private Qna qna;
 
     @Builder
-    private Image(String originName, String uuidName, Extension extension, Category category, Qna qna) {
+    private Image(String originName, String uuidName, Extension extension, Qna qna) {
         this.originName = originName;
         this.uuidName = uuidName;
         this.extension = extension;
-        this.category = category;
         this.qna = qna;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Image image = (Image) o;
-        return Objects.equals(id, image.id) && Objects.equals(originName, image.originName) && Objects.equals(uuidName, image.uuidName) && extension == image.extension && category == image.category && Objects.equals(qna, image.qna);
+        if (!(o instanceof Image image)) return false;
+        return Objects.equals(id, image.id) && Objects.equals(originName, image.originName) && Objects.equals(uuidName, image.uuidName) && extension == image.extension && Objects.equals(qna, image.qna);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, originName, uuidName, extension, category, qna);
+        return Objects.hash(id, originName, uuidName, extension, qna);
     }
 }

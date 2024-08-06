@@ -1,5 +1,6 @@
 package com.example.kakao_mlms.controller;
 
+import com.example.kakao_mlms.annotation.UserId;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.response.QnaDtoResponse;
 import com.example.kakao_mlms.dto.response.UserDto;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,30 +28,26 @@ public class AdminController {
     private final AnswerService answerService;
 
     @GetMapping("/users")
-    public ResponseDto<Page<UserDto>> getAllUsers(
+    public ResponseEntity<Page<UserDto>> getAllUsers(
             @RequestParam(required = false, name = "name") String name,
             @PageableDefault(size = 10, sort = "nickname", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<UserDto> users = userService.searchUsers(name, pageable);
-        return ResponseDto.ok(users);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/qnas")
-    public ResponseDto<Page<QnaDtoResponse>> getAllQnas(
+    public ResponseEntity<Page<QnaDtoResponse>> getAllQnas(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) Category Category,
+            @RequestParam(required = false) Category category,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnas(title, Category, pageable)
+        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnas(title, category, pageable)
                 .map(QnaDtoResponse::from);
-        return ResponseDto.ok(qnaResponse);
+        return ResponseEntity.ok(qnaResponse);
     }
 
     @PostMapping("/qnas/{id}")
-    public ResponseDto<Long> replyQna(
-            @PathVariable Long id,
-            String content,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
-            ) {
-        answerService.replyQna(customUserDetails.getId(), id, content);
-        return ResponseDto.created(id);
+    public ResponseEntity<Long> replyQna(@PathVariable("id") Long id, @RequestBody String content, @UserId Long userId) {
+        answerService.replyQna(userId, id, content);
+        return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 }

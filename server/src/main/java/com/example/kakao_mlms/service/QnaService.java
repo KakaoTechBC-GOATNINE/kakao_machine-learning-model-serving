@@ -1,55 +1,50 @@
 package com.example.kakao_mlms.service;
 
+import com.example.kakao_mlms.domain.Image;
 import com.example.kakao_mlms.domain.Qna;
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.domain.type.ERole;
+import com.example.kakao_mlms.dto.ImageDto;
 import com.example.kakao_mlms.dto.PageInfo;
+import com.example.kakao_mlms.dto.QnaDto;
 import com.example.kakao_mlms.dto.QnaDtoWithImages;
 import com.example.kakao_mlms.dto.request.QnaRequestDto;
-import com.example.kakao_mlms.dto.response.AllDto;
-import com.example.kakao_mlms.dto.response.QnaDetailDto;
-import com.example.kakao_mlms.dto.response.QnaListDto;
+import com.example.kakao_mlms.dto.response.*;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
 import com.example.kakao_mlms.repository.QnaRepository;
 import com.example.kakao_mlms.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class QnaService {
     private final QnaRepository qnaRepository;
     private final UserRepository userRepository;
 
-    public Boolean createQna(Long id, QnaRequestDto requestDto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
-
-        qnaRepository.save(Qna.builder()
-                .title(requestDto.title())
-                .content(requestDto.content())
-                .category(Category.valueOf(requestDto.category()))
-                .user(user).build());
-
-        return Boolean.TRUE;
+    public void createQna(QnaDto qnaDto, List<ImageDto> imageDtos) {
+        Qna qna = qnaDto.toEntity();
+        List<Image> images = imageDtos.stream()
+                .map(imageDto -> imageDto.toEntity(qna)).toList();
+        qna.addImages(images);
+        qnaRepository.save(qna);
     }
 
-    public QnaDetailDto readQnaDetail(Long qnaId) {
-        Qna qna = qnaRepository.findQnaById(qnaId)
+    @Transactional(readOnly = true)
+    public QnaDtoWithImages getQnaWithImages(Long qnaId) {
+        return qnaRepository.findQnaById(qnaId)
+                .map(QnaDtoWithImages::from)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_QNA));
-
-        return new QnaDetailDto(qna.getTitle(), qna.getContent(), qna.getCategory(), qna.getCreatedDate().toString());
     }
 
     public AllDto<Object> readQnaList(String title, Pageable pageable) {
@@ -101,17 +96,19 @@ public class QnaService {
         return Boolean.TRUE;
     }
 
-    public Page<QnaDtoWithImages> searchQnas(String title, Category category, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<QnaDto> searchQnas(String title, Category category, Pageable pageable) {
         if (StringUtils.hasText(title)) {
-            return qnaRepository.findByTitleContainingAndCategory(title, category, pageable).map(QnaDtoWithImages::from);
+            return qnaRepository.findByTitleContainingAndCategory(title, category, pageable).map(QnaDto::from);
         }
-        return qnaRepository.findAll(pageable).map(QnaDtoWithImages::from);
+        return qnaRepository.findAll(pageable).map(QnaDto::from);
     }
 
-    public Page<QnaDtoWithImages> searchQnasByUser(String title, Long userId, Category category, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<QnaDto> searchQnasByUser(String title, Long userId, Category category, Pageable pageable) {
         if (StringUtils.hasText(title)) {
-            return qnaRepository.findByUser_IdAndTitleContainingAndCategory(userId, title, category, pageable).map(QnaDtoWithImages::from);
+            return qnaRepository.findByUserIdOrIsBlindAndTitleAndCategory(userId, false, title, category, pageable).map(QnaDto::from);
         }
-        return qnaRepository.findByUser_Id(userId, pageable).map(QnaDtoWithImages::from);
+        return qnaRepository.findByUser_IdOrIsBlind(userId, false, pageable).map(QnaDto::from);
     }
 }
