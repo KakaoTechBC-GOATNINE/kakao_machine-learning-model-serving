@@ -34,9 +34,11 @@ public class QnaService {
 
     public void createQna(QnaDto qnaDto, List<ImageDto> imageDtos) {
         Qna qna = qnaDto.toEntity();
-        List<Image> images = imageDtos.stream()
-                .map(imageDto -> imageDto.toEntity(qna)).toList();
-        qna.addImages(images);
+        if(imageDtos != null){
+            List<Image> images = imageDtos.stream()
+                    .map(imageDto -> imageDto.toEntity(qna)).toList();
+            qna.addImages(images);
+        }
         qnaRepository.save(qna);
     }
 

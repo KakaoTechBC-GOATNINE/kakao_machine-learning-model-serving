@@ -39,7 +39,7 @@ public class QnaController {
     @PostMapping
     public ResponseEntity<Void> createQna(@UserId Long id,
                                     @RequestPart QnaRequestDto qnaRequestDto,
-                                    @RequestPart List<MultipartFile> images) {
+                                    @RequestPart(required = false) List<MultipartFile> images) {
         User user = userService.getUserInfo(id);
         List<ImageDto> imageDtos = imageService.uploadFiles(images);
         qnaService.createQna(qnaRequestDto.toDto(UserDto.from(user)), imageDtos);
