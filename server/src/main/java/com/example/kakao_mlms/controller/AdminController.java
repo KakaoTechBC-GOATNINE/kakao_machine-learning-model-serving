@@ -26,7 +26,7 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseDto<Page<UserDto>> getAllUsers(
-            @RequestParam(required = false) String name,
+            @RequestParam(required = false, name = "name") String name,
             @PageableDefault(size = 10, sort = "nickname", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<UserDto> users = userService.searchUsers(name, pageable);
         return ResponseDto.ok(users);
