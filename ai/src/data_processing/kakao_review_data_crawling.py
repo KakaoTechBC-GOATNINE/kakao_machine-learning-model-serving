@@ -17,7 +17,24 @@ def setup_driver():
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-extensions")
+    options.add_argument("start-maximized")
+    options.add_argument("disable-infobars")
+    options.add_argument("--disable-browser-side-navigation")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
+    
+    try:
+        # 로컬에 설치되어있는 크롬사용하도록 변경
+        driver = webdriver.Chrome(options=options)
+    except Exception as e:
+        print(f"Error using ChromeDriverManager: {e}")
+        print("Falling back to the default ChromeDriver")
+        # 이슈 생길경우, 크롬드라이버 설치하도록 시도
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    
     return driver
 
 def search_location(driver, location):
@@ -48,17 +65,32 @@ def extract_reviews(driver):
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
             review_elements = soup.select('.list_evaluation > li')
-            new_reviews = [review.select('.txt_comment > span')[0].text for review in review_elements if review.select('.txt_comment > span')]
-            if not new_reviews:
-                reviews.extend(new_reviews)
-                break
+            new_reviews = []
             
+            for review in review_elements:
+                # 리뷰 각 부분을 추출
+                try:
+                    level = review.select_one('a > div > div > span:nth-of-type(2)').text.strip()
+                    num_reviews = review.select_one('div > span:nth-of-type(3)').text.strip()
+                    avg_reviews = review.select_one('div > span:nth-of-type(5)').text.strip()
+                    text = review.select_one('.txt_comment > span').text.strip()
+                    combined_review = f"{level} | {num_reviews} | {avg_reviews} | {text}"
+                    new_reviews.append(combined_review)
+                except (IndexError, AttributeError) as e:
+                    print(f"Error extracting review parts: {e}")
+                    continue
+
+            if not new_reviews:
+                reviews.append(' ')
+                break
+
+            reviews.extend(new_reviews)
+
             # 후기 더보기 버튼이 존재하는지 확인
             more_reviews_button = soup.select_one('span:contains("후기 더보기")')
             
             # 더보기 버튼이 존재하지 않으면 루프 종료
             if not more_reviews_button:
-                reviews.extend(new_reviews)
                 break
 
             # 후기 더보기 버튼을 기다림
@@ -71,7 +103,6 @@ def extract_reviews(driver):
             time.sleep(0.5)
 
         except Exception as e:
-            reviews.extend(new_reviews)
             print(f"Exception while clicking more reviews button: {e}")
             break
     
@@ -170,38 +201,20 @@ def crawl_restaurant_reviews(location, pages):
             except Exception as e:
                 print(f"Error extracting restaurant info: {e}")
 
-    print('\n크롤링 완료')
     return all_restaurants
 
-def save_to_csv(location):
-    """크롤링한 데이터를 CSV 파일로 저장합니다."""
-    reviews = crawl_restaurant_reviews(location)
-    # 데이터 저장 경로 설정
-    current_dir = os.path.dirname(__file__)
-    data_crawling_folder = os.path.join(current_dir, 'review_data')
-    os.makedirs(data_crawling_folder, exist_ok=True)
-    csv_file_path = os.path.join(data_crawling_folder, 'restaurant_reviews.csv')
-
-    # 데이터 저장
-    file_exists = os.path.isfile(csv_file_path)
-    mode = 'a' if file_exists else 'w'
-    with open(csv_file_path, mode=mode, newline='', encoding='utf-8-sig') as file:
-        writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(["Name", "Score", "Address", "Reviews"])
-        for restaurant in reviews:
-            writer.writerow([restaurant[0], restaurant[1], restaurant[2], '|'.join(restaurant[3])])
 
 def save_to_csv(restaurants, filename):
     """크롤링한 데이터를 CSV 파일로 저장합니다."""
     # 데이터 저장 폴더 설정
-    folder_name = 'review_data'
-    current_dir = os.path.dirname(__file__)
-    data_crawling_folder = os.path.join(current_dir, folder_name)
-    os.makedirs(data_crawling_folder, exist_ok=True)
+    folder_name = 'data/raw'
+    current_dir = os.path.dirname(os.path.abspath(__file__)) 
+    project_root = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir)) 
+    data_raw_folder = os.path.join(project_root, folder_name)
+    os.makedirs(data_raw_folder, exist_ok=True)
 
     # CSV 파일 경로 설정
-    csv_file_path = os.path.join(data_crawling_folder, filename)
+    csv_file_path = os.path.join(data_raw_folder, filename)
 
     # 파일 존재 여부 확인 및 열기 모드 설정
     file_exists = os.path.isfile(csv_file_path)
@@ -213,5 +226,15 @@ def save_to_csv(restaurants, filename):
         if not file_exists:
             writer.writerow(["Name", "Score", "Address", "Reviews"])
         for restaurant in restaurants:
-            reviews_joined = '|'.join(restaurant[3])
+            reviews_joined = '||'.join(restaurant[3])
             writer.writerow([restaurant[0], restaurant[1], restaurant[2], reviews_joined])
+
+
+
+# testing
+if __name__ == "__main__":
+    location = '강남 샐러드'
+    restaurant_reviews = crawl_restaurant_reviews(location, pages=5)  # 최대 5페이지 크롤링
+    save_to_csv(restaurant_reviews, 'restaurant_reviews.csv')  # CSV 파일로 저장
+    for restaurant in restaurant_reviews:
+        print(restaurant)
