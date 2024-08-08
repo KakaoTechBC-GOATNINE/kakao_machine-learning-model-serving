@@ -10,3 +10,5 @@
 .idea/modules/
 
 .DS_Store
+
+.env

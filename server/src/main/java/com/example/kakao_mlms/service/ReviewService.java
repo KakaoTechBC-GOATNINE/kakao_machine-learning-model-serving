@@ -27,7 +27,7 @@ import java.util.Map;
 @Transactional
 @RequiredArgsConstructor
 public class ReviewService {
-    @Value("http://localhost:8000/api/v1/stores/ai")
+    @Value("${ml.review-url}")
     private String ML_REVIEW_URL;
     private final UserRepository userRepository;
 
