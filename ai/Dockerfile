@@ -2,26 +2,29 @@
 FROM python:3.9-slim
 
 # Install dependencies
-RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get -y update
+RUN apt -y install wget unzip curl
 
-# Add Google's official GPG key
-RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
+# Download and install Google Chrome
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN apt -y install ./google-chrome-stable_current_amd64.deb
 
-# Set up the repository
-RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+# Download and install the matching ChromeDriver version
+# RUN wget -O /tmp/chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/127.0.6533.99/linux64/chromedriver-linux64.zip
+# RUN unzip /tmp/chromedriver.zip -d /usr/local/bin/
+# RUN mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+# RUN chmod +x /usr/local/bin/chromedriver
 
-# Install the latest version of Chrome
-RUN apt-get update && apt-get install -y google-chrome-stable
+# Download and install the matching ChromeDriver version
+RUN CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1) \
+    && echo ${CHROME_VERSION} \
+    && wget -O /tmp/chromedriver.zip "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" \
+    && unzip /tmp/chromedriver.zip -d /usr/local/bin/ \
+    && mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver \
+    && chmod +x /usr/local/bin/chromedriver
 
-# Get the latest version number of Chrome
-RUN LATEST_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
-    wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/${LATEST_VERSION}/chromedriver_linux64.zip && \
-    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
-    rm /tmp/chromedriver.zip
+# Set the PATH environment variable to include ChromeDriver
+ENV PATH="/usr/local/bin:$PATH"
 
 # Set the working directory in the container
 WORKDIR /app

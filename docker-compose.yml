@@ -1,13 +1,12 @@
-version: '3.8'
 
 services:
   postgresql:
     image: postgres:13
     container_name: postgres_container
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: kakaomlms
+      POSTGRES_PASSWORD: mlms123!@#
+      POSTGRES_DB: mlms
     ports:
       - "5432:5432"
     volumes:
@@ -19,9 +18,9 @@ services:
       dockerfile: Dockerfile
     container_name: springboot_container
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/mlms
+      SPRING_DATASOURCE_USERNAME: kakaomlms
+      SPRING_DATASOURCE_PASSWORD: mlms123!@#
     ports:
       - "8080:8080"
     depends_on:
@@ -33,7 +32,7 @@ services:
       dockerfile: Dockerfile
     container_name: fastapi_container
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: postgresql://kakaomlms:mlms123!#@@postgresql:5432/mlms
     ports:
       - "8000:8000"
     depends_on:
