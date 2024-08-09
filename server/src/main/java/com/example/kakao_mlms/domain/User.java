@@ -83,7 +83,7 @@ public class User {
         this.refreshToken = refreshToken;
     }
 
-    public void updateInfo(String nickname, String phoneNumber) {
+    public void updateInfo(String nickname) {
         if (nickname != null && (!Objects.equals(this.nickname, nickname))) {
             this.nickname = nickname;
         }

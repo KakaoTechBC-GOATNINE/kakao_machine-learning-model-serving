@@ -2,6 +2,7 @@ package com.example.kakao_mlms.controller;
 
 import com.example.kakao_mlms.annotation.UserId;
 import com.example.kakao_mlms.constant.Constants;
+import com.example.kakao_mlms.dto.request.UserResisterDto;
 import com.example.kakao_mlms.dto.request.UserSignUpDto;
 import com.example.kakao_mlms.dto.response.JwtTokenDto;
 import com.example.kakao_mlms.exception.CommonException;
@@ -26,6 +27,18 @@ public class AuthController {
     @PostMapping("/basic")
     public ResponseDto<?> resisterUser(@RequestBody @Valid UserSignUpDto requestDto) {
         return ResponseDto.ok(authService.resisterUser(requestDto));
+    }
+
+    //소셜 로그인 사용자 정보 등록
+    @PatchMapping("/resister")
+    public ResponseDto<?> resister(@UserId Long id, @RequestBody UserResisterDto requestDto) {
+        return ResponseDto.created(authService.registerUserInfo(id, requestDto));
+    }
+
+    //사용자 정보 수정
+    @PatchMapping("/update")
+    public ResponseDto<?> updateUserInfo(@UserId Long id, @RequestBody UserResisterDto requestDto) {
+        return ResponseDto.created(authService.updateUserInfo(id, requestDto));
     }
 
     //accessToken 다시 받기

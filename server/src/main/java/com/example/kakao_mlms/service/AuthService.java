@@ -3,6 +3,7 @@ package com.example.kakao_mlms.service;
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.ERole;
 import com.example.kakao_mlms.dto.request.AuthSignUpDto;
+import com.example.kakao_mlms.dto.request.UserResisterDto;
 import com.example.kakao_mlms.dto.request.UserSignUpDto;
 import com.example.kakao_mlms.dto.response.JwtTokenDto;
 import com.example.kakao_mlms.exception.CommonException;
@@ -54,6 +55,24 @@ public class AuthService {
         qnaRepository.updateQnaByUserId(userId);
 
         userRepository.delete(user);
+        return Boolean.TRUE;
+    }
+
+    public JwtTokenDto registerUserInfo(Long userId, UserResisterDto requestDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+        user.register(requestDto.nickname());
+        JwtTokenDto jwtTokenDto = jwtUtil.generateTokens(userId, ERole.USER);
+        return jwtTokenDto;
+    }
+
+    public Boolean updateUserInfo(Long userId, UserResisterDto requestDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+        user.updateInfo(requestDto.nickname());
+
         return Boolean.TRUE;
     }
 }
