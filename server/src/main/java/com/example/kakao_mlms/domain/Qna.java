@@ -48,7 +48,7 @@ public class Qna {
     private User user;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
     @Builder
@@ -62,7 +62,8 @@ public class Qna {
     }
 
     public void addImages(List<Image> images) {
-        this.images = images;
+        this.images.clear();
+        this.images.addAll(images);
     }
 
     @Override
