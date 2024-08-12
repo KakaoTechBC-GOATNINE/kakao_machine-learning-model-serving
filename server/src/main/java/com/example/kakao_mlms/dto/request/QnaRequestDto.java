@@ -33,4 +33,8 @@ public record QnaRequestDto(
                 return QnaDto.of(title, content, Category.valueOf(category), isBlind, userDto);
         }
 
+        public QnaDto toDto(UserDto userDto, Long qnaId) {
+                return QnaDto.of(qnaId, title, content, Category.valueOf(category), isBlind, userDto);
+        }
+
 }

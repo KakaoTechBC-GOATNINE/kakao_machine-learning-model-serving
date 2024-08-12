@@ -34,6 +34,10 @@ public record QnaDto(
         return new QnaDto(null, title, content, category, null, false, isBlind, user);
     }
 
+    public static QnaDto of(Long id, String title, String content, Category category, Boolean isBlind, UserDto user) {
+        return new QnaDto(id, title, content, category, null, false, isBlind, user);
+    }
+
     public static QnaDto of() {
         return QnaDto.of(null, null, null, null, null);
     }
