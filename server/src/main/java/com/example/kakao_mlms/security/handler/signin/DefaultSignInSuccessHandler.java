@@ -61,7 +61,7 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
         response.setStatus(HttpStatus.OK.value());
 
         Map<String, Object> result = new HashMap<>();
-        result.put("sucess", true);
+        result.put("success", true);
         result.put("data", Map.of(
                 "accessToken", tokenDto.getAccessToken(),
                 "refreshToken", tokenDto.getRefreshToken()
@@ -76,6 +76,6 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
         CookieUtil.addSecureCookie(response, "refreshToken", tokenDto.getRefreshToken(), jwtUtil.getWebRefreshTokenExpirationSecond());
         CookieUtil.addCookie(response, "accessToken", tokenDto.getAccessToken());
 
-        response.sendRedirect("http://localhost:5173");
+        response.sendRedirect("http://localhost:3000");
     }
 }
