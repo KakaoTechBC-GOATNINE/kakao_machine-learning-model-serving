@@ -51,10 +51,11 @@ def label_by_absolute_difference(row):
     """사용자의 평균 평점과 레스토랑 평점 간의 차이를 기반으로 레이블을 지정합니다."""
     avg_rating = row['User_Avg_Rating']
     rating_diff = row['Restaurant_Rating'] - avg_rating
-    
+
+    # 레이블 범위 조정
     if abs(rating_diff) <= avg_rating * 0.05:
         return 2  # 평균
-    elif abs(rating_diff) <= avg_rating * 0.10:
+    elif abs(rating_diff) <= avg_rating * 0.25:
         return 3 if rating_diff > 0 else 1  # 좋음 / 나쁨
     else:
         return 4 if rating_diff > 0 else 0  # 아주 좋음 / 아주 나쁨
