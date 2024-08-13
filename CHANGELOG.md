@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file. See [standa
 ## 1.1.0 (2024-07-26)
 
 
+
 ### Features
 
 * kakaomap data crawling ([95c4de5](https://github.com/KakaoTechBC-GOATNINE/kakao_machine-learning-model-serving/commit/95c4de592046bae778b5c5b3133ac24c7ccfa362))
