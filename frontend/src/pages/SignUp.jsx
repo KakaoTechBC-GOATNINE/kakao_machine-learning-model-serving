@@ -16,7 +16,11 @@ export default function SignUp() {
         event.preventDefault(); // 폼 제출 기본 동작 방지
 
         // 회원가입 데이터를 POST 요청으로 전송
+<<<<<<< HEAD
         const response = await fetch('https://shortood.shop/api/v1/auth/basic', { //로컬에서는 http://localhost:8080/api/v1/auth/basic
+=======
+        const response = await fetch('http://localhost:8080/api/v1/auth/basic', {
+>>>>>>> 6638ad141348d8c206f255bdf030dc0f7a477058
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

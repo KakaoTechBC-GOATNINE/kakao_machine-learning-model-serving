@@ -82,5 +82,6 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
         CookieUtil.addCookie(response, "accessToken", tokenDto.getAccessToken());
 
         response.sendRedirect(LOGIN_URL);
+
     }
 }
