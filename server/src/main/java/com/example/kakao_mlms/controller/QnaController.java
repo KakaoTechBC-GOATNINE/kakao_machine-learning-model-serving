@@ -4,6 +4,8 @@ import com.example.kakao_mlms.annotation.UserId;
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.ImageDto;
+import com.example.kakao_mlms.dto.QnaDto;
+import com.example.kakao_mlms.dto.QnaDtoWithImages;
 import com.example.kakao_mlms.dto.request.QnaRequestDto;
 import com.example.kakao_mlms.dto.response.QnaDtoResponse;
 import com.example.kakao_mlms.dto.response.QnaDtoWithImagesResponse;
@@ -38,8 +40,8 @@ public class QnaController {
 
     @PostMapping
     public ResponseEntity<Void> createQna(@UserId Long id,
-                                    @RequestPart QnaRequestDto qnaRequestDto,
-                                    @RequestPart(required = false) List<MultipartFile> images) {
+                                    @RequestPart("qnaRequestDto") QnaRequestDto qnaRequestDto,
+                                    @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         User user = userService.getUserInfo(id);
         List<ImageDto> imageDtos = imageService.uploadFiles(images);
         qnaService.createQna(qnaRequestDto.toDto(UserDto.from(user)), imageDtos);
@@ -73,9 +75,16 @@ public class QnaController {
     }
 
 
-    @PatchMapping("/{qnaId}")
-    public ResponseDto<?> updateQna(@UserId Long id, @PathVariable("qnaId") Long qnaId, @RequestBody QnaRequestDto requestDto) {
-        return ResponseDto.ok(qnaService.updateQna(id, qnaId, requestDto));
+    @PutMapping("/{qnaId}")
+    public ResponseEntity<Long> updateQna(@UserId Long id,
+                                    @PathVariable("qnaId") Long qnaId,
+                                    @RequestPart QnaRequestDto qnaRequestDto,
+                                    @RequestPart(required = false) List<MultipartFile> images) {
+        User user = userService.getUserInfo(id);
+        List<ImageDto> imageDtos = imageService.uploadFiles(images);
+        QnaDto qnaDto = qnaRequestDto.toDto(UserDto.from(user), qnaId);
+        qnaService.updateQna(id, qnaDto, imageDtos);
+        return ResponseEntity.ok().body(qnaId);
     }
 
     @DeleteMapping("/{qnaId}")

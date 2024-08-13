@@ -66,7 +66,7 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
         response.setStatus(HttpStatus.OK.value());
 
         Map<String, Object> result = new HashMap<>();
-        result.put("sucess", true);
+        result.put("success", true);
         result.put("data", Map.of(
                 "accessToken", tokenDto.getAccessToken(),
                 "refreshToken", tokenDto.getRefreshToken()

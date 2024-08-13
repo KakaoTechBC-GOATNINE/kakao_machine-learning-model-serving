@@ -48,7 +48,7 @@ public class Qna {
     private User user;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
     @Builder
@@ -62,25 +62,25 @@ public class Qna {
     }
 
     public void addImages(List<Image> images) {
-        this.images = images;
+        this.images.clear();
+        this.images.addAll(images);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Qna qna = (Qna) o;
-        return Objects.equals(id, qna.id) && Objects.equals(content, qna.content) && category == qna.category && Objects.equals(createdDate, qna.createdDate) && Objects.equals(isAnswer, qna.isAnswer) && Objects.equals(isBlind, qna.isBlind) && Objects.equals(user, qna.user);
+        if (!(o instanceof Qna qna)) return false;
+        return Objects.nonNull(this.getId()) && Objects.equals(this.getId(), qna.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, content, category, createdDate, isAnswer, isBlind, user);
+        return Objects.hashCode(this.getId());
     }
 
-    public void update(String title, String content, String category) {
+    public void update(String title, String content, Category category) {
         this.title = title;
         this.content = content;
-        this.category = Category.valueOf(category);
+        this.category = category;
     }
 }

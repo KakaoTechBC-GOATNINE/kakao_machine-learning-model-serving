@@ -9,12 +9,13 @@ import com.example.kakao_mlms.dto.ImageDto;
 import com.example.kakao_mlms.dto.PageInfo;
 import com.example.kakao_mlms.dto.QnaDto;
 import com.example.kakao_mlms.dto.QnaDtoWithImages;
-import com.example.kakao_mlms.dto.request.QnaRequestDto;
-import com.example.kakao_mlms.dto.response.*;
+import com.example.kakao_mlms.dto.response.AllDto;
+import com.example.kakao_mlms.dto.response.QnaListDto;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
 import com.example.kakao_mlms.repository.QnaRepository;
 import com.example.kakao_mlms.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,18 +26,23 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+import static org.apache.logging.log4j.ThreadContext.isEmpty;
+
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class QnaService {
     private final QnaRepository qnaRepository;
     private final UserRepository userRepository;
+    private final ImageService imageService;
 
     public void createQna(QnaDto qnaDto, List<ImageDto> imageDtos) {
         Qna qna = qnaDto.toEntity();
-        if(imageDtos != null){
+        if(imageDtos != null) {
             List<Image> images = imageDtos.stream()
-                    .map(imageDto -> imageDto.toEntity(qna)).toList();
+                    .map(imageDto -> imageDto.toEntity(qna))
+                    .toList();
             qna.addImages(images);
         }
         qnaRepository.save(qna);
@@ -47,6 +53,33 @@ public class QnaService {
         return qnaRepository.findQnaById(qnaId)
                 .map(QnaDtoWithImages::from)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_QNA));
+    }
+
+    public void updateQna(Long userId, QnaDto qnaDto, List<ImageDto> imageDtos) {
+        Qna qna = qnaRepository.findQnaById(qnaDto.id())
+                .orElseThrow(EntityNotFoundException::new);
+        List<Image> qnaImages = qna.getImages();
+        User user = userRepository.findById(userId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        if (qna.getUser().equals(user)) {
+            qna.update(qnaDto.title(), qnaDto.content(), qnaDto.category());
+
+            if(!qnaImages.isEmpty()) {
+                qnaImages.stream()
+                        .filter(image -> !imageService.deleteImage(image.getUuidName()))
+                        .forEach(failImage -> log.error("이미지 삭제 실패 : {}", failImage.getUuidName()));
+            }
+
+            if(imageDtos != null) {
+                List<Image> images = imageDtos.stream()
+                        .map(imageDto -> imageDto.toEntity(qna))
+                        .toList();
+                qna.addImages(images);
+            }
+        }
+
+
     }
 
     public AllDto<Object> readQnaList(String title, Pageable pageable) {
@@ -69,17 +102,17 @@ public class QnaService {
                 .build();
     }
 
-    public Boolean updateQna(Long id, Long qnaId, QnaRequestDto requestDto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
-
-        Qna qna = qnaRepository.findQnaByIdAndUser(qnaId, user)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_QNA));
-
-        qna.update(requestDto.title(), requestDto.content(), requestDto.category());
-
-        return Boolean.TRUE;
-    }
+//    public Boolean updateQna(Long id, Long qnaId, QnaRequestDto requestDto) {
+//        User user = userRepository.findById(id)
+//                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+//
+//        Qna qna = qnaRepository.findQnaByIdAndUser(qnaId, user)
+//                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_QNA));
+//
+//        qna.update(requestDto.title(), requestDto.content(), requestDto.category());
+//
+//        return Boolean.TRUE;
+//    }
 
     public Boolean deleteQna(Long id, Long qnaId) {
         Qna qna = null;
