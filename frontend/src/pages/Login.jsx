@@ -21,11 +21,8 @@ export default function SignIn() {
         });
     
         // POST 요청을 URL에 쿼리 파라미터를 포함하여 전송
-<<<<<<< HEAD
-        const response = await fetch(`http://shortood.shop/sign-in?${queryParams.toString()}`, { //로컬에서는 localhost:8080
-=======
-        const response = await fetch(`http://localhost:8080/sign-in?${queryParams.toString()}`, {
->>>>>>> 6638ad141348d8c206f255bdf030dc0f7a477058
+        const response = await fetch(`https://shortood.shop/api/v1/sign-in?${queryParams.toString()}`, { //로컬에서는 http://localhost:8080
+
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -43,11 +40,7 @@ export default function SignIn() {
     };
 
     const handleKakaoLogin = () => {
-<<<<<<< HEAD
         window.location.href = "http://shortood.shop:8080/oauth2/authorization/kakao"; //로컬에서는 localhost:8080
-=======
-        window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
->>>>>>> 6638ad141348d8c206f255bdf030dc0f7a477058
     };
 
     const handleNavigateToSignUp = () => {
