@@ -1,6 +1,7 @@
 import os
 import re
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 def load_data(input_csv_file_path):
     """CSV 파일을 읽어 데이터프레임으로 로드합니다."""
@@ -106,12 +107,25 @@ def save_data(processed_df, output_csv_file_path):
     """전처리된 데이터를 CSV 파일로 저장합니다."""
     processed_df.to_csv(output_csv_file_path, index=False, encoding='utf-8-sig')
 
+def split_data(processed_df, train_csv_file_path, test_csv_file_path, test_size=0.25):
+    """데이터를 레이블별로 균등하게 train/test로 나누어 각각 CSV 파일로 저장합니다."""
+    # train/test split (test_size는 전체 데이터의 비율로 지정됩니다. 3:1 비율이면 test_size=0.25)
+    train_df, test_df = train_test_split(processed_df, test_size=test_size, random_state=42, stratify=processed_df['Label'])
+
+    # 데이터를 CSV 파일로 저장
+    train_df.to_csv(train_csv_file_path, index=False, encoding='utf-8-sig')
+    test_df.to_csv(test_csv_file_path, index=False, encoding='utf-8-sig')
+
 if __name__ == "__main__":
-        # CSV 파일 경로 설정
+    # CSV 파일 경로 설정
     input_csv_file_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'raw', 'restaurant_reviews.csv')
     output_csv_file_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KoBert_preprocessed_reviews.csv')
+    train_csv_file_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'Kobert_review_train_set.csv')
+    test_csv_file_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'Kobert_review_test_set.csv')
 
     # 데이터 로드
     df = load_data(input_csv_file_path)
@@ -119,5 +133,8 @@ if __name__ == "__main__":
     # 데이터 전처리
     processed_df = preprocess_data(df)
 
-    # 데이터 저장
+    # 전처리된 데이터 저장
     save_data(processed_df, output_csv_file_path)
+
+    # 데이터 분할 및 저장
+    split_data(processed_df, train_csv_file_path, test_csv_file_path)
