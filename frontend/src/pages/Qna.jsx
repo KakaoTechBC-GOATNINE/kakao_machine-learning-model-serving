@@ -2,6 +2,7 @@ import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import {Grid} from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import QnaList from "../components/QnaList";
 
 const Qna = () => {
     const nav = useNavigate();
@@ -17,6 +18,7 @@ const Qna = () => {
                     <Button fullWidth variant="contained" onClick={onClickNewQna}>문의 작성하기</Button>
                 </Grid>
                 <Grid item xs={12}>
+                    <QnaList/>
                 </Grid>
             </Grid>
         </Container>
