@@ -8,6 +8,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import * as React from "react";
 import NewQna from "./pages/NewQna";
 import SignUp from "./pages/SignUp";
+import QnaDetail from "./pages/QnaDetail";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/qnas/new" element={<NewQna/>}/>
                 <Route path="/sign-up" element={<SignUp/>}/>
+                <Route path="/qnas/*" element={<QnaDetail/>}/>
             </Routes>
         </div>
     );

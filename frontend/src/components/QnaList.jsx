@@ -8,6 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import LockIcon from '@mui/icons-material/Lock';
+import { useNavigate } from 'react-router-dom'; // React Router의 useNavigate 훅을 가져옴
 
 const columns = [
     { id: 'id', label: 'id', minWidth: 10, align: 'center' },
@@ -19,7 +20,7 @@ const columns = [
 ];
 
 function createData(id, category, title, user, isBlind, isAnswer, createdDate) {
-    return {id, category, title, user, isBlind, isAnswer, createdDate};
+    return { id, category, title, user, isBlind, isAnswer, createdDate };
 }
 
 const rows = [
@@ -31,6 +32,7 @@ const rows = [
 export default function QnaList() {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const navigate = useNavigate(); // useNavigate 훅을 사용
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -39,6 +41,10 @@ export default function QnaList() {
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
+    };
+
+    const handleRowClick = (id) => {
+        navigate(`/qnas/${id}`); // 해당 id로 페이지 이동
     };
 
     return (
@@ -61,38 +67,43 @@ export default function QnaList() {
                     <TableBody>
                         {rows
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row) => {
-                                return (
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.category}>
-                                        {columns.map((column) => {
-                                            const value = row[column.id];
-                                            if (column.id === 'isAnswer') {
-                                                return (
-                                                    <TableCell key={column.id} align={column.align}>
-                                                        <span style={{ color: value ? 'green' : 'red' }}>
-                                                            {value ? '답변 완료' : '답변 대기'}
-                                                        </span>
-                                                    </TableCell>
-                                                );
-                                            }
+                            .map((row) => (
+                                <TableRow
+                                    hover
+                                    role="checkbox"
+                                    tabIndex={-1}
+                                    key={row.id}
+                                    onClick={() => handleRowClick(row.id)} // Row 클릭 시 handleRowClick 호출
+                                    style={{ cursor: 'pointer' }} // 클릭 가능하도록 커서 변경
+                                >
+                                    {columns.map((column) => {
+                                        const value = row[column.id];
+                                        if (column.id === 'isAnswer') {
                                             return (
                                                 <TableCell key={column.id} align={column.align}>
-                                                    {column.id === 'title' && row.isBlind && (
-                                                        <LockIcon
-                                                            style={{
-                                                                marginRight: 4,
-                                                                fontSize: '1em',
-                                                                verticalAlign: 'middle'
-                                                            }}
-                                                        />
-                                                    )}
-                                                    {value}
+                                                    <span style={{ color: value ? 'green' : 'red' }}>
+                                                        {value ? '답변 완료' : '답변 대기'}
+                                                    </span>
                                                 </TableCell>
                                             );
-                                        })}
-                                    </TableRow>
-                                );
-                            })}
+                                        }
+                                        return (
+                                            <TableCell key={column.id} align={column.align}>
+                                                {column.id === 'title' && row.isBlind && (
+                                                    <LockIcon
+                                                        style={{
+                                                            marginRight: 4,
+                                                            fontSize: '1em',
+                                                            verticalAlign: 'middle'
+                                                        }}
+                                                    />
+                                                )}
+                                                {value}
+                                            </TableCell>
+                                        );
+                                    })}
+                                </TableRow>
+                            ))}
                     </TableBody>
                 </Table>
             </TableContainer>
