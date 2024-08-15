@@ -152,3 +152,18 @@ class ReviewRankingModel:
 # 리뷰 랭킹 모델 생성 및 실행
 review_ranking_model = ReviewRankingModel()
 review_ranking_model.fit_and_rank(input_csv_file_path, output_csv_file_path)
+
+### 라이브러리 설치할거 업데이트 pip3 install konlpy nltk keras
+### pip3 install tensorflow??
+## pip3 install konlpy jpype1?
+
+# pandas==1.3.3
+# numpy==1.21.2
+# konlpy==0.5.2
+# requests==2.26.0
+# jpype1==1.3.0 
+# scikit-learn==0.24.2
+# matplotlib==3.4.3
+
+# readme
+# Java Development Kit (JDK) 1.7 ^
