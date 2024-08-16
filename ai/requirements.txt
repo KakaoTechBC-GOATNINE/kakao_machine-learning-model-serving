@@ -17,3 +17,9 @@ seaborn==0.11.2
 
 # Machine learning utilities
 scikit-learn==0.24.2
+
+# Numerical computations and array operations
+numpy==1.21.2
+
+# Korean language processing
+konlpy==0.5.2
