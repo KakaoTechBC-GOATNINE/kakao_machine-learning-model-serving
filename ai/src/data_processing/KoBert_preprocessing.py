@@ -111,6 +111,9 @@ def split_data(processed_df, train_csv_file_path, test_csv_file_path, test_size=
     """레이블이 0과 4인 데이터만 필터링하여 train/test로 나누고 각각 CSV 파일로 저장합니다."""
     # 레이블이 0과 4인 데이터만 필터링
     filtered_df = processed_df[processed_df['Label'].isin([0, 4])]
+
+    # 레이블 4를 1로 변환
+    filtered_df['Label'] = filtered_df['Label'].map({0: 0, 4: 1})
     
     # train/test split
     train_df, test_df = train_test_split(filtered_df, test_size=test_size, random_state=42, stratify=filtered_df['Label'])
