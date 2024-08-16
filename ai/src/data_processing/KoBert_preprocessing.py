@@ -108,9 +108,12 @@ def save_data(processed_df, output_csv_file_path):
     processed_df.to_csv(output_csv_file_path, index=False, encoding='utf-8-sig')
 
 def split_data(processed_df, train_csv_file_path, test_csv_file_path, test_size=0.25):
-    """데이터를 레이블별로 균등하게 train/test로 나누어 각각 CSV 파일로 저장합니다."""
-    # train/test split (test_size는 전체 데이터의 비율로 지정됩니다. 3:1 비율이면 test_size=0.25)
-    train_df, test_df = train_test_split(processed_df, test_size=test_size, random_state=42, stratify=processed_df['Label'])
+    """레이블이 0과 4인 데이터만 필터링하여 train/test로 나누고 각각 CSV 파일로 저장합니다."""
+    # 레이블이 0과 4인 데이터만 필터링
+    filtered_df = processed_df[processed_df['Label'].isin([0, 4])]
+    
+    # train/test split
+    train_df, test_df = train_test_split(filtered_df, test_size=test_size, random_state=42, stratify=filtered_df['Label'])
 
     # 데이터를 CSV 파일로 저장
     train_df.to_csv(train_csv_file_path, index=False, encoding='utf-8-sig')
