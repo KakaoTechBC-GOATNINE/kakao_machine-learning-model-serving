@@ -72,12 +72,12 @@ def label_by_absolute_difference(row):
     rating_diff = row['Restaurant_Rating'] - avg_rating
 
     # 레이블 범위 조정
-    if abs(rating_diff) <= avg_rating * 0.05:
-        return 2  # 평균
-    elif abs(rating_diff) <= avg_rating * 0.25:
-        return 3 if rating_diff > 0 else 1  # 좋음 / 나쁨
+    if abs(rating_diff) > avg_rating * 0.35:
+        return 0 if rating_diff < 0 else 4  # 아주 나쁨 / 아주 좋음
+    elif abs(rating_diff) > avg_rating * 0.10:
+        return 1 if rating_diff < 0 else 3  # 나쁨 / 좋음
     else:
-        return 4 if rating_diff > 0 else 0  # 아주 좋음 / 아주 나쁨
+        return 2  # 평균
 
 def preprocess_data(df):
     """전체 데이터를 전처리합니다."""
