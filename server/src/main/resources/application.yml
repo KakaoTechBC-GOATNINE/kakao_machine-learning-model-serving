@@ -1,8 +1,9 @@
 spring:
   profiles:
-    active: local
+    active: prod
     group:
       local: local
       dev: dev
+      prod: prod
       debug: debug
 
