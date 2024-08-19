@@ -18,7 +18,8 @@ function Header() {
                 <Button size="small" onClick={() => navigateTo('/qnas')}>Q&A</Button>
 
                 <Typography align="center" sx={{ flex: 1 }}/>
-                <Button variant="outlined" size="small" onClick={() => navigateTo('/login')}>login</Button>
+                <Button sx={{ml: 1}} variant="outlined" size="small" onClick={() => navigateTo('/mypage')}>MyPage</Button>
+                <Button sx={{ml: 1}} variant="outlined" size="small" onClick={() => navigateTo('/login')}>login</Button>
                 <Button sx={{ml: 1}} variant="contained" size="small">logout</Button>
             </Toolbar>
     );
