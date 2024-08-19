@@ -5,12 +5,12 @@ from sklearn.model_selection import train_test_split
 
 def load_data(input_csv_file_path):
     """CSV 파일을 읽어 데이터프레임으로 로드합니다."""
-    return pd.read_csv(input_csv_file_path, encoding='utf-8-sig')
+    return pd.read_csv(input_csv_file_path, encoding='utf-8-sig', low_memory=False)
 
 def preprocess_review(review):
     """리뷰 데이터에서 불필요한 텍스트를 제거하고 필요한 정보를 추출합니다."""
     parts = review.split('|')
-    
+
     # 별점 변환 (100% -> 5.0 점수로 변환)
     if len(parts) > 3:
         score_str = parts[3].replace('%', '').replace(';', '').strip()
@@ -18,25 +18,43 @@ def preprocess_review(review):
             parts[3] = str(float(score_str) / 20)
         except ValueError:
             parts[3] = '0'  # 변환할 수 없는 경우 기본값 설정
-    
+
     # 리뷰 텍스트 부분
     review_text = parts[4].strip() if len(parts) > 4 else ''
-    
+
     # 리뷰 텍스트가 비어 있는 경우 None 반환
     if not review_text:
         return None
-    
+
     return parts[2].strip(), parts[3].strip(), review_text
 
 def process_reviews(reviews):
-    """리뷰가 여러 개 포함된 데이터를 처리하여 필요한 정보를 추출합니다."""
     processed_reviews = []
-    review_list = reviews.split('||')
+
+    # 리뷰가 NaN이거나 문자열이 아닌 경우 처리
+    if pd.isna(reviews) or not isinstance(reviews, str):
+        print(processed_reviews)
+        print(f"Skipping review processing. Invalid data type: {reviews}")
+        return processed_reviews  # 문제가 있는 경우 빈 리스트 반환
+
+    # 예외 처리
+    try:
+        review_list = reviews.split('||')
+    except AttributeError as e:
+        print(f"Error: Review data is not a string: {reviews}")
+        return processed_reviews  # 문제가 있는 데이터를 건너뛰고 빈 리스트 반환
+
     for review in review_list:
-        if len(review.split('|')) >= 5:
-            processed_review = preprocess_review(review)
-            if processed_review:
-                processed_reviews.append(processed_review)
+        try:
+            if len(review.split('|')) >= 5:
+                processed_review = preprocess_review(review)
+                if processed_review:
+                    processed_reviews.append(processed_review)
+        except Exception as e:
+            print(f"Error processing review: {review}")
+            print(f"Error: {e}")
+            # 문제가 있는 특정 리뷰를 건너뛰고 다음 리뷰로 진행
+    
     return processed_reviews
 
 def clean_review_text(text):
@@ -65,6 +83,18 @@ def preprocess_data(df):
     """전체 데이터를 전처리합니다."""
     final_data = []
 
+    for column in df.columns:
+        if df[column].dtype == 'float64':
+            df[column] = df[column].fillna(0)  # 숫자형 열은 0으로 대체
+        else:
+            df[column] = df[column].fillna('')  # 문자열 열은 빈 문자열로 대체
+
+
+
+
+
+
+
     # 각 리뷰에 대해 전처리를 수행합니다.
     for reviews in df['Reviews']:
         processed_reviews = process_reviews(reviews)  # 리뷰를 개별적으로 전처리합니다.
@@ -80,13 +110,13 @@ def preprocess_data(df):
 
     # 리뷰 텍스트를 전처리하여 한국어와 공백만 남기고 나머지 문자는 제거합니다.
     processed_df['Review_Text'] = processed_df['Review_Text'].apply(clean_review_text)
-    
+
     # 리뷰 텍스트가 공백만 있는 경우를 제거합니다.
     processed_df = processed_df[processed_df['Review_Text'].str.strip().astype(bool)]
-    
+
     # 사용자 평균 평점과 레스토랑 평점 간의 차이를 기반으로 레이블을 생성합니다.
     processed_df['Label'] = processed_df.apply(label_by_absolute_difference, axis=1)
-    
+
     # 리뷰 텍스트를 256자로 제한하고, 초과하는 경우 분할하여 새로운 행으로 추가
     split_reviews = []
     for _, row in processed_df.iterrows():
@@ -97,7 +127,7 @@ def preprocess_data(df):
 
     # 필요한 열(Review_Text와 Label)만 남깁니다.
     processed_df = processed_df[['Review_Text', 'Label']]
-    
+
     # 결측치가 있는 행을 제거합니다.
     processed_df.dropna(subset=['Review_Text', 'Label'], inplace=True)
 
@@ -113,7 +143,7 @@ def split_data(processed_df, train_csv_file_path, test_csv_file_path, test_size=
     filtered_df = processed_df[processed_df['Label'].isin([0, 4])]
 
     # 레이블 4를 1로 변환
-    filtered_df['Label'] = filtered_df['Label'].map({0: 0, 4: 1})
+    filtered_df.loc[:, 'Label'] = filtered_df['Label'].map({0: 0, 4: 1})
     
     # train/test split
     train_df, test_df = train_test_split(filtered_df, test_size=test_size, random_state=42, stratify=filtered_df['Label'])
