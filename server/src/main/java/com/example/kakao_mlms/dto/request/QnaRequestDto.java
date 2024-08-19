@@ -2,13 +2,10 @@ package com.example.kakao_mlms.dto.request;
 
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.QnaDto;
-import com.example.kakao_mlms.dto.response.UserDto;
+import com.example.kakao_mlms.dto.UserDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 public record QnaRequestDto(
         @JsonProperty("title")

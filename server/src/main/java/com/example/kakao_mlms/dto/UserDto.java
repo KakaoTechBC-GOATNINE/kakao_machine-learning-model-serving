@@ -1,9 +1,8 @@
-package com.example.kakao_mlms.dto.response;
+package com.example.kakao_mlms.dto;
 
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.EProvider;
 import com.example.kakao_mlms.domain.type.ERole;
-import lombok.Builder;
 
 import java.time.LocalDate;
 

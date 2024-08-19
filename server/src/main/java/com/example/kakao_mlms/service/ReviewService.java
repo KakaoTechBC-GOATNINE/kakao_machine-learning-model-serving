@@ -2,7 +2,7 @@ package com.example.kakao_mlms.service;
 
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.dto.request.ReviewDto;
-import com.example.kakao_mlms.dto.response.ReviewResponseDto;
+import com.example.kakao_mlms.dto.response.ReviewDtoResponse;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
 import com.example.kakao_mlms.repository.UserRepository;
@@ -20,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -36,7 +35,7 @@ public class ReviewService {
 
     /// AI 이용
     @Transactional
-    public ReviewResponseDto getReviewResult(Long userId, ReviewDto requestDto) {
+    public ReviewDtoResponse getReviewResult(Long userId, ReviewDto requestDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
@@ -66,7 +65,7 @@ public class ReviewService {
         JsonArray reviewsArray = jsonObject.getAsJsonArray("reviews");
 
 
-        List<ReviewResponseDto.Review> reviews = new ArrayList<>();
+        List<ReviewDtoResponse.Review> reviews = new ArrayList<>();
         for (int i = 0; i < reviewsArray.size(); i++) {
             JsonArray reviewData = reviewsArray.get(i).getAsJsonArray();
             String storeName = reviewData.get(0).getAsString();
@@ -77,10 +76,10 @@ public class ReviewService {
             for (int j = 0; j < commentsArray.size(); j++) {
                 comments.add(commentsArray.get(j).getAsString());
             }
-            reviews.add(new ReviewResponseDto.Review(storeName, rating, address, comments));
+            reviews.add(new ReviewDtoResponse.Review(storeName, rating, address, comments));
         }
 
-        return new ReviewResponseDto(requestDto.latitude(), requestDto.longitude(), location, reviews);
+        return new ReviewDtoResponse(requestDto.latitude(), requestDto.longitude(), location, reviews);
     }
 
 

@@ -2,6 +2,7 @@ package com.example.kakao_mlms.dto.response;
 
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.QnaDtoWithImages;
+import com.example.kakao_mlms.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

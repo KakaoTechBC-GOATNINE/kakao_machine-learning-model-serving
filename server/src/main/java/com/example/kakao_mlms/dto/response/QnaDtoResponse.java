@@ -2,7 +2,6 @@ package com.example.kakao_mlms.dto.response;
 
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.QnaDto;
-import com.example.kakao_mlms.dto.QnaDtoWithImages;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +11,7 @@ public record QnaDtoResponse(Long id,
                              LocalDateTime createdDate,
                              Boolean isAnswer,
                              Boolean isBlind,
-                             UserDto user) {
+                             UserDtoResponse user) {
     public static QnaDtoResponse from(QnaDto qnaDto) {
         return new QnaDtoResponse(qnaDto.id(),
                 qnaDto.content(),
@@ -20,6 +19,6 @@ public record QnaDtoResponse(Long id,
                 qnaDto.createdDate(),
                 qnaDto.isAnswer(),
                 qnaDto.isBlind(),
-                qnaDto.user());
+                UserDtoResponse.from(qnaDto.user()));
     }
 }
