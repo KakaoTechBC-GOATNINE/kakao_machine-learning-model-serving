@@ -154,9 +154,9 @@ if __name__ == "__main__":
     output_csv_file_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KoBert_preprocessed_reviews.csv')
     train_csv_file_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'Kobert_review_train_set.csv')
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KoBert_review_train_set_v.csv')
     test_csv_file_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'Kobert_review_test_set.csv')
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KoBert_review_test_set_v.csv')
 
     # 데이터 로드
     df = load_data(input_csv_file_path)
