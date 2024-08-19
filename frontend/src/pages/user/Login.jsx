@@ -19,9 +19,12 @@ export default function SignIn() {
             serialId: loginId,
             password: password
         });
-    
+
+        const baseUrl = process.env.REACT_APP_API_BASE_URL;
+        console.log('Base URL:', process.env.REACT_APP_API_BASE_URL);
         // POST 요청을 URL에 쿼리 파라미터를 포함하여 전송
-        const response = await fetch(`http://localhost:8080/sign-in?${queryParams.toString()}`, {
+        const response = await fetch(`${baseUrl}/api/v1/sign-in?${queryParams.toString()}`, { //로컬에서는 http://localhost:8080
+
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -39,7 +42,10 @@ export default function SignIn() {
     };
 
     const handleKakaoLogin = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
+        const kakaoUrl = process.env.REACT_APP_API_KAKAO_URL;
+        console.log('Kakao URL:', process.env.REACT_APP_API_KAKAO_URL);
+
+        window.location.href = `${kakaoUrl}:8080/oauth2/authorization/kakao`; //로컬에서는 localhost:8080
     };
 
     const handleNavigateToSignUp = () => {

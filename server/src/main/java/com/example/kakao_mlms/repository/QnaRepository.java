@@ -26,7 +26,7 @@ public interface QnaRepository extends JpaRepository<Qna, Long> {
     Optional<Qna> findQnaByIdAndUser(Long id, User user);
     Page<Qna> findQnaByTitleContaining(String title, Pageable pageable);
 
-    @Query(value = "UPDATE qnas q set q.user_id = 1 where q.user_id = :userId", nativeQuery = true)
+    @Query(value = "UPDATE qnas set user_id = 1 where user_id = :userId", nativeQuery = true)
     @Modifying
     void updateQnaByUserId(@Param("userId") Long userId);
 }
