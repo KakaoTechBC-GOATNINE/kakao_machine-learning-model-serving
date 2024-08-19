@@ -15,8 +15,11 @@ export default function SignUp() {
     const handleSignUp = async (event) => {
         event.preventDefault(); // 폼 제출 기본 동작 방지
 
+        const baseUrl = process.env.REACT_APP_API_BASE_URL;
+        console.log('Base URL:', process.env.REACT_APP_API_BASE_URL);
+
         // 회원가입 데이터를 POST 요청으로 전송
-        const response = await fetch('https://shortood.shop/api/v1/auth/basic', { //로컬에서는 http://localhost:8080/api/v1/auth/basic
+        const response = await fetch(`${baseUrl}/api/v1/auth/basic`, { //로컬에서는 http://localhost:8080/api/v1/auth/basic
 
             method: 'POST',
             headers: {
