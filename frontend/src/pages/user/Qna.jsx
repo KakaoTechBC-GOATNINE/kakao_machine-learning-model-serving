@@ -2,7 +2,7 @@ import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import {Grid} from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import QnaList from "../components/QnaList";
+import QnaList from "../../components/user/QnaList";
 
 const Qna = () => {
     const nav = useNavigate();
