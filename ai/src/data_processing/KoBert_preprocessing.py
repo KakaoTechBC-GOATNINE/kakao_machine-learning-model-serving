@@ -83,17 +83,12 @@ def preprocess_data(df):
     """전체 데이터를 전처리합니다."""
     final_data = []
 
+    # csv내에서 데이터를 직접 수정을 한뒤에 생긴 문제 해결절차 or 크롤링시 네트워크 문제로 인한 데이터 이슈
     for column in df.columns:
         if df[column].dtype == 'float64':
             df[column] = df[column].fillna(0)  # 숫자형 열은 0으로 대체
         else:
             df[column] = df[column].fillna('')  # 문자열 열은 빈 문자열로 대체
-
-
-
-
-
-
 
     # 각 리뷰에 대해 전처리를 수행합니다.
     for reviews in df['Reviews']:
