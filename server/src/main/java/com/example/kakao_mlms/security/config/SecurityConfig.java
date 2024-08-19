@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .formLogin(configurer ->
                         configurer
                                 .loginPage("/login")
-                                .loginProcessingUrl("/sign-in") //로그인 처리 URL (POST)
+                                .loginProcessingUrl("/api/v1/sign-in") //로그인 처리 URL (POST)
                                 .usernameParameter("serialId") //사용자 아이디 파라미터 이름
                                 .passwordParameter("password") //비밀번호 파라미터 이름
                                 .successHandler(defaultSignInSuccessHandler) //로그인 성공 핸들러
