@@ -84,7 +84,7 @@ def extract_reviews(driver):
             
             # 버튼 클릭 및 페이지 갱신을 기다림
             more_reviews_button.click()
-            time.sleep(0.1)
+            time.sleep(0.5)
 
             # # 새로운 리뷰가 로드될 때까지 대기 (리뷰 총 개수가 증가할 때까지 대기) - 성능개선 sleep으로 변경
             # WebDriverWait(driver, 10).until(
