@@ -63,36 +63,3 @@ def restaurant_recommendation_api(request: KeywordLocationRequest):
         raise HTTPException(status_code=500, detail=str(e))
     
 # 서버 실행 명령: uvicorn ai_server:app --reload
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # # 각 가게별로 리뷰를 처리하고 점수를 예측합니다.
-        # recommendations = []
-        # for store in reviews:
-        #     store_name, store_score, store_address, store_reviews = store
-        #     processed_reviews = process_reviews('||'.join(store_reviews))
-            
-        #     total_score = 0
-        #     for _, _, review_text in processed_reviews:
-        #         total_score += predict_review_score(review_text)
-
-        #     avg_score = total_score / len(processed_reviews) if processed_reviews else 0
-        #     recommendations.append({
-        #         "store_name": store_name,
-        #         "address": store_address,
-        #         "score": avg_score
-        #     })
-        
-        # # 예측된 점수에 따라 가게를 랭킹화합니다.
-        # ranked_recommendations = sorted(recommendations, key=lambda x: x['score'], reverse=True)
