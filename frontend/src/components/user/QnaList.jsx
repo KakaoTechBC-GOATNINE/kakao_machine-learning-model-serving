@@ -28,6 +28,22 @@ const columns = [
     { id: 'createdDate', label: '작성일자', minWidth: 30, align: 'center' },
 ];
 
+// 날짜 배열을 원하는 형식으로 변환하는 함수
+function formatDateTime(dateArray) {
+    if (!dateArray || dateArray.length < 6) {
+        return "Invalid Date";
+    }
+
+    const year = String(dateArray[0]).slice(2); // '2024' -> '24'
+    const month = String(dateArray[1]).padStart(2, '0'); // '8' -> '08'
+    const day = String(dateArray[2]).padStart(2, '0'); // '20'
+    const hour = String(dateArray[3]).padStart(2, '0'); // '16'
+    const minute = String(dateArray[4]).padStart(2, '0'); // '16'
+
+    // 원하는 형식으로 변환
+    return `${year}.${month}.${day} ${hour}:${minute}`;
+}
+
 export default function QnaList() {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -61,7 +77,7 @@ export default function QnaList() {
                     user: item.user.nickname,
                     isBlind: item.isBlind,
                     isAnswer: item.isAnswer,
-                    createdDate: item.createdDate,
+                    createdDate: formatDateTime(item.createdDate),  // 날짜 형식 변환
                 })));
                 setTotalRows(data.totalElements);
             } catch (error) {
