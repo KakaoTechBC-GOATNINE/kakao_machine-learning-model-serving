@@ -14,7 +14,6 @@ public class HeaderUtil {
         String unpreparedToken = request.getHeader(header);
 
         if (!StringUtils.hasText(unpreparedToken) || !unpreparedToken.startsWith(prefix)) {
-            log.info("토큰 X");
             return Optional.empty();
         }
 
