@@ -20,7 +20,7 @@ function getCookie(name) {
 }
 
 const columns = [
-    { id: 'id', label: 'id', minWidth: 10, align: 'center' },
+    { id: 'id', label: '글 번호', minWidth: 10, align: 'center' },
     { id: 'category', label: '유형', minWidth: 30, align: 'center' },
     { id: 'title', label: '제목', minWidth: 100, align: 'center' },
     { id: 'user', label: '작성자', minWidth: 100, align: 'center' },
