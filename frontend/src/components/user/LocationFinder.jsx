@@ -6,63 +6,84 @@ import Button from "@mui/material/Button";
 import {useDaumPostcodePopup} from "react-daum-postcode";
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import {IconButton} from "@mui/material";
-import KakaoMap from "./KakaoMap";
+import axios from 'axios';
 
 export default function LocationFinder() {
     const open = useDaumPostcodePopup();
     const [address, setAddress] = useState("");
-    const [coords, setCoords] = useState({lat: null, lng: null});
     const [keyword, setKeyword] = useState("");
     const [error, setError] = useState(null);
+    const [coords, setCoords] = useState({latitude: "", longitude: ""});
 
-    const [geocoder, setGeocoder] = useState(null);
-
-    useEffect(() => {
-        if (window.kakao && window.kakao.maps) {
-            const geocoderInstance = new window.kakao.maps.services.Geocoder();
-            setGeocoder(geocoderInstance);
-        }
-    }, []);
-
-    const searchAddress = () => {
-        console.log("1");
-        if (coords) {
-            geocoder.addressSearch(address, function(result, status) {
-                if (status === window.kakao.maps.services.Status.OK) {
-                    console.log("2");
-                    const { x, y } = result[0];
-                    setCoords({ lat: y, lng: x });
-                } else {
-                    console.log("3");
-                    console.error('Geocode failed:', status);
-                }
-            });
-        }
-
-        console.log("4");
-        console.log(coords);
+    const setCoordsAndAddress = (lat, lng) => {
+        coordsToAddress(lat, lng);
+        setCoords({latitude: lat, longitude: lng});
     };
 
-    const center = {
-        lat : 33.5563, // 기본값을 설정해줄 수 있음
-        lng: 126.79581, // 기본값을 설정해줄 수 있음
-    };
+    function normalizeCoordsToString(coords) {
+        return {
+            latitude: coords.latitude.toString(),
+            longitude: coords.longitude.toString(),
+        };
+    }
 
-    const clickCurrentLocationButton = () => {
-        if (navigator.geolocation) {
+    function addressTocoord(add) {
+        axios.get(
+            'https://dapi.kakao.com/v2/local/search/address.json?query=' + add,
+            {
+                headers: {
+                    Authorization: 'KakaoAK 72a40f848446b331a895daaba6400196',
+                },
+            }
+        )
+        .then(response => {
+            const data = response.data.documents[0].road_address;
+            setCoords({latitude: data.y, longitude: data.x });
+        })
+        .catch(error => {
+            console.log(error.message);
+        });
+    }
+
+    
+    function coordsToAddress(lat, lng) {
+        axios.get(
+            'https://dapi.kakao.com/v2/local/geo/coord2address.json?input_coord=WGS84&x=' + lng + '&y=' + lat,
+            {
+                headers: {
+                    Authorization: 'KakaoAK 72a40f848446b331a895daaba6400196',
+                },
+            }
+        )
+        .then(response => {
+            const location = response.data.documents[0];
+            const tempAddress = location.address.region_1depth_name + " " + location.address.region_2depth_name + " " + location.address.region_3depth_name;
+            setAddress(tempAddress);
+        })
+        .catch(error => {
+            console.log(error.message);
+        });
+    }
+
+    const findCurrentCoordsButtonEvent = () => {
+        if (navigator.geolocation) {        
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    console.log(position);
-                    setCoords({lat: position.latitude, lng: position.longitude});
-                    searchAddress();
+                    setCoordsAndAddress(position.coords.latitude, position.coords.longitude);
                     setError(null);
                 },
                 (error) => {
-                    setError(error.message);
+                    // Todo: 위치 엑서스 허용하지 않을 경우 Alert 출력 안됨. 추후 수정 필요
+                    if (error.code === error.PERMISSION_DENIED) {
+                        alert("현재 위치 허용 시에만 사용 가능한 기능입니다.");
+                    } else {
+                        setError(error.message);
+                    }
                 }
             );
         } else {
             setError("Geolocation is not supported by this browser.");
+            alert("현재 위치를 찾지 못했습니다. 잠시 후 다시 시도해주세요.");
         }
     };
 
@@ -78,7 +99,8 @@ export default function LocationFinder() {
 
     const recommendApi = () => {
         console.log("keyword: ", keyword);
-        console.log("location: ", address);
+        console.log("address: ", address);
+        console.log("coords: ", normalizeCoordsToString(coords));
     };
 
     const findButtonClick = () => {
@@ -99,6 +121,7 @@ export default function LocationFinder() {
             fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
         }
         setAddress(fullAddress);
+        addressTocoord(fullAddress);
     };
     return (
         <Grid container spacing={2} sx={{marginTop: '30px'}}>
@@ -122,7 +145,7 @@ export default function LocationFinder() {
                 />
             </Grid>
             <Grid xs={1}>
-                <IconButton onClick={clickCurrentLocationButton} aria-label="delete" size="small">
+                <IconButton onClick={findCurrentCoordsButtonEvent} aria-label="delete" size="small">
                     <GpsFixedIcon fontSize="small" />
                 </IconButton>
             </Grid>
@@ -155,7 +178,6 @@ export default function LocationFinder() {
                     검색
                 </Button>
             </Grid>
-            <KakaoMap center={center} />
         </Grid>
     );
 };

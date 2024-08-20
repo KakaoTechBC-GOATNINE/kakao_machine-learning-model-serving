@@ -8,7 +8,9 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import LockIcon from '@mui/icons-material/Lock';
-import { useNavigate } from 'react-router-dom'; // React Router의 useNavigate 훅을 가져옴
+import CircularProgress from '@mui/material/CircularProgress';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const columns = [
     { id: 'id', label: 'id', minWidth: 10, align: 'center' },
@@ -19,20 +21,45 @@ const columns = [
     { id: 'createdDate', label: '작성일자', minWidth: 30, align: 'center' },
 ];
 
-function createData(id, category, title, user, isBlind, isAnswer, createdDate) {
-    return { id, category, title, user, isBlind, isAnswer, createdDate };
-}
-
-const rows = [
-    createData(1, '일반 질문', '일반 비공개 질문제목이에용', '박상은', true, false, '2024-08-02'),
-    createData(2, '일반 질문', '일반 공개 질문제목이에용', '박상은', false, false, '2024-08-02'),
-    createData(3, '일반 질문', '일반 공개 & 답변 완료 질문제목이에용', '박상은', false, true, '2024-08-02'),
-];
-
 export default function QnaList() {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const navigate = useNavigate(); // useNavigate 훅을 사용
+    const [rows, setRows] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [totalRows, setTotalRows] = React.useState(0);
+    const navigate = useNavigate();
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get('http://localhost:8080/api/v1/qnas', {
+                    params: {
+                        page: page,
+                        size: rowsPerPage,
+                    },
+                });
+
+                const data = response.data;
+                setRows(data.content.map((item) => ({
+                    id: item.id,
+                    category: item.category,
+                    title: item.content,
+                    user: item.user.nickname,
+                    isBlind: item.isBlind,
+                    isAnswer: item.isAnswer,
+                    createdDate: item.createdDate,
+                })));
+                setTotalRows(data.totalElements);
+            } catch (error) {
+                console.error('Failed to fetch data', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [page, rowsPerPage]);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -44,73 +71,79 @@ export default function QnaList() {
     };
 
     const handleRowClick = (id) => {
-        navigate(`/qnas/${id}`); // 해당 id로 페이지 이동
+        navigate(`/qnas/${id}`);
     };
 
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 440 }}>
-                <Table stickyHeader aria-label="sticky table">
-                    <TableHead>
-                        <TableRow>
-                            {columns.map((column) => (
-                                <TableCell
-                                    key={column.id}
-                                    align={column.align}
-                                    style={{ minWidth: column.minWidth }}
-                                >
-                                    {column.label}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {rows
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row) => (
-                                <TableRow
-                                    hover
-                                    role="checkbox"
-                                    tabIndex={-1}
-                                    key={row.id}
-                                    onClick={() => handleRowClick(row.id)} // Row 클릭 시 handleRowClick 호출
-                                    style={{ cursor: 'pointer' }} // 클릭 가능하도록 커서 변경
-                                >
-                                    {columns.map((column) => {
-                                        const value = row[column.id];
-                                        if (column.id === 'isAnswer') {
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                        <CircularProgress />
+                    </div>
+                ) : (
+                    <Table stickyHeader aria-label="sticky table">
+                        <TableHead>
+                            <TableRow>
+                                {columns.map((column) => (
+                                    <TableCell
+                                        key={column.id}
+                                        align={column.align}
+                                        style={{ minWidth: column.minWidth }}
+                                    >
+                                        {column.label}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {rows
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map((row) => (
+                                    <TableRow
+                                        hover
+                                        role="checkbox"
+                                        tabIndex={-1}
+                                        key={row.id}
+                                        onClick={() => handleRowClick(row.id)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        {columns.map((column) => {
+                                            const value = row[column.id];
+                                            if (column.id === 'isAnswer') {
+                                                return (
+                                                    <TableCell key={column.id} align={column.align}>
+                                                        <span style={{ color: value ? 'green' : 'red' }}>
+                                                            {value ? '답변 완료' : '답변 대기'}
+                                                        </span>
+                                                    </TableCell>
+                                                );
+                                            }
                                             return (
                                                 <TableCell key={column.id} align={column.align}>
-                                                    <span style={{ color: value ? 'green' : 'red' }}>
-                                                        {value ? '답변 완료' : '답변 대기'}
-                                                    </span>
+                                                    {column.id === 'title' && row.isBlind && (
+                                                        <LockIcon
+                                                            style={{
+                                                                marginRight: 4,
+                                                                fontSize: '1em',
+                                                                verticalAlign: 'middle'
+                                                            }}
+                                                        />
+                                                    )}
+                                                    {value}
                                                 </TableCell>
                                             );
-                                        }
-                                        return (
-                                            <TableCell key={column.id} align={column.align}>
-                                                {column.id === 'title' && row.isBlind && (
-                                                    <LockIcon
-                                                        style={{
-                                                            marginRight: 4,
-                                                            fontSize: '1em',
-                                                            verticalAlign: 'middle'
-                                                        }}
-                                                    />
-                                                )}
-                                                {value}
-                                            </TableCell>
-                                        );
-                                    })}
-                                </TableRow>
-                            ))}
-                    </TableBody>
-                </Table>
+                                        })}
+                                    </TableRow>
+                                ))}
+                        </TableBody>
+                    </Table>
+                )}
             </TableContainer>
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={rows.length}
+                count={totalRows}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
