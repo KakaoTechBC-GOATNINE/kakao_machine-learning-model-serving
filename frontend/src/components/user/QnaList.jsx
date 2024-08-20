@@ -12,6 +12,13 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+function getCookie(name) {
+    const matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([.$?*|{}()[]\\\/+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
 const columns = [
     { id: 'id', label: 'id', minWidth: 10, align: 'center' },
     { id: 'category', label: '유형', minWidth: 30, align: 'center' },
@@ -32,11 +39,17 @@ export default function QnaList() {
     React.useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
+            const token = getCookie("accessToken");  // 쿠키에서 토큰을 가져옴
+
             try {
-                const response = await axios.get('http://localhost:8080/api/v1/qnas', {
+                // const response = await axios.get('http://localhost:8080/api/v1/qnas', {
+                const response = await axios.get('https://shortood-dev.shop/api/v1/qnas', {
                     params: {
                         page: page,
                         size: rowsPerPage,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token}`,  // 인증 헤더에 토큰 추가
                     },
                 });
 
@@ -52,14 +65,19 @@ export default function QnaList() {
                 })));
                 setTotalRows(data.totalElements);
             } catch (error) {
-                console.error('Failed to fetch data', error);
+                if (error.response && error.response.status === 400) {
+                    alert('로그인한 유저만 사용 가능합니다.');
+                    navigate('/login');
+                } else {
+                    console.error('Failed to fetch data', error);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [page, rowsPerPage]);
+    }, [page, rowsPerPage, navigate]);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
