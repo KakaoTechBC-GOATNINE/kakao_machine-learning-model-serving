@@ -1,5 +1,6 @@
 package com.example.kakao_mlms.security.handler.signin;
 
+import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.dto.response.JwtTokenDto;
 import com.example.kakao_mlms.repository.UserRepository;
 import com.example.kakao_mlms.security.CustomUserDetails;
@@ -18,10 +19,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -43,6 +46,9 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
 
         JwtTokenDto jwtTokenDto = jwtUtil.generateTokens(userPrincipal.getId(), userPrincipal.getRole());
         userRepository.updateRefreshTokenAndLoginStatus(userPrincipal.getId(), jwtTokenDto.getRefreshToken(), true);
+        String nickname = userRepository.findById(userPrincipal.getId())
+                .map(user -> StringUtils.hasText(user.getNickname()) ? user.getNickname() : user.getSerialId())
+                .orElseThrow();
 
         String userAgent = request.getHeader("User-Agent");
 
@@ -53,10 +59,10 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
             setSuccessAppResponse(response, jwtTokenDto);
         } else if (isMobile) {
             log.info("앱브라우저");
-            setSuccessWebResponse(response, jwtTokenDto);
+            setSuccessWebResponse(response, jwtTokenDto, nickname);
         } else {
             log.info("웹");
-            setSuccessWebResponse(response, jwtTokenDto);
+            setSuccessWebResponse(response, jwtTokenDto, nickname);
         }
     }
 
@@ -76,12 +82,11 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
         response.getWriter().write(JSONValue.toJSONString(response));
     }
 
-    private void setSuccessWebResponse(HttpServletResponse response, JwtTokenDto tokenDto) throws IOException {
-
+    private void setSuccessWebResponse(HttpServletResponse response, JwtTokenDto tokenDto, String nickname) throws IOException {
         CookieUtil.addSecureCookie(response, "refreshToken", tokenDto.getRefreshToken(), jwtUtil.getWebRefreshTokenExpirationSecond());
         CookieUtil.addCookie(response, "accessToken", tokenDto.getAccessToken());
+        CookieUtil.addCookie(response, "nickname", nickname);
 
         response.sendRedirect(LOGIN_URL);
-
     }
 }
