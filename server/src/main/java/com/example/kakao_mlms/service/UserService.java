@@ -1,7 +1,7 @@
 package com.example.kakao_mlms.service;
 
 import com.example.kakao_mlms.domain.User;
-import com.example.kakao_mlms.dto.response.UserDto;
+import com.example.kakao_mlms.dto.UserDto;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
 import com.example.kakao_mlms.repository.UserRepository;

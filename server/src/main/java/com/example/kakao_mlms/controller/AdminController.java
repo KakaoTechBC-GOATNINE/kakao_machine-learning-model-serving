@@ -3,9 +3,7 @@ package com.example.kakao_mlms.controller;
 import com.example.kakao_mlms.annotation.UserId;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.response.QnaDtoResponse;
-import com.example.kakao_mlms.dto.response.UserDto;
-import com.example.kakao_mlms.exception.ResponseDto;
-import com.example.kakao_mlms.security.CustomUserDetails;
+import com.example.kakao_mlms.dto.UserDto;
 import com.example.kakao_mlms.service.AnswerService;
 import com.example.kakao_mlms.service.QnaService;
 import com.example.kakao_mlms.service.UserService;
@@ -16,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

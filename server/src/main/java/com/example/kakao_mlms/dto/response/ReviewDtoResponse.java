@@ -2,7 +2,7 @@ package com.example.kakao_mlms.dto.response;
 
 import java.util.List;
 
-public record ReviewResponseDto(
+public record ReviewDtoResponse(
         float latitude,
         float longitude,
         String location,
