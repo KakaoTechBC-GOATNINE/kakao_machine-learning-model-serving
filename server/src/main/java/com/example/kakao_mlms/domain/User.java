@@ -83,7 +83,7 @@ public class User {
         this.refreshToken = refreshToken;
     }
 
-    public void updateInfo(String nickname, String phoneNumber) {
+    public void updateInfo(String nickname) {
         if (nickname != null && (!Objects.equals(this.nickname, nickname))) {
             this.nickname = nickname;
         }
@@ -104,5 +104,17 @@ public class User {
     public void register(String nickname) {
         this.nickname = nickname;
         this.role = ERole.USER;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return Objects.nonNull(this.getId()) && Objects.equals(this.getId(), user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getId());
     }
 }

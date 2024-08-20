@@ -32,6 +32,7 @@ application-test.yml
 application-local.yml
 application-debug.yml
 application-prod.yml
+application.yml
 *.p8
 *.p12
 *.jks

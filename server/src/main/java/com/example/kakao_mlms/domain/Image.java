@@ -47,11 +47,11 @@ public class Image {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Image image)) return false;
-        return Objects.equals(id, image.id) && Objects.equals(originName, image.originName) && Objects.equals(uuidName, image.uuidName) && extension == image.extension && Objects.equals(qna, image.qna);
+        return Objects.nonNull(this.getId()) && Objects.equals(this.getId(), image.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, originName, uuidName, extension, qna);
+        return Objects.hashCode(this.getId());
     }
 }

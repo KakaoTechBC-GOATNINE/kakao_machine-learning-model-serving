@@ -59,34 +59,17 @@ def search_location(driver, location):
 def extract_reviews(driver):
     """음식점의 리뷰를 추출합니다."""
     reviews = []
+
     while True:
         try:
+            #  # 현재 리뷰 목록의 총 개수 저장 - 성능개선 sleep으로 변경
+            # review_elements_before = driver.find_elements(By.XPATH, '//ul[@class="list_evaluation"]/li')
+            # current_review_count = len(review_elements_before)
+
             # 페이지 소스를 얻어와서 파싱
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
-            review_elements = soup.select('.list_evaluation > li')
-            new_reviews = []
             
-            for review in review_elements:
-                # 리뷰 각 부분을 추출
-                try:
-                    level = review.select_one('a > div > div > span:nth-of-type(2)').text.strip()
-                    num_reviews = review.select_one('div > span:nth-of-type(3)').text.strip()
-                    avg_reviews = review.select_one('div > span:nth-of-type(5)').text.strip()
-                    star = review.select_one('.ico_star.inner_star')['style'].split(':')[1].strip()
-                    text = review.select_one('.txt_comment > span').text.strip()
-                    combined_review = f"{level} | {num_reviews} | {avg_reviews} | {star} | {text}"
-                    new_reviews.append(combined_review)
-                except (IndexError, AttributeError) as e:
-                    print(f"Error extracting review parts: {e}")
-                    continue
-
-            if not new_reviews:
-                reviews.append(' ')
-                break
-
-            reviews.extend(new_reviews)
-
             # 후기 더보기 버튼이 존재하는지 확인
             more_reviews_button = soup.select_one('span:contains("후기 더보기")')
             
@@ -103,10 +86,38 @@ def extract_reviews(driver):
             more_reviews_button.click()
             time.sleep(0.5)
 
+            # # 새로운 리뷰가 로드될 때까지 대기 (리뷰 총 개수가 증가할 때까지 대기) - 성능개선 sleep으로 변경
+            # WebDriverWait(driver, 10).until(
+            #     lambda driver: len(driver.find_elements(By.XPATH, '//ul[@class="list_evaluation"]/li')) > current_review_count
+            # )
+
         except Exception as e:
             print(f"Exception while clicking more reviews button: {e}")
             break
-    
+
+    # 모든 리뷰가 로드된 후에 리뷰를 추출
+    try:
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        review_elements = soup.select('.list_evaluation > li')
+        
+        for review in review_elements:
+            # 리뷰 각 부분을 추출
+            try:
+                level = review.select_one('a > div > div > span:nth-of-type(2)').text.strip()
+                num_reviews = review.select_one('div > span:nth-of-type(3)').text.strip()
+                avg_reviews = review.select_one('div > span:nth-of-type(5)').text.strip()
+                star = review.select_one('.ico_star.inner_star')['style'].split(':')[1].strip()
+                text = review.select_one('.txt_comment > span').text.strip()
+                combined_review = f"{level} | {num_reviews} | {avg_reviews} | {star} | {text}"
+                reviews.append(combined_review)
+            except (IndexError, AttributeError) as e:
+                print(f"Error extracting review parts: {e}")
+                continue
+
+    except Exception as e:
+        print(f"Exception while extracting reviews: {e}")
+
     # 후기가 없을 경우, 빈 리스트
     if not reviews:
         reviews.append(' ')

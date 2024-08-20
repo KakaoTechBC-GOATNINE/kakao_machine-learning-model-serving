@@ -72,7 +72,13 @@ public class ImageService {
         }
     }
 
-    public Resource downloadImage(String storeFilename) throws MalformedURLException {
-        return new FileUrlResource(uploadDir + storeFilename);
+    public Boolean deleteImage(String storeFileName) {
+        File imageFile = new File(uploadDir + storeFileName);
+        if (imageFile.exists()) { return imageFile.delete(); }
+        return false;
+    }
+
+    public Resource downloadImage(String storeFileName) throws MalformedURLException {
+        return new FileUrlResource(uploadDir + storeFileName);
     }
 }
