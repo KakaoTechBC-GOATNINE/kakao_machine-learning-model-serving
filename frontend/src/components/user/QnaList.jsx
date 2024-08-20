@@ -65,7 +65,9 @@ export default function QnaList() {
                 })));
                 setTotalRows(data.totalElements);
             } catch (error) {
-                if (error.response && error.response.status === 400) {
+                if (error.response && (error.response.status === 400 ||
+                                        error.response.status === 401 ||
+                                        error.response.status === 403)) {
                     alert('로그인한 유저만 사용 가능합니다.');
                     navigate('/login');
                 } else {
