@@ -59,7 +59,7 @@ class JpaRepositoryTest {
     void update() {
         // Given
         User user = userRepository.findById(1L).orElseThrow();
-        user.updateInfo("nickname7", "");
+        user.updateInfo("nickname7");
 
         // When
         User savedUser = userRepository.saveAndFlush(user);

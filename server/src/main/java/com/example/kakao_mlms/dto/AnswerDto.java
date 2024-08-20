@@ -1,7 +1,6 @@
 package com.example.kakao_mlms.dto;
 
 import com.example.kakao_mlms.domain.Answer;
-import com.example.kakao_mlms.dto.response.UserDto;
 
 import java.time.LocalDateTime;
 
