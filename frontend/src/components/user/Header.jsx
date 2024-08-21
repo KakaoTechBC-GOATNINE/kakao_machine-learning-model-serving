@@ -12,6 +12,11 @@ function getCookie(name) {
     return matches ? decodeURIComponent(matches[1]) : undefined;
 }
 
+function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+}
+
 function Header() {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,11 +29,23 @@ function Header() {
         if (nickname) {
             setNickname(nickname);
         }
+
+        // URL에서 토큰과 닉네임을 받아와 쿠키에 저장하는 로직
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessTokenFromUrl = urlParams.get('accessToken');
+        const nicknameFromUrl = urlParams.get('nickname');
+
+        if (accessTokenFromUrl && nicknameFromUrl) {
+            setCookie('accessToken', accessTokenFromUrl, 7);  // 7일 동안 유효
+            setCookie('nickname', nicknameFromUrl, 7);
+            setIsLoggedIn(true);
+            setNickname(nicknameFromUrl);
+        }
     }, []);
 
     const handleLogout = () => {
         document.cookie = 'accessToken=; Max-Age=0; path=/;';
-        document.cookie = 'refreshToken=; Max-Age=0; path=/;';
+        document.cookie = 'nickname=; Max-Age=0; path=/;';
         setIsLoggedIn(false);
         setNickname(''); // 로그아웃 시 닉네임 초기화
         alert("로그아웃 되었습니다.");
