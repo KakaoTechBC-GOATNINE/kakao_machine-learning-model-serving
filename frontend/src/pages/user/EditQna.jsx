@@ -36,7 +36,7 @@ export default function EditQna() {
             const token = getCookie("accessToken");
 
             try {
-                const response = await axios.get(`http://localhost:8080/api/v1/qnas/${id}`, {
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -49,7 +49,7 @@ export default function EditQna() {
                 setIsBlind(data.isBlind);
 
                 const imagePromises = data.images.map(async (image) => {
-                    const imageResponse = await axios.get(`http://localhost:8080/api/v1/qnas/image/${image.uuidName}`, {
+                    const imageResponse = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/image/${image.uuidName}`, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
@@ -133,7 +133,7 @@ export default function EditQna() {
         const token = getCookie("accessToken");
 
         try {
-            await axios.put(`http://localhost:8080/api/v1/qnas/${id}`, formData, {
+            await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,

@@ -23,7 +23,7 @@ export default function QnaDetail() {
             const token = getCookie("accessToken");
 
             try {
-                const response = await axios.get(`http://localhost:8080/api/v1/qnas/${id}`, {
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -33,7 +33,7 @@ export default function QnaDetail() {
                 setQnaData(data);
 
                 const imagePromises = data.images.map(async (image) => {
-                    const imageResponse = await axios.get(`http://localhost:8080/api/v1/qnas/image/${image.uuidName}`, {
+                    const imageResponse = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/image/${image.uuidName}`, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
@@ -71,7 +71,7 @@ export default function QnaDetail() {
         if (window.confirm("정말 삭제하시겠습니까?")) {
             try {
                 const token = getCookie("accessToken");
-                await axios.delete(`http://localhost:8080/api/v1/qnas/${id}`, {
+                await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

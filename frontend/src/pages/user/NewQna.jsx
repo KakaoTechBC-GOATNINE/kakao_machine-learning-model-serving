@@ -77,7 +77,7 @@ export default function NewQna() {
         const token = getCookie("accessToken");
 
         try {
-            await axios.post('http://localhost:8080/api/v1/qnas', formData, {
+            await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
