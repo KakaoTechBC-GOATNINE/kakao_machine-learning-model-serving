@@ -149,7 +149,7 @@ export default function QnaDetail() {
             </Box>
 
             <Box sx={{ marginTop: 6, marginBottom: 2, borderBottom: '1px solid #ddd', paddingBottom: 2 }}>
-                <Typography variant="h4" align="center" gutterBottom>
+                <Typography variant="h4" align="left" gutterBottom>
                     {qnaData.title}
                 </Typography>
             </Box>
