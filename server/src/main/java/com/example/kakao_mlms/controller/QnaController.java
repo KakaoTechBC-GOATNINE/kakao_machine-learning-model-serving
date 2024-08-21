@@ -10,6 +10,7 @@ import com.example.kakao_mlms.dto.request.QnaRequestDto;
 import com.example.kakao_mlms.dto.response.QnaDtoResponse;
 import com.example.kakao_mlms.dto.response.QnaDtoWithImagesResponse;
 import com.example.kakao_mlms.exception.ResponseDto;
+import com.example.kakao_mlms.service.AnswerService;
 import com.example.kakao_mlms.service.ImageService;
 import com.example.kakao_mlms.service.QnaService;
 import com.example.kakao_mlms.service.UserService;
@@ -36,6 +37,7 @@ public class QnaController {
     private final UserService userService;
     private final QnaService qnaService;
     private final ImageService imageService;
+    private final AnswerService answerService;
 
     @PostMapping
     public ResponseEntity<Void> createQna(@UserId Long id,
@@ -62,7 +64,8 @@ public class QnaController {
 
     @GetMapping("/{qnaId}")
     public ResponseEntity<?> getQna(@UserId Long id, @PathVariable("qnaId") Long qnaId) {
-        QnaDtoWithImagesResponse qnaWithImagesResponse = QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId));
+        QnaDtoWithImagesResponse qnaWithImagesResponse =
+                QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId), answerService.getAnswer(qnaId));
         if (qnaWithImagesResponse.user().id().longValue() == id.longValue()) {
             return ResponseEntity.ok(qnaWithImagesResponse);
         } else {

@@ -3,6 +3,7 @@ package com.example.kakao_mlms.service;
 import com.example.kakao_mlms.domain.Answer;
 import com.example.kakao_mlms.domain.Qna;
 import com.example.kakao_mlms.domain.User;
+import com.example.kakao_mlms.dto.AnswerDto;
 import com.example.kakao_mlms.repository.AnswerRepository;
 import com.example.kakao_mlms.repository.QnaRepository;
 import com.example.kakao_mlms.repository.UserRepository;
@@ -11,6 +12,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,5 +32,9 @@ public class AnswerService {
         Answer answer = Answer.builder().content(content).qna(qna).user(adminUser).build();
 
         answerRepository.save(answer);
+    }
+
+    public AnswerDto getAnswer(Long qnaId) {
+        return answerRepository.findByQna_Id(qnaId).map(AnswerDto::from).orElse(null);
     }
 }

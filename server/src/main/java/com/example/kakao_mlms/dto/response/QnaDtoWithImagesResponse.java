@@ -1,10 +1,13 @@
 package com.example.kakao_mlms.dto.response;
 
 import com.example.kakao_mlms.domain.type.Category;
+import com.example.kakao_mlms.dto.AnswerDto;
 import com.example.kakao_mlms.dto.QnaDtoWithImages;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public record QnaDtoWithImagesResponse(Long id,
                                        String title,
@@ -13,10 +16,11 @@ public record QnaDtoWithImagesResponse(Long id,
                                        LocalDateTime createdDate,
                                        Boolean isAnswer,
                                        Boolean isBlind,
-                                       UserDto user,
-                                       List<ImageResponse> images) {
+                                       UserDtoResponse user,
+                                       List<ImageResponse> images,
+                                       AnswerDtoResponse answer
 ) {
-    public static QnaDtoWithImagesResponse from(QnaDtoWithImages qnaDtoWithImages) {
+    public static QnaDtoWithImagesResponse from(QnaDtoWithImages qnaDtoWithImages, AnswerDto answerDto) {
         return new QnaDtoWithImagesResponse(qnaDtoWithImages.id(),
                 qnaDtoWithImages.title(),
                 qnaDtoWithImages.content(),
@@ -26,7 +30,9 @@ public record QnaDtoWithImagesResponse(Long id,
                 qnaDtoWithImages.isBlind(),
                 UserDtoResponse.from(qnaDtoWithImages.user()),
                 qnaDtoWithImages.images().stream()
-                        .map(ImageResponse::from).toList());
-
+                        .map(ImageResponse::from).toList(),
+                Optional.ofNullable(answerDto)
+                        .map(AnswerDtoResponse::from)
+                        .orElse(null));
     }
 }
