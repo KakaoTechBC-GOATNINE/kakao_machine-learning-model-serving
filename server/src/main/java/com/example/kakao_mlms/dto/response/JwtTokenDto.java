@@ -4,7 +4,9 @@ import com.example.kakao_mlms.dto.SelfValidating;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 @Getter
 public class JwtTokenDto extends SelfValidating<JwtTokenDto> {
     @NotNull String accessToken;

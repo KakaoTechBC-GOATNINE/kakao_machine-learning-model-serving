@@ -11,6 +11,7 @@ import com.example.kakao_mlms.exception.ResponseDto;
 import com.example.kakao_mlms.service.AuthService;
 import com.example.kakao_mlms.util.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,11 +44,12 @@ public class AuthController {
 
     //accessToken 다시 받기
     @PostMapping("/reissue")
-    public ResponseDto<JwtTokenDto> reissue(final HttpServletRequest request) {
-        final String refreshToken = HeaderUtil.refineHeader(request, Constants.AUTHORIZATION_HEADER, Constants.BEARER_PREFIX)
-                .orElseThrow(() -> new CommonException(ErrorCode.INVALID_HEADER));
-
+    public ResponseDto<JwtTokenDto> reissue(final HttpServletRequest request, HttpServletResponse response) {
+        final String refreshToken = authService.getRefreshToken(request);
+        log.info("refreshToken : {}", refreshToken);
+        if (refreshToken == null) return null;
         final JwtTokenDto jwtTokenDto = authService.reissue(refreshToken);
+        authService.renewSecretCookie(response, jwtTokenDto);
         return ResponseDto.created(jwtTokenDto);
     }
 
