@@ -56,7 +56,7 @@ public class QnaController {
                              @RequestParam(required = false, value = "category") Category category,
                              @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        log.debug("id = {}, title = {}, category = {}, pageable = {}", id, title, category, pageable);
+        log.info("id = {}, title = {}, category = {}, pageable = {}", id, title, category, pageable);
         Page<QnaDtoResponse> qnaResponse = qnaService.searchQnasByUser(title, id, category, mine, pageable)
                 .map(QnaDtoResponse::from);
         return ResponseEntity.ok(qnaResponse);
