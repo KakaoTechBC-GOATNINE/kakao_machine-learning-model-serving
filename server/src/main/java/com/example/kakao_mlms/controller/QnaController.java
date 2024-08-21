@@ -5,10 +5,10 @@ import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.ImageDto;
 import com.example.kakao_mlms.dto.QnaDto;
+import com.example.kakao_mlms.dto.UserDto;
 import com.example.kakao_mlms.dto.request.QnaRequestDto;
 import com.example.kakao_mlms.dto.response.QnaDtoResponse;
 import com.example.kakao_mlms.dto.response.QnaDtoWithImagesResponse;
-import com.example.kakao_mlms.dto.UserDto;
 import com.example.kakao_mlms.exception.ResponseDto;
 import com.example.kakao_mlms.service.ImageService;
 import com.example.kakao_mlms.service.QnaService;
@@ -49,12 +49,13 @@ public class QnaController {
 
     @GetMapping
     public ResponseEntity<Page<QnaDtoResponse>> getQnaList(@UserId Long id,
+                             @RequestParam(value = "mine", defaultValue = "false") Boolean mine,
                              @RequestParam(required = false, value = "title") String title,
                              @RequestParam(required = false, value = "category") Category category,
                              @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         log.debug("id = {}, title = {}, category = {}, pageable = {}", id, title, category, pageable);
-        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnasByUser(title, id, category, pageable)
+        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnasByUser(title, id, category, mine, pageable)
                 .map(QnaDtoResponse::from);
         return ResponseEntity.ok(qnaResponse);
     }
@@ -71,6 +72,7 @@ public class QnaController {
 
     @GetMapping("/image/{filename}")
     public Resource downloadImage(@PathVariable("filename") String storeFilename) throws MalformedURLException {
+        log.info("storeFilename = {}", storeFilename);
          return imageService.downloadImage(storeFilename);
     }
 
