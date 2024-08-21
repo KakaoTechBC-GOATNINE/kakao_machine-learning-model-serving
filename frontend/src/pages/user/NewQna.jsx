@@ -15,12 +15,14 @@ import { styled } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function NewQna() {
     const [category, setCategory] = React.useState('');
     const [title, setTitle] = React.useState('');
     const [content, setContent] = React.useState('');
-    const [fileCount, setFileCount] = React.useState(0);
     const [files, setFiles] = React.useState([]);
     const [isBlind, setIsBlind] = React.useState(false);
     const navigate = useNavigate();
@@ -30,13 +32,23 @@ export default function NewQna() {
     };
 
     const fileChange = (event) => {
-        const selectedFiles = event.target.files;
-        setFileCount(selectedFiles.length);
-        setFiles(selectedFiles);
+        const selectedFiles = Array.from(event.target.files);
+
+        const filePreviews = selectedFiles.map(file => ({
+            file: file,
+            url: URL.createObjectURL(file),
+            originName: file.name,
+        }));
+
+        setFiles(prev => [...prev, ...filePreviews]);
     };
 
     const handleBlindChange = (event) => {
         setIsBlind(event.target.checked);
+    };
+
+    const handleRemoveFile = (index) => {
+        setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async () => {
@@ -58,7 +70,7 @@ export default function NewQna() {
         formData.append('qnaRequestDto', jsonBlob);
 
         // 모든 파일을 FormData에 추가
-        Array.from(files).forEach(file => {
+        files.forEach(({ file }) => {
             formData.append('images', file);
         });
 
@@ -140,6 +152,26 @@ export default function NewQna() {
                         onChange={(e) => setContent(e.target.value)}
                         sx={{ marginBottom: 2 }}
                     />
+                    {/* Display selected files */}
+                    <Box sx={{ marginBottom: 2 }}>
+                        {files.map((file, index) => (
+                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', marginBottom: 1 }}>
+                                <img
+                                    src={file.url}
+                                    alt={file.originName}
+                                    style={{ maxWidth: '50px', marginRight: '8px' }}
+                                />
+                                <Typography variant="body2">{file.originName}</Typography>
+                                <IconButton
+                                    onClick={() => handleRemoveFile(index)}
+                                    size="small"
+                                    sx={{ marginLeft: 1 }}
+                                >
+                                    <CloseIcon fontSize="small" />
+                                </IconButton>
+                            </Box>
+                        ))}
+                    </Box>
                     <Button
                         component="label"
                         role={undefined}
@@ -148,7 +180,7 @@ export default function NewQna() {
                         startIcon={<CloudUploadIcon />}
                         sx={{ marginBottom: 4 }}
                     >
-                        {`첨부파일${fileCount > 0 ? ` (${fileCount}건)` : ''}`}
+                        {`첨부파일${files.length > 0 ? ` (${files.length}건)` : ''}`}
                         <VisuallyHiddenInput
                             type="file"
                             accept="image/*"
