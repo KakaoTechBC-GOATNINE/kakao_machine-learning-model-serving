@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.io.FileNotFoundException;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -45,6 +47,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = {MissingServletRequestParameterException.class})
     public ResponseDto<?> handleArgumentNotValidException(MissingServletRequestParameterException e) {
         log.error("handleArgumentNotValidException() in GlobalExceptionHandler throw MethodArgumentNotValidException : {}", e.getMessage());
+        return ResponseDto.fail(e);
+    }
+
+    // 파일 못 찾았을 때
+    @ExceptionHandler
+    public ResponseDto<Object> handleArgumentNotValidException(FileNotFoundException e) {
+        log.error("FileNotFoundException : {}", e.getMessage());
         return ResponseDto.fail(e);
     }
 
