@@ -12,8 +12,7 @@ public class UserIdInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("설정");
-        log.info(authentication.getName() + " : " + authentication.getAuthorities().stream().findFirst()
+        log.info(authentication.getName() + "(ID) : " + authentication.getAuthorities().stream().findFirst()
                 .map(GrantedAuthority::getAuthority).orElseThrow());
         request.setAttribute("USER_ID", authentication.getName());
 
