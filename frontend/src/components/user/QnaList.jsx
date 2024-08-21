@@ -18,6 +18,8 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Box from '@mui/material/Box';
 import Pagination from '@mui/material/Pagination';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 function getCookie(name) {
     const matches = document.cookie.match(new RegExp(
@@ -68,6 +70,7 @@ export default function QnaList() {
     const [totalRows, setTotalRows] = React.useState(0);
     const [title, setTitle] = React.useState('');
     const [category, setCategory] = React.useState('');
+    const [mine, setMine] = React.useState(false);  // "내 질문만 보기" 상태 추가
     const navigate = useNavigate();
 
     React.useEffect(() => {
@@ -80,13 +83,13 @@ export default function QnaList() {
         const token = getCookie("accessToken");  // 쿠키에서 토큰을 가져옴
 
         try {
-            // const response = await axios.get('http://localhost:8080/api/v1/qnas', {
-            const response = await axios.get('https://shortood-dev.shop/api/v1/qnas', {
+            const response = await axios.get('http://localhost:8080/api/v1/qnas', {
                 params: {
                     page: page - 1,  // 서버에서 0 기반 페이지 처리
                     size: rowsPerPage,
                     title: title,
                     category: categoryMap[category],   // 카테고리 맵핑된 값 사용
+                    mine: mine,  // "내 질문만 보기" 값 추가
                 },
                 headers: {
                     Authorization: `Bearer ${token}`,  // 인증 헤더에 토큰 추가
@@ -166,6 +169,16 @@ export default function QnaList() {
                     onChange={(e) => setTitle(e.target.value)}
                     size="small"
                     onKeyPress={handleKeyPress}  // 엔터키 눌렀을 때 검색 수행
+                />
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={mine}
+                            onChange={(e) => setMine(e.target.checked)}
+                            color="primary"
+                        />
+                    }
+                    label="내 질문만 보기"
                 />
                 <Button variant="contained" color="primary" onClick={handleSearch}>
                     검색
