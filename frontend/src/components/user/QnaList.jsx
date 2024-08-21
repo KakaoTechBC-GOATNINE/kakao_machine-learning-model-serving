@@ -9,7 +9,6 @@ import TableRow from '@mui/material/TableRow';
 import LockIcon from '@mui/icons-material/Lock';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
@@ -20,13 +19,7 @@ import Box from '@mui/material/Box';
 import Pagination from '@mui/material/Pagination';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-
-function getCookie(name) {
-    const matches = document.cookie.match(new RegExp(
-        "(?:^|; )" + name.replace(/([.$?*|{}()[]\\\/+^])/g, '\\$1') + "=([^;]*)"
-    ));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
-}
+import api from '../Api';
 
 const columns = [
     { id: 'id', label: '글 번호', minWidth: 10, align: 'center' },
@@ -64,7 +57,7 @@ function formatDateTime(dateArray) {
 
 export default function QnaList() {
     const [page, setPage] = React.useState(1);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10); // 클라이언트 측에서만 관리
     const [rows, setRows] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [totalRows, setTotalRows] = React.useState(0);
@@ -74,25 +67,19 @@ export default function QnaList() {
     const navigate = useNavigate();
 
     React.useEffect(() => {
-        // 컴포넌트가 마운트될 때 한 번 자동으로 데이터 로드
-        fetchData();
-    }, []);
+        fetchData();  // 페이지, "내 질문만 보기" 값이 변경될 때마다 데이터 로드
+    }, [page, mine]);
 
     const fetchData = async () => {
         setLoading(true);
-        const token = getCookie("accessToken");  // 쿠키에서 토큰을 가져옴
 
         try {
-            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas`, {
+            const response = await api.get('/api/v1/qnas', {
                 params: {
                     page: page - 1,  // 서버에서 0 기반 페이지 처리
-                    size: rowsPerPage,
                     title: title,
                     category: categoryMap[category],   // 카테고리 맵핑된 값 사용
                     mine: mine,  // "내 질문만 보기" 값 추가
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`,  // 인증 헤더에 토큰 추가
                 },
             });
 
@@ -128,16 +115,28 @@ export default function QnaList() {
 
     const handleChangePage = (event, value) => {
         setPage(value);
-        fetchData();  // 페이지가 바뀔 때마다 데이터를 가져옴
     };
 
     const handleRowClick = (id) => {
         navigate(`/qnas/${id}`);
     };
 
-    const handleKeyPress = (event) => {
+    const handleCategoryChange = (event) => {
+        setCategory(event.target.value);
+    };
+
+    const handleTitleChange = (event) => {
+        setTitle(event.target.value);
+    };
+
+    const handleMineChange = (event) => {
+        setMine(event.target.checked);
+    };
+
+    // 엔터키 입력 시 검색 함수
+    const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            handleSearch();
+            handleSearch();  // 엔터키 입력 시 검색 수행
         }
     };
 
@@ -149,9 +148,8 @@ export default function QnaList() {
                     <InputLabel>카테고리</InputLabel>
                     <Select
                         value={category}
-                        onChange={(e) => setCategory(e.target.value)}
+                        onChange={handleCategoryChange}
                         label="카테고리"
-                        onKeyPress={handleKeyPress}  // 엔터키 눌렀을 때 검색 수행
                     >
                         <MenuItem value="">
                             <em>전체</em>
@@ -166,26 +164,31 @@ export default function QnaList() {
                     label="제목"
                     variant="outlined"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={handleTitleChange}
+                    onKeyDown={handleKeyDown}  // 엔터키 입력 시 검색
                     size="small"
-                    onKeyPress={handleKeyPress}  // 엔터키 눌렀을 때 검색 수행
-                />
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={mine}
-                            onChange={(e) => setMine(e.target.checked)}
-                            color="primary"
-                        />
-                    }
-                    label="내 질문만 보기"
                 />
                 <Button variant="contained" color="primary" onClick={handleSearch}>
                     검색
                 </Button>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={mine}
+                            onChange={handleMineChange}
+                            color="primary"
+                        />
+                    }
+                    label={
+                        <span style={{ color: mine ? 'green' : 'inherit' }}>
+                            내 질문만 보기
+                        </span>
+                    }
+                    sx={{ marginLeft: 'auto' }}  // 체크박스를 오른쪽으로 이동
+                />
             </Box>
             {/* 테이블 */}
-            <TableContainer sx={{ maxHeight: 440 }}>
+            <TableContainer>
                 {loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                         <CircularProgress />
@@ -237,7 +240,13 @@ export default function QnaList() {
                                                         }}
                                                     />
                                                 )}
-                                                {value}
+                                                {column.id === 'user' ? (
+                                                    <span style={{ color: mine ? 'green' : 'inherit' }}>
+                                                        {value}
+                                                    </span>
+                                                ) : (
+                                                    value
+                                                )}
                                             </TableCell>
                                         );
                                     })}
