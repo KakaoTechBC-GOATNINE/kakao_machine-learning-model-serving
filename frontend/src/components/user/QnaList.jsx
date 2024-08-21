@@ -58,8 +58,7 @@ export default function QnaList() {
             const token = getCookie("accessToken");  // 쿠키에서 토큰을 가져옴
 
             try {
-                // const response = await axios.get('http://localhost:8080/api/v1/qnas', {
-                const response = await axios.get('https://shortood-dev.shop/api/v1/qnas', {
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas`, {
                     params: {
                         page: page,
                         size: rowsPerPage,
