@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.logging.log4j.ThreadContext.isEmpty;
 
@@ -142,6 +143,9 @@ public class QnaService {
     @Transactional(readOnly = true)
     public Page<QnaDto> searchQnasByUser(String title, Long userId, Category category, Pageable pageable) {
         if (StringUtils.hasText(title)) {
+            if (Objects.isNull(category)) {
+                return qnaRepository.findByUserIdOrIsBlindAndTitle(userId, false, title, pageable).map(QnaDto::from);
+            }
             return qnaRepository.findByUserIdOrIsBlindAndTitleAndCategory(userId, false, title, category, pageable).map(QnaDto::from);
         }
         return qnaRepository.findByUser_IdOrIsBlind(userId, false, pageable).map(QnaDto::from);
