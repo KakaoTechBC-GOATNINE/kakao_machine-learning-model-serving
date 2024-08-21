@@ -13,12 +13,12 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import LockIcon from '@mui/icons-material/Lock';
 import { styled } from "@mui/material";
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import api from '../../components/Api';  // api.js 파일을 가져옵니다.
 
 export default function EditQna() {
     const { id } = useParams();
@@ -33,14 +33,8 @@ export default function EditQna() {
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const token = getCookie("accessToken");
-
             try {
-                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = await api.get(`/api/v1/qnas/${id}`);
 
                 const data = response.data;
                 setCategory(data.category);
@@ -49,10 +43,7 @@ export default function EditQna() {
                 setIsBlind(data.isBlind);
 
                 const imagePromises = data.images.map(async (image) => {
-                    const imageResponse = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/image/${image.uuidName}`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                    const imageResponse = await api.get(`/api/v1/qnas/image/${image.uuidName}`, {
                         responseType: 'blob',
                     });
                     const file = new File([imageResponse.data], image.originName, {
@@ -130,13 +121,10 @@ export default function EditQna() {
             formData.append('images', file);
         });
 
-        const token = getCookie("accessToken");
-
         try {
-            await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/${id}`, formData, {
+            await api.put(`/api/v1/qnas/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`,
                 },
             });
             alert('수정되었습니다.');
@@ -263,12 +251,4 @@ export default function EditQna() {
             </Stack>
         </Container>
     );
-}
-
-// 쿠키에서 토큰을 가져오는 함수
-function getCookie(name) {
-    const matches = document.cookie.match(new RegExp(
-        "(?:^|; )" + name.replace(/([.$?*|{}()[]\\\/+^])/g, '\\$1') + "=([^;]*)"
-    ));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
 }

@@ -13,11 +13,11 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import LockIcon from '@mui/icons-material/Lock';
 import { styled } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import api from '../../components/Api';  // api.js 파일을 가져옵니다.
 
 export default function NewQna() {
     const [category, setCategory] = React.useState('');
@@ -74,12 +74,10 @@ export default function NewQna() {
             formData.append('images', file);
         });
 
-        const token = getCookie("accessToken");
-
         try {
-            await axios.post(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas`, formData, {
+            await api.post(`/api/v1/qnas`, formData, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
                 },
             });
             alert('작성되었습니다.');
@@ -199,12 +197,4 @@ export default function NewQna() {
             </Stack>
         </Container>
     );
-}
-
-// 쿠키에서 토큰을 가져오는 함수
-function getCookie(name) {
-    const matches = document.cookie.match(new RegExp(
-        "(?:^|; )" + name.replace(/([.$?*|{}()[]\\\/+^])/g, '\\$1') + "=([^;]*)"
-    ));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
 }

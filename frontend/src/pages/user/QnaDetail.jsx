@@ -6,8 +6,8 @@ import Typography from '@mui/material/Typography';
 import Grid from "@mui/material/Unstable_Grid2";
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import axios from 'axios';
 import Alert from '@mui/material/Alert';
+import api from '../../components/Api';  // api.js 파일을 가져옵니다.
 
 export default function QnaDetail() {
     const { id } = useParams();
@@ -20,23 +20,15 @@ export default function QnaDetail() {
     React.useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            const token = getCookie("accessToken");
 
             try {
-                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = await api.get(`/api/v1/qnas/${id}`);
 
                 const data = response.data;
                 setQnaData(data);
 
                 const imagePromises = data.images.map(async (image) => {
-                    const imageResponse = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/image/${image.uuidName}`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                    const imageResponse = await api.get(`/api/v1/qnas/image/${image.uuidName}`, {
                         responseType: 'blob',
                     });
                     return {
@@ -49,7 +41,7 @@ export default function QnaDetail() {
                 setImageUrls(urls);
             } catch (error) {
                 if (error.response && error.response.status === 400) {
-                    alert('권한이 없습니다.');
+                    alert('비공개 게시물입니다.');
                     navigate('/qnas');
                 } else {
                     setError('Q&A 데이터를 불러오는데 실패했습니다.');
@@ -70,12 +62,7 @@ export default function QnaDetail() {
     const handleDelete = async () => {
         if (window.confirm("정말 삭제하시겠습니까?")) {
             try {
-                const token = getCookie("accessToken");
-                await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas/${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                await api.delete(`/api/v1/qnas/${id}`);
                 alert("삭제되었습니다.");
                 navigate('/qnas');
             } catch (error) {
@@ -212,11 +199,4 @@ export default function QnaDetail() {
             </Grid>
         </Container>
     );
-}
-
-function getCookie(name) {
-    const matches = document.cookie.match(new RegExp(
-        "(?:^|; )" + name.replace(/([.$?*|{}()[]\\\/+^])/g, '\\$1') + "=([^;]*)"
-    ));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
 }
