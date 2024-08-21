@@ -90,12 +90,11 @@ export default function QnaDetail() {
             return "Invalid Date";
         }
 
-        const year = String(dateArray[0]);
-        const month = String(dateArray[1]).padStart(2, '0');
-        const day = String(dateArray[2]).padStart(2, '0');
-        const hour = String(dateArray[3]).padStart(2, '0');
-        const minute = String(dateArray[4]).padStart(2, '0');
-
+        const year = String(dateArray[0]).slice(0); // '2024'
+        const month = String(dateArray[1]).padStart(2, '0'); // '8' -> '08'
+        const day = String(dateArray[2]).padStart(2, '0'); // '20'
+        const hour = String(dateArray[3]).padStart(2, '0'); // '16'
+        const minute = String(dateArray[4]).padStart(2, '0'); // '16'
         return `${year}년 ${month}월 ${day}일 ${hour}시 ${minute}분`;
     }
 
@@ -179,13 +178,16 @@ export default function QnaDetail() {
                     {qnaData.content}
                 </Typography>
 
-                {qnaData.isAnswer && (
+                {qnaData.isAnswer && qnaData.answer && (
                     <>
                         <Typography variant="h6" gutterBottom>
                             답변
                         </Typography>
                         <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', backgroundColor: '#f1f8e9', padding: 2, borderRadius: 1 }}>
-                            {qnaData.answer}
+                            {qnaData.answer.content}
+                        </Typography>
+                        <Typography variant="body2" sx={{ textAlign: 'right', color: 'textSecondary', marginTop: 2 }}>
+                            작성일: {formatDateTime(qnaData.answer.createdDate)}
                         </Typography>
                     </>
                 )}
