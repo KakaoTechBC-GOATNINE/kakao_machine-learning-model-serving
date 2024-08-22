@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 // Axios 인스턴스 생성
 const api = axios.create({
-    baseURL: `${process.env.REACT_APP_BASE_URL}`,
+    baseURL: `${process.env.REACT_APP_API_BASE_URL}`,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -40,7 +40,7 @@ api.interceptors.response.use(
                 // 서버에서 리프레시 토큰을 사용해 재발급 요청
                 // const { data } = await api.post(`/api/v1/auth/reissue`);
                 const response = await axios.post(
-                    `${process.env.REACT_APP_BASE_URL}/api/v1/auth/reissue`,
+                    `${process.env.REACT_APP_API_BASE_URL}/api/v1/auth/reissue`,
                     {},  // 요청 본문이 없으면 빈 객체를 전달
                     {
                         withCredentials: true,  // 이 요청에 대해서만 크레덴셜 설정
