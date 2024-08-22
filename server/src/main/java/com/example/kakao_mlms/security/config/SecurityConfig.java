@@ -55,8 +55,8 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .cors(httpSecurityCorsConfigurer ->
-                        httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
+                // .cors(httpSecurityCorsConfigurer ->
+                //         httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable) //보호 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable) // 기본 HTTP 기본 인증 비활성화
                 .sessionManagement((sessionManagement) -> //상태를 유지하지 않는 세션 정책 설정
@@ -88,10 +88,10 @@ public class SecurityConfig {
                 // 로그아웃 설정
                 .logout(configurer ->
                         configurer
-                                .logoutUrl("/auth/logout")
+                                .logoutUrl("/api/v1/logout")
                                 .addLogoutHandler(customSignOutProcessHandler)
                                 .logoutSuccessHandler(customSignOutResultHandler)
-                                .deleteCookies("JSESSIONID")
+                                .deleteCookies("JSESSIONID", "nickname", "accessToken", "refreshToken") // 쿠키 삭제 설정
                 )
 
                 //예외 처리 설정
@@ -107,16 +107,16 @@ public class SecurityConfig {
                 .getOrBuild();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));  // 허용할 출처 설정
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // 허용할 메서드 설정
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));  // 허용할 헤더 설정
-        configuration.setAllowCredentials(true);  // 쿠키 등 자격 증명 허용
+//     @Bean
+//     public CorsConfigurationSource corsConfigurationSource() {
+//         CorsConfiguration configuration = new CorsConfiguration();
+//         configuration.setAllowedOrigins(List.of("http://localhost:3000"));  // 허용할 출처 설정
+//         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // 허용할 메서드 설정
+//         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));  // 허용할 헤더 설정
+//         configuration.setAllowCredentials(true);  // 쿠키 등 자격 증명 허용
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);  // 모든 경로에 대해 CORS 설정 적용
-        return source;
-    }
+//         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//         source.registerCorsConfiguration("/**", configuration);  // 모든 경로에 대해 CORS 설정 적용
+//         return source;
+//     }
 }
