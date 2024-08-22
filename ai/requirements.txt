@@ -19,13 +19,18 @@ seaborn==0.11.2
 scikit-learn==0.24.2
 
 # Numerical computations and array operations
-numpy==1.21.2
+numpy
 
 # Korean language processing
 konlpy
+mecab-python3
 
 # PyTorch for deep learning
 torch
+
+# Tensorflow for LSTM model creat
+Tensorflow==2.17.0
+Keras==3.5.0
 
 # Hugging Face Transformers for NLP models
 transformers
