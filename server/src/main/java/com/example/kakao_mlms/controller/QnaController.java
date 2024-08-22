@@ -49,8 +49,8 @@ public class QnaController {
 
     @GetMapping
     public ResponseEntity<Page<QnaDtoResponse>> getQnaList(@UserId Long id,
-                             @RequestParam(required = false) String title,
-                             @RequestParam(required = false) Category category,
+                             @RequestParam(required = false, value = "title") String title,
+                             @RequestParam(required = false, value = "category") Category category,
                              @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         Page<QnaDtoResponse> qnaResponse = qnaService.searchQnasByUser(title, id, category, pageable)
@@ -77,8 +77,8 @@ public class QnaController {
     @PutMapping("/{qnaId}")
     public ResponseEntity<Long> updateQna(@UserId Long id,
                                     @PathVariable("qnaId") Long qnaId,
-                                    @RequestPart QnaRequestDto qnaRequestDto,
-                                    @RequestPart(required = false) List<MultipartFile> images) {
+                                    @RequestPart("qnaRequestDto") QnaRequestDto qnaRequestDto,
+                                    @RequestPart(required = false, value = "images") List<MultipartFile> images) {
         User user = userService.getUserInfo(id);
         List<ImageDto> imageDtos = imageService.uploadFiles(images);
         QnaDto qnaDto = qnaRequestDto.toDto(UserDto.from(user), qnaId);

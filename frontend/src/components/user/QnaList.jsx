@@ -12,14 +12,37 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+function getCookie(name) {
+    const matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([.$?*|{}()[]\\\/+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
 const columns = [
-    { id: 'id', label: 'id', minWidth: 10, align: 'center' },
+    { id: 'id', label: '글 번호', minWidth: 10, align: 'center' },
     { id: 'category', label: '유형', minWidth: 30, align: 'center' },
     { id: 'title', label: '제목', minWidth: 100, align: 'center' },
     { id: 'user', label: '작성자', minWidth: 100, align: 'center' },
     { id: 'isAnswer', label: '답변 상태', minWidth: 30, align: 'center' },
     { id: 'createdDate', label: '작성일자', minWidth: 30, align: 'center' },
 ];
+
+// 날짜 배열을 원하는 형식으로 변환하는 함수
+function formatDateTime(dateArray) {
+    if (!dateArray || dateArray.length < 6) {
+        return "Invalid Date";
+    }
+
+    const year = String(dateArray[0]).slice(2); // '2024' -> '24'
+    const month = String(dateArray[1]).padStart(2, '0'); // '8' -> '08'
+    const day = String(dateArray[2]).padStart(2, '0'); // '20'
+    const hour = String(dateArray[3]).padStart(2, '0'); // '16'
+    const minute = String(dateArray[4]).padStart(2, '0'); // '16'
+
+    // 원하는 형식으로 변환
+    return `${year}.${month}.${day} ${hour}:${minute}`;
+}
 
 export default function QnaList() {
     const [page, setPage] = React.useState(0);
@@ -32,11 +55,16 @@ export default function QnaList() {
     React.useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
+            const token = getCookie("accessToken");  // 쿠키에서 토큰을 가져옴
+
             try {
-                const response = await axios.get('http://localhost:8080/api/v1/qnas', {
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/qnas`, {
                     params: {
                         page: page,
                         size: rowsPerPage,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token}`,  // 인증 헤더에 토큰 추가
                     },
                 });
 
@@ -48,18 +76,25 @@ export default function QnaList() {
                     user: item.user.nickname,
                     isBlind: item.isBlind,
                     isAnswer: item.isAnswer,
-                    createdDate: item.createdDate,
+                    createdDate: formatDateTime(item.createdDate),  // 날짜 형식 변환
                 })));
                 setTotalRows(data.totalElements);
             } catch (error) {
-                console.error('Failed to fetch data', error);
+                if (error.response && (error.response.status === 400 ||
+                                        error.response.status === 401 ||
+                                        error.response.status === 403)) {
+                    alert('로그인한 유저만 사용 가능합니다.');
+                    navigate('/login');
+                } else {
+                    console.error('Failed to fetch data', error);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [page, rowsPerPage]);
+    }, [page, rowsPerPage, navigate]);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);

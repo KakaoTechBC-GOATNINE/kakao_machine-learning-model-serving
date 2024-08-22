@@ -4,74 +4,28 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { useNavigate } from 'react-router-dom';  // 페이지 이동을 위한 훅
 
 export default function SignIn() {
     const [loginId, setLoginId] = React.useState('');
     const [password, setPassword] = React.useState('');
-    const navigate = useNavigate();  // 네비게이트 훅 사용
-
-    const handleLogin = async (event) => {
-        event.preventDefault(); // 폼 제출 기본 동작 방지
-    
-        // URL 파라미터로 serialId와 password를 추가
-        const queryParams = new URLSearchParams({
-            serialId: loginId,
-            password: password
-        });
-
-        const baseUrl = process.env.REACT_APP_API_BASE_URL;
-        console.log('Base URL:', process.env.REACT_APP_API_BASE_URL);
-        // POST 요청을 URL에 쿼리 파라미터를 포함하여 전송
-        const response = await fetch(`${baseUrl}/api/v1/sign-in?${queryParams.toString()}`, { //로컬에서는 http://localhost:8080
-
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-    
-        // 로그인 요청 처리 이후 로직을 추가할 수 있습니다.
-        if (response.ok) {
-            // 로그인 성공 처리
-            alert('로그인 성공!');
-            //navigate('/dashboard'); // 예: 대시보드로 리다이렉션
-        } else {
-            alert('로그인 실패. 다시 시도해주세요.');
-        }
-    };
-
-    const handleKakaoLogin = () => {
-        const kakaoUrl = process.env.REACT_APP_API_KAKAO_URL;
-        console.log('Kakao URL:', process.env.REACT_APP_API_KAKAO_URL);
-
-        window.location.href = `${kakaoUrl}:8080/oauth2/authorization/kakao`; //로컬에서는 localhost:8080
-    };
-
-    const handleNavigateToSignUp = () => {
-        navigate('/sign-up');  // 회원가입 페이지로 이동
-    };
 
     return (
         <Container component="main" maxWidth="xs">
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <Typography component="h1" variant="h5">
-                    LOGIN
-                </Typography>
-                <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleLogin}>
+            <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Typography component="h1" variant="h5">LOGIN</Typography>
+                <Box
+                    component="form"
+                    noValidate
+                    sx={{ mt: 1 }}
+                    method="POST"
+                    action={`${process.env.REACT_APP_BASE_URL}/api/v1/sign-in`}
+                >
                     <TextField
                         margin="normal"
                         fullWidth
                         id="loginId"
                         label="ID"
-                        name="loginId"
+                        name="serialId"
                         autoFocus
                         value={loginId}
                         onChange={(e) => setLoginId(e.target.value)}
@@ -97,7 +51,7 @@ export default function SignIn() {
                     </Button>
                     <Button
                         fullWidth
-                        sx={{backgroundColor: 'rgb(254, 229, 2)', color: "black", '&:hover': {backgroundColor: 'rgba(254, 229, 2, 0.8)'}}}
+                        sx={{ backgroundColor: 'rgb(254, 229, 2)', color: "black", '&:hover': { backgroundColor: 'rgba(254, 229, 2, 0.8)' }}}
                         startIcon={
                             <Box
                                 component="img"
@@ -105,7 +59,7 @@ export default function SignIn() {
                                 sx={{ width: 18, height: 24 }}
                             />
                         }
-                        onClick={handleKakaoLogin}
+                        onClick={() => { window.location.href = 'http://localhost:8080/oauth2/authorization/kakao'; }}
                     >
                         카카오 로그인
                     </Button>
@@ -113,7 +67,7 @@ export default function SignIn() {
                         fullWidth
                         variant="outlined"
                         sx={{ mt: 2, mb: 2 }}
-                        onClick={handleNavigateToSignUp}
+                        onClick={() => { window.location.href = '/sign-up'; }}
                     >
                         회원가입
                     </Button>
