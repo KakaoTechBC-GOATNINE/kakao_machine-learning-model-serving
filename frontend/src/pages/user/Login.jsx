@@ -18,7 +18,7 @@ export default function SignIn() {
                     noValidate
                     sx={{ mt: 1 }}
                     method="POST"
-                    action={`${process.env.REACT_APP_BASE_URL}/api/v1/sign-in`}
+                    action={`${process.env.REACT_APP_API_BASE_URL}/api/v1/sign-in`}
                 >
                     <TextField
                         margin="normal"
@@ -59,7 +59,7 @@ export default function SignIn() {
                                 sx={{ width: 18, height: 24 }}
                             />
                         }
-                        onClick={() => { window.location.href = 'http://localhost:8080/oauth2/authorization/kakao'; }}
+                        onClick={() => { window.location.href = `${process.env.REACT_APP_API_KAKAO_URL}:8080/oauth2/authorization/kakao`; }}
                     >
                         카카오 로그인
                     </Button>
