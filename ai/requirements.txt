@@ -23,9 +23,14 @@ numpy==1.21.2
 
 # Korean language processing
 konlpy
+mecab
 
 # PyTorch for deep learning
 torch
+
+# Tensorflow for LSTM model creat
+Tensorflow==2.17.0
+Keras==3.5.0
 
 # Hugging Face Transformers for NLP models
 transformers
