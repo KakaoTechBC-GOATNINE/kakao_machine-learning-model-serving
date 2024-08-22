@@ -91,7 +91,7 @@ public class SecurityConfig {
                                 .logoutUrl("/api/v1/logout")
                                 .addLogoutHandler(customSignOutProcessHandler)
                                 .logoutSuccessHandler(customSignOutResultHandler)
-                                .deleteCookies("JSESSIONID")
+                                .deleteCookies("JSESSIONID", "nickname", "accessToken", "refreshToken") // 쿠키 삭제 설정
                 )
 
                 //예외 처리 설정
