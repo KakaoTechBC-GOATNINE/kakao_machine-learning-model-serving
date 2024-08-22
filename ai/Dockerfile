@@ -2,26 +2,23 @@
 FROM python:3.9-slim
 
 # Install dependencies
-RUN apt-get -y update
-RUN apt -y install wget unzip curl
+RUN apt-get -y update && \
+    apt-get install -y wget unzip curl mecab libmecab-dev mecab-ipadic-utf8 && \
+    apt-get clean
 
 # Download and install Google Chrome
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt -y install ./google-chrome-stable_current_amd64.deb
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt -y install ./google-chrome-stable_current_amd64.deb && \
+    rm ./google-chrome-stable_current_amd64.deb
 
 # Download and install the matching ChromeDriver version
-# RUN wget -O /tmp/chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/127.0.6533.99/linux64/chromedriver-linux64.zip
-# RUN unzip /tmp/chromedriver.zip -d /usr/local/bin/
-# RUN mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
-# RUN chmod +x /usr/local/bin/chromedriver
-
-# Download and install the matching ChromeDriver version
-RUN CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1) \
-    && echo ${CHROME_VERSION} \
-    && wget -O /tmp/chromedriver.zip "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" \
-    && unzip /tmp/chromedriver.zip -d /usr/local/bin/ \
-    && mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver \
-    && chmod +x /usr/local/bin/chromedriver
+RUN CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+' | head -1) && \
+    echo ${CHROME_VERSION} && \
+    wget -O /tmp/chromedriver.zip "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" && \
+    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
+    mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
+    chmod +x /usr/local/bin/chromedriver && \
+    rm /tmp/chromedriver.zip
 
 # Set the PATH environment variable to include ChromeDriver
 ENV PATH="/usr/local/bin:$PATH"
