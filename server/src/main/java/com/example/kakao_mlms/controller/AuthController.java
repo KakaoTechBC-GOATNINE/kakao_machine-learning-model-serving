@@ -37,7 +37,7 @@ public class AuthController {
     }
 
     //사용자 정보 수정
-    @PatchMapping("/update")
+    @PostMapping("/update")
     public ResponseDto<?> updateUserInfo(@UserId Long id, @RequestBody UserResisterDto requestDto) {
         return ResponseDto.created(authService.updateUserInfo(id, requestDto));
     }
