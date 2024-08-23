@@ -1,6 +1,7 @@
 package com.example.kakao_mlms.security.handler.signin;
 
 import com.example.kakao_mlms.domain.User;
+import com.example.kakao_mlms.domain.type.ERole;
 import com.example.kakao_mlms.dto.response.JwtTokenDto;
 import com.example.kakao_mlms.repository.UserRepository;
 import com.example.kakao_mlms.security.CustomUserDetails;
@@ -41,6 +42,7 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         CustomUserDetails userPrincipal = (CustomUserDetails) authentication.getPrincipal();
+        ERole role = userPrincipal.getRole();
 
         // JWT Token 발급
 
@@ -59,10 +61,10 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
             setSuccessAppResponse(response, jwtTokenDto);
         } else if (isMobile) {
             log.info("앱브라우저");
-            setSuccessWebResponse(response, jwtTokenDto, nickname);
+            setSuccessWebResponse(response, jwtTokenDto, nickname, role);
         } else {
             log.info("웹");
-            setSuccessWebResponse(response, jwtTokenDto, nickname);
+            setSuccessWebResponse(response, jwtTokenDto, nickname, role);
         }
     }
 
@@ -86,6 +88,7 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
         CookieUtil.addSecureCookie(response, "refreshToken", tokenDto.getRefreshToken(), jwtUtil.getWebRefreshTokenExpirationSecond());
         CookieUtil.addCookie(response, "accessToken", tokenDto.getAccessToken());
         CookieUtil.addCookie(response, "nickname", nickname);
+        CookieUtil.addCookie(response, "role", eRole.getDisplayName());
 
         response.sendRedirect(LOGIN_URL);
     }
