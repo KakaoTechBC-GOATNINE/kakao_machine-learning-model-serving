@@ -15,6 +15,7 @@ import AdminQnaDetail from "./pages/admin/AdminQnaDetail";
 import MyPage from "./pages/user/MyPage";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminQna from "./pages/admin/AdminQna";
+import Answer from "./components/admin/Answer";
 
 function App() {
     const location = useLocation();
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/qnas/edit/:id" element={<EditQna/>}/>
 
                 {/* 관리자 경로 */}
+                <Route path="/admin" element={<AdminQna/>}/>
                 <Route path="/admin/users" element={<AdminUsers/>}/>
                 <Route path="/admin/qnas" element={<AdminQna/>}/>
                 <Route path="/admin/qnas/:id" element={<AdminQnaDetail />}/>
