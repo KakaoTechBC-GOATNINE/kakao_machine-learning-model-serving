@@ -131,11 +131,21 @@ public class QnaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<QnaDto> searchQnas(String title, Category category, Pageable pageable) {
-        if (StringUtils.hasText(title)) {
-            return qnaRepository.findByTitleContainingAndCategory(title, category, pageable).map(QnaDto::from);
+    public Page<QnaDto> searchQnas(String title, Category category, Boolean notAnswered, Pageable pageable) {
+        if (notAnswered) {
+            if (Objects.isNull(category) && !StringUtils.hasText(title)) {
+                return qnaRepository.findByIsAnswer(false, pageable).map(QnaDto::from);
+            } else if (Objects.isNull(category)) {
+                return qnaRepository.findByIsAnswerAndTitle(false, title, pageable).map(QnaDto::from);
+            } else if (StringUtils.hasText(title)) {
+                return qnaRepository.findByIsAnswerAndTitleAndCategory(false, title, category, pageable).map(QnaDto::from);
+            } else {
+                return qnaRepository.findByIsAnswerAndCategory(false, category, pageable).map(QnaDto::from);
+            }
+        } else {
+            return getQnaDtos(title, category, pageable);
         }
-        return qnaRepository.findAll(pageable).map(QnaDto::from);
+
     }
 
     @Transactional(readOnly = true)
@@ -151,15 +161,19 @@ public class QnaService {
                 return qnaRepository.findByUserIdAndCategory(userId, category, pageable).map(QnaDto::from);
             }
         } else {
-            if (Objects.isNull(category) && !StringUtils.hasText(title)) {
-                return qnaRepository.findAll(pageable).map(QnaDto::from);
-            } else if (Objects.isNull(category)) {
-                return qnaRepository.findByTitle(title, pageable).map(QnaDto::from);
-            } else if (StringUtils.hasText(title)) {
-                return qnaRepository.findByTitleAndCategory(title, category, pageable).map(QnaDto::from);
-            } else {
-                return qnaRepository.findByCategory(category, pageable).map(QnaDto::from);
-            }
+            return getQnaDtos(title, category, pageable);
+        }
+    }
+
+    private Page<QnaDto> getQnaDtos(String title, Category category, Pageable pageable) {
+        if (Objects.isNull(category) && !StringUtils.hasText(title)) {
+            return qnaRepository.findAll(pageable).map(QnaDto::from);
+        } else if (Objects.isNull(category)) {
+            return qnaRepository.findByTitle(title, pageable).map(QnaDto::from);
+        } else if (StringUtils.hasText(title)) {
+            return qnaRepository.findByTitleAndCategory(title, category, pageable).map(QnaDto::from);
+        } else {
+            return qnaRepository.findByCategory(category, pageable).map(QnaDto::from);
         }
     }
 

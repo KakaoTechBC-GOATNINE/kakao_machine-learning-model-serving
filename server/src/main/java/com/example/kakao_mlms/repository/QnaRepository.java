@@ -19,14 +19,23 @@ public interface QnaRepository extends JpaRepository<Qna, Long> {
     @Query("SELECT q FROM Qna q WHERE q.user.id = :userId AND q.category = :category AND LOWER(q.title) LIKE LOWER(CONCAT('%', :title, '%'))")
     Page<Qna> findByUserIdAndTitleAndCategory(@Param("userId") Long userId, @Param("title") String title, @Param("category") Category category, Pageable pageable);
 
+    @Query("SELECT q FROM Qna q WHERE q.isAnswer = :isAnswer AND q.category = :category AND LOWER(q.title) LIKE LOWER(CONCAT('%', :title, '%'))")
+    Page<Qna> findByIsAnswerAndTitleAndCategory(@Param("isAnswer") Boolean isAnswer, @Param("title") String title, @Param("category") Category category, Pageable pageable);
+
     @Query("SELECT q FROM Qna q WHERE q.user.id = :userId AND q.category = :category")
     Page<Qna> findByUserIdAndCategory(@Param("userId") Long userId, @Param("category") Category category, Pageable pageable);
+
+    @Query("SELECT q FROM Qna q WHERE q.isAnswer = :isAnswer AND q.category = :category")
+    Page<Qna> findByIsAnswerAndCategory(@Param("isAnswer") Boolean isAnswer, @Param("category") Category category, Pageable pageable);
 
     @Query("SELECT q FROM Qna q WHERE q.category = :category")
     Page<Qna> findByCategory(@Param("category") Category category, Pageable pageable);
 
     @Query("SELECT q FROM Qna q WHERE q.user.id = :userId AND LOWER(q.title) LIKE LOWER(CONCAT('%', :title, '%'))")
     Page<Qna> findByUserIdAndTitle(@Param("userId") Long userId, @Param("title") String title, Pageable pageable);
+
+    @Query("SELECT q FROM Qna q WHERE q.isAnswer = :isAnswer AND LOWER(q.title) LIKE LOWER(CONCAT('%', :title, '%'))")
+    Page<Qna> findByIsAnswerAndTitle(@Param("isAnswer") Boolean isAnswer, @Param("title") String title, Pageable pageable);
 
     @Query("SELECT q FROM Qna q WHERE q.category = :category AND LOWER(q.title) LIKE LOWER(CONCAT('%', :title, '%'))")
     Page<Qna> findByTitleAndCategory(@Param("title") String title, @Param("category") Category category, Pageable pageable);
@@ -37,6 +46,7 @@ public interface QnaRepository extends JpaRepository<Qna, Long> {
 
     Optional<Qna> findQnaById(Long id);
     Page<Qna> findByUserId(Long userId, Pageable pageable);
+    Page<Qna> findByIsAnswer(Boolean isAnswer, Pageable pageable);
     Optional<Qna> findQnaByTitle(String title);
     Optional<Qna> findQnaByIdAndUser(Long id, User user);
     Page<Qna> findQnaByTitleContaining(String title, Pageable pageable);

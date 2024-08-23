@@ -8,6 +8,7 @@ import com.example.kakao_mlms.service.AnswerService;
 import com.example.kakao_mlms.service.QnaService;
 import com.example.kakao_mlms.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/admins")
 @RequiredArgsConstructor
@@ -34,10 +36,12 @@ public class AdminController {
 
     @GetMapping("/qnas")
     public ResponseEntity<Page<QnaDtoResponse>> getAllQnas(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) Category category,
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnas(title, category, pageable)
+            @RequestParam(required = false, name = "notAnswered") Boolean notAnswered,
+            @RequestParam(required = false, name = "title") String title,
+            @RequestParam(required = false, name = "category") Category category,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        log.info("notAnswered = {}, title = {}, category = {}, pageable = {}", notAnswered, title, category, pageable);
+        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnas(title, category, notAnswered, pageable)
                 .map(QnaDtoResponse::from);
         return ResponseEntity.ok(qnaResponse);
     }
