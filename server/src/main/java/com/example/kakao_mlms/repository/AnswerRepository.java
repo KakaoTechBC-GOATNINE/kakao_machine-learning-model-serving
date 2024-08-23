@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
     Optional<Answer> findByQna_Id(Long qnaId);
+
+    void deleteByQna_Id(Long qnaId);
 }

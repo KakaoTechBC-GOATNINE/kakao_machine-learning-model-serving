@@ -13,6 +13,7 @@ import com.example.kakao_mlms.dto.response.AllDto;
 import com.example.kakao_mlms.dto.response.QnaListDto;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
+import com.example.kakao_mlms.repository.AnswerRepository;
 import com.example.kakao_mlms.repository.QnaRepository;
 import com.example.kakao_mlms.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,6 +36,7 @@ public class QnaService {
     private final QnaRepository qnaRepository;
     private final UserRepository userRepository;
     private final ImageService imageService;
+    private final AnswerRepository answerRepository;
 
     public void createQna(QnaDto qnaDto, List<ImageDto> imageDtos) {
         Qna qna = qnaDto.toEntity();
@@ -125,6 +127,7 @@ public class QnaService {
             qna = qnaRepository.findQnaById(qnaId)
                     .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_QNA));
 
+        answerRepository.deleteByQna_Id(qnaId);
         qnaRepository.delete(qna);
 
         return Boolean.TRUE;
