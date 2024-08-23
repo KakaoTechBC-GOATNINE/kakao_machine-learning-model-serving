@@ -25,8 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-
-import static org.apache.logging.log4j.ThreadContext.isEmpty;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -140,10 +139,28 @@ public class QnaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<QnaDto> searchQnasByUser(String title, Long userId, Category category, Pageable pageable) {
-        if (StringUtils.hasText(title)) {
-            return qnaRepository.findByUserIdOrIsBlindAndTitleAndCategory(userId, false, title, category, pageable).map(QnaDto::from);
+    public Page<QnaDto> searchQnasByUser(String title, Long userId, Category category, Boolean mine, Pageable pageable) {
+        if (mine) {
+            if (Objects.isNull(category) && !StringUtils.hasText(title)) {
+                return qnaRepository.findByUserId(userId, pageable).map(QnaDto::from);
+            } else if (Objects.isNull(category)) {
+                return qnaRepository.findByUserIdAndTitle(userId, title, pageable).map(QnaDto::from);
+            } else if (StringUtils.hasText(title)) {
+                return qnaRepository.findByUserIdAndTitleAndCategory(userId, title, category, pageable).map(QnaDto::from);
+            } else {
+                return qnaRepository.findByUserIdAndCategory(userId, category, pageable).map(QnaDto::from);
+            }
+        } else {
+            if (Objects.isNull(category) && !StringUtils.hasText(title)) {
+                return qnaRepository.findAll(pageable).map(QnaDto::from);
+            } else if (Objects.isNull(category)) {
+                return qnaRepository.findByTitle(title, pageable).map(QnaDto::from);
+            } else if (StringUtils.hasText(title)) {
+                return qnaRepository.findByTitleAndCategory(title, category, pageable).map(QnaDto::from);
+            } else {
+                return qnaRepository.findByCategory(category, pageable).map(QnaDto::from);
+            }
         }
-        return qnaRepository.findByUser_IdOrIsBlind(userId, false, pageable).map(QnaDto::from);
     }
+
 }

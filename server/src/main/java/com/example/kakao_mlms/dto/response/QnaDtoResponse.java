@@ -6,7 +6,7 @@ import com.example.kakao_mlms.dto.QnaDto;
 import java.time.LocalDateTime;
 
 public record QnaDtoResponse(Long id,
-                             String content,
+                             String title,
                              Category category,
                              LocalDateTime createdDate,
                              Boolean isAnswer,
@@ -14,7 +14,7 @@ public record QnaDtoResponse(Long id,
                              UserDtoResponse user) {
     public static QnaDtoResponse from(QnaDto qnaDto) {
         return new QnaDtoResponse(qnaDto.id(),
-                qnaDto.content(),
+                qnaDto.title(),
                 qnaDto.category(),
                 qnaDto.createdDate(),
                 qnaDto.isAnswer(),

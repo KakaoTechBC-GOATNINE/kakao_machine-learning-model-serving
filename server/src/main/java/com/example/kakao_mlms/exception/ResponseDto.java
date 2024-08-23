@@ -7,10 +7,13 @@ import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.io.FileNotFoundException;
 
 @Builder
 public record ResponseDto<T>(@JsonIgnore HttpStatus httpStatus,
@@ -44,5 +47,9 @@ public record ResponseDto<T>(@JsonIgnore HttpStatus httpStatus,
 
     public static ResponseDto<Object> fail(final MissingServletRequestParameterException e) {
         return new ResponseDto<>(HttpStatus.BAD_REQUEST, false, null, new ExceptionDto(ErrorCode.MISSING_REQUEST_PARAMETER));
+    }
+
+    public static ResponseDto<Object> fail(FileNotFoundException e) {
+        return new ResponseDto<>(HttpStatus.NOT_FOUND, false, null, new ExceptionDto(ErrorCode.NOT_FOUND_FILE));
     }
 }

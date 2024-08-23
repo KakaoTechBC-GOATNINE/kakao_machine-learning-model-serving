@@ -11,6 +11,7 @@ import java.util.List;
  */
 public record QnaDtoWithImages(
         Long id,
+        String title,
         String content,
         Category category,
         LocalDateTime createdDate,
@@ -22,6 +23,7 @@ public record QnaDtoWithImages(
   public static QnaDtoWithImages from (Qna qna) {
     return new QnaDtoWithImages(
             qna.getId(),
+            qna.getTitle(),
             qna.getContent(),
             qna.getCategory(),
             qna.getCreatedDate(),
@@ -33,6 +35,6 @@ public record QnaDtoWithImages(
   }
 
   public static QnaDtoWithImages of() {
-    return new QnaDtoWithImages(1L, null, null, null, null, null, null, null);
+    return new QnaDtoWithImages(1L, null, null, null, null, null, null, null, null);
   }
 }
