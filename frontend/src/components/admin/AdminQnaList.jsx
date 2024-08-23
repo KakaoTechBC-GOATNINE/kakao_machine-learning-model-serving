@@ -98,8 +98,8 @@ export default function AdminQnaList() {
             if (error.response && (error.response.status === 400 ||
                 error.response.status === 401 ||
                 error.response.status === 403)) {
-                alert('로그인한 유저만 사용 가능합니다.');
-                navigate('/login');
+                alert('관리자만 접근 가능합니다.');
+                navigate('/');
             } else {
                 console.error('Failed to fetch data', error);
             }
@@ -118,7 +118,7 @@ export default function AdminQnaList() {
     };
 
     const handleRowClick = (id) => {
-        navigate(`/admins/qnas/${id}`);
+        navigate(`/admin/qnas/${id}`);
     };
 
     const handleCategoryChange = (event) => {
