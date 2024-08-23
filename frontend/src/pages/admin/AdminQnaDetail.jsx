@@ -82,7 +82,6 @@ export default function QnaDetail() {
         }
     };
 
-
     const handleEdit = () => {
         setIsEditing(true); // 입력 칸 활성화
         setAnswerContent(qnaData.answer.content); // 기존 답변을 입력칸에 미리 채움
@@ -233,7 +232,19 @@ export default function QnaDetail() {
                         variant="contained"
                         size="large"
                         fullWidth
-                        onClick={isEditing ? handleAnswerSubmit : handleEdit}
+                        onClick={() => {
+                            if (!qnaData.isAnswer && !isEditing) {
+                                if (answerContent.trim() === '') {
+                                    alert('답변 내용을 입력해주세요.');
+                                    return;
+                                }
+                                handleAnswerSubmit();
+                            } else if (isEditing) {
+                                handleAnswerSubmit();
+                            } else {
+                                handleEdit();
+                            }
+                        }}
                     >
                         {isEditing ? '답변 등록' : qnaData.isAnswer ? '답변 수정' : '답변 등록'}
                     </Button>
