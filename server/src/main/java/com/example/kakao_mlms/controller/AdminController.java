@@ -4,6 +4,8 @@ import com.example.kakao_mlms.annotation.UserId;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.response.QnaDtoResponse;
 import com.example.kakao_mlms.dto.UserDto;
+import com.example.kakao_mlms.dto.response.QnaDtoWithImagesResponse;
+import com.example.kakao_mlms.exception.ResponseDto;
 import com.example.kakao_mlms.service.AnswerService;
 import com.example.kakao_mlms.service.QnaService;
 import com.example.kakao_mlms.service.UserService;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -46,9 +49,21 @@ public class AdminController {
         return ResponseEntity.ok(qnaResponse);
     }
 
-    @PostMapping("/qnas/{id}")
-    public ResponseEntity<Long> replyQna(@PathVariable("id") Long id, @RequestBody String content, @UserId Long userId) {
+    @GetMapping("/qnas/{qnaId}")
+    public ResponseEntity<?> getQna(@PathVariable("qnaId") Long qnaId) {
+        QnaDtoWithImagesResponse qnaWithImagesResponse =
+                QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId), answerService.getAnswer(qnaId));
+        return ResponseEntity.ok(qnaWithImagesResponse);
+    }
+
+    @PostMapping("/qnas/{qnaId}")
+    public ResponseEntity<Long> replyQna(@PathVariable("qnaId") Long id, @RequestBody String content, @UserId Long userId) {
         answerService.replyQna(userId, id, content);
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
+    }
+
+    @DeleteMapping("/qnas/{qnaId}")
+    public ResponseDto<?> deleteQna(@UserId Long id, @PathVariable("qnaId") Long qnaId) {
+        return ResponseDto.ok(qnaService.deleteQna(id, qnaId));
     }
 }
