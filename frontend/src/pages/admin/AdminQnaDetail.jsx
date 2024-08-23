@@ -4,7 +4,8 @@ import Container from "@mui/material/Container";
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from "@mui/material/Unstable_Grid2";
-import Button from "@mui/material/Button";
+import CustomButton from "../../components/CustomButton";
+import TextField from '@mui/material/TextField';
 
 const data = {
     id: 1,
@@ -18,9 +19,13 @@ const data = {
     answer: '이것은 답변의 내용입니다. 답변 내용이 여기에 들어갑니다.'
 };
 
-// TODO: 답변을 작성하지 않은 경우에만 [답변 달기] 버튼 출력
 export default function QnaDetail() {
     const { id } = useParams();
+    const [isAnswering, setIsAnswering] = React.useState(false); // 상태 관리
+
+    const handleAnswerClick = () => {
+        setIsAnswering(true); // 버튼 클릭 시 상태 변경
+    };
 
     return (
         <Container component="main" maxWidth="md" sx={{ marginTop: 4, marginBottom: 4 }}>
@@ -66,12 +71,30 @@ export default function QnaDetail() {
                     {data.answer}
                 </Typography>
             </Box>
-            <Grid container spacing={2} sx={{marginTop: '30px'}}>
-                <Grid xs={4}></Grid>
-                <Grid xs={4}>
-                    <Button sx={{ml: 1}} variant="contained" size="small" fullWidth>답변 달기</Button>
+            {!isAnswering && (
+                <Grid container spacing={2} sx={{ marginTop: '30px' }}>
+                    <Grid xs={4}></Grid>
+                    <Grid xs={4}>
+                        <CustomButton text={"답변 달기"} variant={"contained"} onClick={handleAnswerClick} />
+                    </Grid>
                 </Grid>
-            </Grid>
+            )}
+            {isAnswering && (
+                <Grid container spacing={2} sx={{ marginTop: '30px' }}>
+                    <Grid xs={10}>
+                        <TextField
+                            label="답변 입력"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            variant="outlined"
+                        />
+                    </Grid>
+                    <Grid xs={2}>
+                        <CustomButton text={"답변 달기"} variant={"contained"} sx={{ height: '100%' }}/>
+                    </Grid>
+                </Grid>
+            )}
         </Container>
     );
 }
