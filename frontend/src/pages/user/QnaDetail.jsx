@@ -125,7 +125,7 @@ export default function QnaDetail() {
                 </Box>
                 <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
                     <Typography variant="body1">
-                        <strong>답변 상태:</strong> <span style={{ color: qnaData.isAnswer ? 'green' : 'red' }}>
+                        <strong>답변 상태:</strong> <span style={{ color: qnaData.isAnswer ? 'green' : '#FF6347' }}>
                             {qnaData.isAnswer ? '답변 완료' : '답변 대기'}
                         </span>
                     </Typography>
@@ -161,16 +161,19 @@ export default function QnaDetail() {
                     ))}
                 </Box>
 
+                <Typography variant="h6" gutterBottom sx={{ textIndent: '20px' }}>
+                    본문
+                </Typography>
                 <Typography variant="body1" paragraph sx={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: 2, borderRadius: 1 }}>
                     {qnaData.content}
                 </Typography>
 
                 {qnaData.isAnswer && qnaData.answer && (
                     <>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom sx={{ textIndent: '20px' }}>
                             답변
                         </Typography>
-                        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', backgroundColor: '#f1f8e9', padding: 2, borderRadius: 1 }}>
+                        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', backgroundColor: '#f0f8ff', padding: '15px 20px', borderRadius: '10px', border: '1px solid #b3d4fc' }}>
                             {qnaData.answer.content}
                         </Typography>
                         <Typography variant="body2" sx={{ textAlign: 'right', color: 'textSecondary', marginTop: 2 }}>
@@ -180,11 +183,13 @@ export default function QnaDetail() {
                 )}
             </Box>
             <Grid container spacing={2} sx={{ marginTop: '30px', justifyContent: 'flex-end' }}>
-                <Grid xs={3}>
-                    <Button variant="contained" size="large" fullWidth onClick={handleEdit}>
-                        수정
-                    </Button>
-                </Grid>
+                {!qnaData.isAnswer && (
+                    <Grid xs={3}>
+                        <Button variant="contained" size="large" fullWidth onClick={handleEdit}>
+                            수정
+                        </Button>
+                    </Grid>
+                )}
                 <Grid xs={3}>
                     <Button
                         variant="contained"
