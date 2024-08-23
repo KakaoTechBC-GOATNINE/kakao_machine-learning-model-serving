@@ -28,11 +28,11 @@ public class Answer {
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "qna_id", foreignKey = @ForeignKey(name = "fk_answer_qna_id"))
     private Qna qna;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "admin_id", foreignKey = @ForeignKey(name = "fk_answer_admin_id"))
     private User user;
 
@@ -54,5 +54,9 @@ public class Answer {
     @Override
     public int hashCode() {
         return Objects.hash(id, content, createdDate, qna, user);
+    }
+
+    public void update(String content) {
+        this.content = content;
     }
 }
