@@ -2,6 +2,7 @@ package com.example.kakao_mlms.controller;
 
 import com.example.kakao_mlms.annotation.UserId;
 import com.example.kakao_mlms.domain.type.Category;
+import com.example.kakao_mlms.dto.response.AdminUserInfoDto;
 import com.example.kakao_mlms.dto.response.QnaDtoResponse;
 import com.example.kakao_mlms.dto.UserDto;
 import com.example.kakao_mlms.dto.response.QnaDtoWithImagesResponse;
@@ -30,11 +31,11 @@ public class AdminController {
     private final AnswerService answerService;
 
     @GetMapping("/users")
-    public ResponseEntity<Page<UserDto>> getAllUsers(
+    public ResponseEntity<Page<AdminUserInfoDto>> getAllUsers(
             @RequestParam(required = false, name = "name") String name,
-            @PageableDefault(size = 10, sort = "nickname", direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<UserDto> users = userService.searchUsers(name, pageable);
-        return ResponseEntity.ok(users);
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<AdminUserInfoDto> adminUserInfos = userService.searchUsers(name, pageable).map(AdminUserInfoDto::from);
+        return ResponseEntity.ok(adminUserInfos);
     }
 
     @GetMapping("/qnas")
