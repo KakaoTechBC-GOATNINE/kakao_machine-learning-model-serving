@@ -64,10 +64,11 @@ const MyPage = () => {
             {userInfo ? (
                 <>
                     <div style={styles.userInfo}>
-                        <p style={styles.userInfoText}>
-                            <strong style={styles.strong}>ID:</strong> {userInfo.serialId}
-                        </p>
-                        <p style={styles.userInfoText}>
+                        <div style={styles.userInfoItem}>
+                            <strong style={styles.strong}>ID:</strong>
+                            <span style={styles.userInfoText}>{userInfo.serialId}</span>
+                        </div>
+                        <div style={styles.userInfoItem}>
                             <strong style={styles.strong}>Nickname:</strong>
                             {isEditing ? (
                                 <input
@@ -77,18 +78,20 @@ const MyPage = () => {
                                     style={styles.input}
                                 />
                             ) : (
-                                <>
+                                <span style={styles.userInfoText}>
                                     {nickname}
                                     <FaEdit style={styles.editIcon} onClick={handleEditClick} />
-                                </>
+                                </span>
                             )}
-                        </p>
-                        <p style={styles.userInfoText}>
-                            <strong style={styles.strong}>등급:</strong> {roleDisplay}
-                        </p>
-                        <p style={styles.userInfoText}>
-                            <strong style={styles.strong}>로그인:</strong> {providerDisplay}
-                        </p>
+                        </div>
+                        <div style={styles.userInfoItem}>
+                            <strong style={styles.strong}>등급:</strong>
+                            <span style={styles.userInfoText}>{roleDisplay}</span>
+                        </div>
+                        <div style={styles.userInfoItem}>
+                            <strong style={styles.strong}>로그인:</strong>
+                            <span style={styles.userInfoText}>{providerDisplay}</span>
+                        </div>
                     </div>
                     {isEditing && (
                         <div style={styles.buttonContainer}>
@@ -123,20 +126,20 @@ const styles = {
         marginBottom: '20px',
     },
     userInfo: {
-        marginTop: '20px',
-        padding: '20px',
         backgroundColor: '#f9f9f9',
+        padding: '20px',
         borderRadius: '8px',
         boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.05)',
-        position: 'relative',
     },
-    userInfoText: {
-        fontSize: '1.1em',
-        color: '#555',
-        lineHeight: '1.8',
-        margin: '10px 0',
+    userInfoItem: {
+        marginBottom: '15px',
         display: 'flex',
         alignItems: 'center',
+    },
+    userInfoText: {
+        marginLeft: '10px',
+        fontSize: '1.2em',
+        color: '#555',
     },
     strong: {
         color: '#4A90E2',
@@ -167,7 +170,6 @@ const styles = {
         border: 'none',
         borderRadius: '5px',
         cursor: 'pointer',
-        marginTop: '20px',
     },
     loading: {
         textAlign: 'center',
