@@ -36,21 +36,6 @@ function Header() {
         if (role) {
             setRole(role);
         }
-
-        // URL에서 토큰과 닉네임, role을 받아와 쿠키에 저장하는 로직
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessTokenFromUrl = urlParams.get('accessToken');
-        const nicknameFromUrl = urlParams.get('nickname');
-        const roleFromUrl = urlParams.get('role');
-
-        if (accessTokenFromUrl && nicknameFromUrl && roleFromUrl) {
-            setCookie('accessToken', accessTokenFromUrl, 7);  // 7일 동안 유효
-            setCookie('nickname', nicknameFromUrl, 7);
-            setCookie('role', roleFromUrl, 7);
-            setIsLoggedIn(true);
-            setNickname(nicknameFromUrl);
-            setRole(roleFromUrl);
-        }
     }, []);
 
     const handleLogout = async () => {
