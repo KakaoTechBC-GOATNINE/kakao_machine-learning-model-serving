@@ -90,6 +90,6 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
         CookieUtil.addCookie(response, "nickname", nickname);
         CookieUtil.addCookie(response, "role", eRole.getDisplayName());
 
-        response.sendRedirect(LOGIN_URL);
+        response.getWriter().println("OK");
     }
 }
