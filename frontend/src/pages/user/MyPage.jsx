@@ -12,6 +12,12 @@ const MyPage = () => {
     const [nickname, setNickname] = useState('');
     const navigate = useNavigate();
 
+    function setCookie(name, value, days) {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+    }
+
+
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -47,7 +53,9 @@ const MyPage = () => {
             await api.post('/api/v1/auth/update', { nickname });
             setIsEditing(false);
             setError(null);
+            setCookie('nickname', nickname);
             alert('내 정보가 변경되었습니다.');
+            window.location.reload();
         } catch (err) {
             setError('Failed to update nickname.');
         }
