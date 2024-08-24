@@ -1,7 +1,7 @@
 import './App.css';
 import Header from "./components/user/Header";
 import AdminHeader from "./components/admin/AdminHeader";
-import {Routes, Route, useLocation} from "react-router-dom";
+import {Route, Routes, useLocation} from "react-router-dom";
 import Recommend from "./pages/user/Recommend";
 import Qna from "./pages/user/Qna";
 import Login from "./pages/user/Login";
@@ -15,7 +15,6 @@ import AdminQnaDetail from "./pages/admin/AdminQnaDetail";
 import MyPage from "./pages/user/MyPage";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminQna from "./pages/admin/AdminQna";
-import Answer from "./components/admin/Answer";
 
 function App() {
     const location = useLocation();

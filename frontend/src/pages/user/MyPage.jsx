@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../components/Api';
 import { FaEdit } from 'react-icons/fa';
+import Alert from "@mui/material/Alert";
 
 const MyPage = () => {
     const [userInfo, setUserInfo] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState(null); // 서버 통신 및 기타 에러 상태
     const [isEditing, setIsEditing] = useState(false);
     const [nickname, setNickname] = useState('');
     const navigate = useNavigate();
@@ -37,13 +38,18 @@ const MyPage = () => {
     };
 
     const handleSaveClick = async () => {
+        if (nickname.trim() === '') {
+            setError('닉네임을 입력해 주세요.');
+            return;
+        }
+
         try {
-            // 서버로 닉네임 업데이트 요청
             await api.post('/api/v1/auth/update', { nickname });
             setIsEditing(false);
+            setError(null);
             alert('내 정보가 변경되었습니다.');
         } catch (err) {
-            alert('Failed to update nickname');
+            setError('Failed to update nickname.');
         }
     };
 
@@ -51,15 +57,11 @@ const MyPage = () => {
         return <div style={styles.loading}>Loading...</div>;
     }
 
-    if (error) {
-        return <div style={styles.error}>{error}</div>;
-    }
-
-    const roleDisplay = userInfo.eRole === 'ADMIN' ? '관리자' : '회원';
-    const providerDisplay = userInfo.eProvider === 'KAKAO' ? '카카오' : '일반';
-
     return (
         <div style={styles.container}>
+            {error && (
+                <Alert severity="error" style={styles.validationError}>{error}</Alert>
+            )}
             <h1 style={styles.title}>My Page</h1>
             {userInfo ? (
                 <>
@@ -71,12 +73,14 @@ const MyPage = () => {
                         <div style={styles.userInfoItem}>
                             <strong style={styles.strong}>Nickname:</strong>
                             {isEditing ? (
-                                <input
-                                    type="text"
-                                    value={nickname}
-                                    onChange={(e) => setNickname(e.target.value)}
-                                    style={styles.input}
-                                />
+                                <>
+                                    <input
+                                        type="text"
+                                        value={nickname}
+                                        onChange={(e) => setNickname(e.target.value)}
+                                        style={styles.input}
+                                    />
+                                </>
                             ) : (
                                 <span style={styles.userInfoText}>
                                     {nickname}
@@ -86,11 +90,11 @@ const MyPage = () => {
                         </div>
                         <div style={styles.userInfoItem}>
                             <strong style={styles.strong}>등급:</strong>
-                            <span style={styles.userInfoText}>{roleDisplay}</span>
+                            <span style={styles.userInfoText}>{userInfo.eRole === 'ADMIN' ? '관리자' : '회원'}</span>
                         </div>
                         <div style={styles.userInfoItem}>
                             <strong style={styles.strong}>로그인:</strong>
-                            <span style={styles.userInfoText}>{providerDisplay}</span>
+                            <span style={styles.userInfoText}>{userInfo.eProvider === 'KAKAO' ? '카카오' : '일반'}</span>
                         </div>
                     </div>
                     {isEditing && (
@@ -156,6 +160,9 @@ const styles = {
         marginLeft: '10px',
         cursor: 'pointer',
         color: '#4A90E2',
+    },
+    validationError: {
+        marginBottom: '20px',
     },
     buttonContainer: {
         display: 'flex',
