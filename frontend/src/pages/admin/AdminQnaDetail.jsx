@@ -23,6 +23,7 @@ export default function QnaDetail() {
     React.useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
+            setError(null);  // 이전 에러 메시지를 초기화
 
             try {
                 const response = await api.get(`/api/v1/admins/qnas/${id}`);
@@ -43,10 +44,10 @@ export default function QnaDetail() {
                 setImageUrls(urls);
             } catch (error) {
                 if (error.response && error.response.status === 400) {
-                    alert('에러 발생!');
+                    setError('비공개 게시물입니다.');
                     navigate('/admin/qnas');
                 } else {
-                    setError('Q&A 데이터를 불러오는데 실패했습니다.');
+                    setError('Q&A 데이터를 불러오는 중 오류가 발생했습니다.');
                     console.error('Failed to fetch Q&A data:', error);
                 }
             } finally {
@@ -62,13 +63,14 @@ export default function QnaDetail() {
     };
 
     const handleAnswerSubmit = async () => {
+        setError(null); // 이전 에러 메시지를 초기화
+
         if (answerContent.trim() === '') {
-            alert('답변 내용을 입력해주세요.');
+            setError('답변 내용을 입력해주세요.');
             return;
         }
 
         try {
-            // 답변 내용만 서버에 전송
             await api.post(`/api/v1/admins/qnas/${id}`, answerContent, {
                 headers: {
                     'Content-Type': 'text/plain',
@@ -78,7 +80,7 @@ export default function QnaDetail() {
             window.location.reload(); // 페이지 새로고침
         } catch (error) {
             console.error('답변 등록 실패:', error);
-            alert('답변 등록에 실패했습니다.');
+            setError('답변 등록에 실패했습니다.');
         }
     };
 
@@ -88,6 +90,8 @@ export default function QnaDetail() {
     };
 
     const handleDelete = async () => {
+        setError(null); // 이전 에러 메시지를 초기화
+
         if (window.confirm("정말 삭제하시겠습니까?")) {
             try {
                 await api.delete(`/api/v1/qnas/${id}`);
@@ -95,7 +99,7 @@ export default function QnaDetail() {
                 navigate('/admin/qnas');
             } catch (error) {
                 console.error("삭제 실패:", error);
-                alert("삭제에 실패했습니다.");
+                setError("삭제에 실패했습니다.");
             }
         }
     };
@@ -126,14 +130,6 @@ export default function QnaDetail() {
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <CircularProgress />
             </Box>
-        );
-    }
-
-    if (error) {
-        return (
-            <Container component="main" maxWidth="md" sx={{ marginTop: 4, marginBottom: 4 }}>
-                <Alert severity="error">{error}</Alert>
-            </Container>
         );
     }
 
@@ -225,7 +221,14 @@ export default function QnaDetail() {
                         />
                     </Box>
                 )}
+                {/* 에러 메시지 표시 위치 변경 */}
+                {error && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                        {error}
+                    </Alert>
+                )}
             </Box>
+
             <Grid container spacing={2} sx={{ marginTop: '30px', justifyContent: 'flex-end' }}>
                 <Grid xs={3}>
                     <Button
@@ -235,7 +238,7 @@ export default function QnaDetail() {
                         onClick={() => {
                             if (!qnaData.isAnswer && !isEditing) {
                                 if (answerContent.trim() === '') {
-                                    alert('답변 내용을 입력해주세요.');
+                                    setError('답변 내용을 입력해주세요.');
                                     return;
                                 }
                                 handleAnswerSubmit();
