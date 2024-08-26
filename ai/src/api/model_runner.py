@@ -13,12 +13,12 @@ def predict_review_score(review_text: str) -> float:
     try:
         # 텍스트를 전처리하고, 토큰화된 입력 데이터 생성
         inputs = tokenizer(review_text, return_tensors="pt", truncation=True, padding=True)
-        print(f"Tokenized Input: {inputs}")
+        # print(f"Tokenized Input: {inputs}")
         
         # 모델 예측 (평가 모드에서)
         with torch.no_grad():
             outputs = model(**inputs)
-        print(f"Model Outputs: {outputs.logits}")
+        # print(f"Model Outputs: {outputs.logits}")
         
         # 소프트맥스를 통해 긍정 및 부정 확률 계산
         probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
@@ -28,10 +28,10 @@ def predict_review_score(review_text: str) -> float:
         
         # 감정 점수 계산
         sentiment_score = (-1.5 * negative_score) + (0.5 * neutral_score) + (1.5 * positive_score)
-        print(f"P: {positive_score}")
-        print(f"n: {neutral_score}")
-        print(f"N: {negative_score}")
-        print(f"Sentiment Score: {sentiment_score}")    
+        # print(f"P: {positive_score}")
+        # print(f"n: {neutral_score}")
+        # print(f"N: {negative_score}")
+        # print(f"Sentiment Score: {sentiment_score}")    
         return sentiment_score
     
     except Exception as e:
@@ -45,8 +45,8 @@ def rank_restaurants(reviews):
     for store in reviews:
         try:
             store_name, store_score, store_address, store_reviews = store
-            print("-------------------------------")
-            print(f"Processing store: {store_name}")
+            # print("-------------------------------")
+            # print(f"Processing store: {store_name}")
             
             # 리뷰 텍스트 리스트를 전처리하여 가져옴
             processed_reviews = process_reviews('||'.join(store_reviews))
@@ -54,11 +54,11 @@ def rank_restaurants(reviews):
             num_reviews = len(processed_reviews)
 
             for review_text in processed_reviews:
-                print("-------------------------------")
-                print(f"Processing review: {review_text}")
+                # print("-------------------------------")
+                # print(f"Processing review: {review_text}")
                 # 각 리뷰 텍스트에 대해 리뷰 점수를 예측
                 review_score = predict_review_score(review_text)
-                print(f"score: {review_score}")
+                # print(f"score: {review_score}")
                 total_score += review_score
             
             # 리뷰 점수의 평균 계산
@@ -70,8 +70,8 @@ def rank_restaurants(reviews):
             # 최종 신뢰도 반영 점수 계산
             weighted_score = avg_positive_score * weight
 
-            print(f"Weighted Score for {store_name}: {weighted_score}")
-            print("\n")
+            # print(f"Weighted Score for {store_name}: {weighted_score}")
+            # print("\n")
             
             recommendations.append({
                 "store_name": store_name,
@@ -84,7 +84,7 @@ def rank_restaurants(reviews):
 
     # 가게를 신뢰도 반영 점수에 따라 내림차순으로 정렬
     ranked_recommendations = sorted(recommendations, key=lambda x: x['positive_score'], reverse=True)
-    print(f"\n\n{ranked_recommendations}\n\n")
+    # print(f"\n\n{ranked_recommendations}\n\n")
 
     return ranked_recommendations
 
