@@ -58,8 +58,9 @@ def process_reviews(reviews):
     return processed_reviews
 
 def clean_review_text(text):
-    """리뷰 텍스트에서 한국어와 공백만 남기고 모든 불필요한 문자를 제거합니다."""
-    cleaned_text = re.sub(r'[^가-힣\s]', '', text)
+    """리뷰 텍스트에서 한글, 영어, 숫자, 공백 및 일부 이모지를 남기고 모든 불필요한 문자를 제거합니다."""
+    # 이모지 범위를 직접 추가 (예: 얼굴 이모지)
+    cleaned_text = re.sub(r'[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s!\"#\$%&\'\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F700-\U0001F77F]', '', text)
     return cleaned_text.strip()
 
 def split_long_review(text, label, max_length=256):
@@ -154,9 +155,9 @@ if __name__ == "__main__":
     output_csv_file_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KcELECTRA_preprocessed_reviews.csv')
     train_csv_file_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KcELECTRA_review_train_set_v2.01.csv')
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KcELECTRA_review_train_set_v1.01.csv')
     test_csv_file_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KcELECTRA_review_test_set_v2.01.csv')
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KcELECTRA_review_test_set_v1.01.csv')
 
     # 데이터 로드
     df = load_data(input_csv_file_path)
