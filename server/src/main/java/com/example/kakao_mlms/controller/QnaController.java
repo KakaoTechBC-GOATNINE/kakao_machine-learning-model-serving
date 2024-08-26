@@ -5,11 +5,12 @@ import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.ImageDto;
 import com.example.kakao_mlms.dto.QnaDto;
+import com.example.kakao_mlms.dto.UserDto;
 import com.example.kakao_mlms.dto.request.QnaRequestDto;
 import com.example.kakao_mlms.dto.response.QnaDtoResponse;
 import com.example.kakao_mlms.dto.response.QnaDtoWithImagesResponse;
-import com.example.kakao_mlms.dto.UserDto;
 import com.example.kakao_mlms.exception.ResponseDto;
+import com.example.kakao_mlms.service.AnswerService;
 import com.example.kakao_mlms.service.ImageService;
 import com.example.kakao_mlms.service.QnaService;
 import com.example.kakao_mlms.service.UserService;
@@ -36,6 +37,7 @@ public class QnaController {
     private final UserService userService;
     private final QnaService qnaService;
     private final ImageService imageService;
+    private final AnswerService answerService;
 
     @PostMapping
     public ResponseEntity<Void> createQna(@UserId Long id,
@@ -49,18 +51,21 @@ public class QnaController {
 
     @GetMapping
     public ResponseEntity<Page<QnaDtoResponse>> getQnaList(@UserId Long id,
-                             @RequestParam(required = false) String title,
-                             @RequestParam(required = false) Category category,
-                             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+                             @RequestParam(value = "mine", defaultValue = "false") Boolean mine,
+                             @RequestParam(required = false, value = "title") String title,
+                             @RequestParam(required = false, value = "category") Category category,
+                             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnasByUser(title, id, category, pageable)
+        log.info("id = {}, title = {}, category = {}, pageable = {}", id, title, category, pageable);
+        Page<QnaDtoResponse> qnaResponse = qnaService.searchQnasByUser(title, id, category, mine, pageable)
                 .map(QnaDtoResponse::from);
         return ResponseEntity.ok(qnaResponse);
     }
 
     @GetMapping("/{qnaId}")
     public ResponseEntity<?> getQna(@UserId Long id, @PathVariable("qnaId") Long qnaId) {
-        QnaDtoWithImagesResponse qnaWithImagesResponse = QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId));
+        QnaDtoWithImagesResponse qnaWithImagesResponse =
+                QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId), answerService.getAnswer(qnaId));
         if (qnaWithImagesResponse.user().id().longValue() == id.longValue()) {
             return ResponseEntity.ok(qnaWithImagesResponse);
         } else {
@@ -70,6 +75,7 @@ public class QnaController {
 
     @GetMapping("/image/{filename}")
     public Resource downloadImage(@PathVariable("filename") String storeFilename) throws MalformedURLException {
+        log.info("storeFilename = {}", storeFilename);
          return imageService.downloadImage(storeFilename);
     }
 
@@ -77,8 +83,8 @@ public class QnaController {
     @PutMapping("/{qnaId}")
     public ResponseEntity<Long> updateQna(@UserId Long id,
                                     @PathVariable("qnaId") Long qnaId,
-                                    @RequestPart QnaRequestDto qnaRequestDto,
-                                    @RequestPart(required = false) List<MultipartFile> images) {
+                                    @RequestPart("qnaRequestDto") QnaRequestDto qnaRequestDto,
+                                    @RequestPart(required = false, value = "images") List<MultipartFile> images) {
         User user = userService.getUserInfo(id);
         List<ImageDto> imageDtos = imageService.uploadFiles(images);
         QnaDto qnaDto = qnaRequestDto.toDto(UserDto.from(user), qnaId);

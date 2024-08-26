@@ -34,10 +34,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        log.info("REQUEST : [{}] {}", request.getMethod(), request.getRequestURI());
 
         // Request Header에서 토큰 추출
         String token = HeaderUtil.refineHeader(request, Constants.AUTHORIZATION_HEADER, Constants.BEARER_PREFIX)
-                .orElseThrow(() -> new CommonException(ErrorCode.INVALID_HEADER));
+                .orElse(null);
+
+        if (token == null || "undefined".equals(token)) {
+            log.info("토큰 X : [{}] {}", request.getMethod(), request.getRequestURI());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Missing or invalid authorization header");
+            return;
+        }
 
         //토근 검증
         Claims claims = jwtUtil.validateToken(token);

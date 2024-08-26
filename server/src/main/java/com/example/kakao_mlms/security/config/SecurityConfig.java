@@ -18,6 +18,7 @@ import com.example.kakao_mlms.security.service.CustomOAuth2UserService;
 import com.example.kakao_mlms.security.service.CustomUserDetailService;
 import com.example.kakao_mlms.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,6 +27,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -49,12 +55,15 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
+                // .cors(httpSecurityCorsConfigurer ->
+                //         httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable) //보호 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable) // 기본 HTTP 기본 인증 비활성화
                 .sessionManagement((sessionManagement) -> //상태를 유지하지 않는 세션 정책 설정
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(Constants.NO_NEED_AUTH_URLS).permitAll()
                         .requestMatchers("/api/v1/admins/**").hasRole(ERole.ADMIN.name())
                         .anyRequest().authenticated())
@@ -80,10 +89,10 @@ public class SecurityConfig {
                 // 로그아웃 설정
                 .logout(configurer ->
                         configurer
-                                .logoutUrl("/auth/logout")
+                                .logoutUrl("/api/v1/logout")
                                 .addLogoutHandler(customSignOutProcessHandler)
                                 .logoutSuccessHandler(customSignOutResultHandler)
-                                .deleteCookies("JSESSIONID")
+                                .deleteCookies("JSESSIONID", "nickname", "accessToken", "refreshToken", "role") // 쿠키 삭제 설정
                 )
 
                 //예외 처리 설정
@@ -98,4 +107,17 @@ public class SecurityConfig {
                 //SecurityFilterChain 빈을 반환
                 .getOrBuild();
     }
+
+//     @Bean
+//     public CorsConfigurationSource corsConfigurationSource() {
+//         CorsConfiguration configuration = new CorsConfiguration();
+//         configuration.setAllowedOrigins(List.of("http://localhost:3000"));  // 허용할 출처 설정
+//         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // 허용할 메서드 설정
+//         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));  // 허용할 헤더 설정
+//         configuration.setAllowCredentials(true);  // 쿠키 등 자격 증명 허용
+
+//         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//         source.registerCorsConfiguration("/**", configuration);  // 모든 경로에 대해 CORS 설정 적용
+//         return source;
+//     }
 }
