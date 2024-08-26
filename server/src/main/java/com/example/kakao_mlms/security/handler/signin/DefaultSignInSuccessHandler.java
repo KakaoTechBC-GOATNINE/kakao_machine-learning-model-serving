@@ -84,7 +84,7 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
         response.getWriter().write(JSONValue.toJSONString(response));
     }
 
-    private void setSuccessWebResponse(HttpServletResponse response, JwtTokenDto tokenDto, String nickname) throws IOException {
+    private void setSuccessWebResponse(HttpServletResponse response, JwtTokenDto tokenDto, String nickname, ERole eRole) throws IOException {
         CookieUtil.addSecureCookie(response, "refreshToken", tokenDto.getRefreshToken(), jwtUtil.getWebRefreshTokenExpirationSecond());
         CookieUtil.addCookie(response, "accessToken", tokenDto.getAccessToken());
         CookieUtil.addCookie(response, "nickname", nickname);
