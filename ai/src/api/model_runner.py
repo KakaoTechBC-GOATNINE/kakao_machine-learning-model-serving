@@ -1,16 +1,12 @@
-from transformers import BertTokenizer, BertForSequenceClassification
+import math, re
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 from src.data_processing.api_preprocessing import process_reviews
 
 # 모델 로드
-# tokenizer = BertTokenizer.from_pretrained('ilmin/KoBERT_sentiment_v2.03')
-# model = BertForSequenceClassification.from_pretrained('ilmin/KoBERT_sentiment_v2.03')
-
-# 직접만든 모델은 아웃풋이 나오지않는 이슈가 있어서 우선 api 연결을 위해 kobert사용
-model_name = "monologg/kobert"
-tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2)
-
+model_name = "ilmin/KcELECTRA_sentiment_model_v1.01"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=3)
 model.eval()
 
 def predict_review_score(review_text: str) -> float:
@@ -26,18 +22,18 @@ def predict_review_score(review_text: str) -> float:
         
         # 소프트맥스를 통해 긍정 및 부정 확률 계산
         probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
-        negative_score = probabilities[0][0].item()  # 부정 클래스(0)의 확률
-        positive_score = probabilities[0][1].item()  # 긍정 클래스(1)의 확률
+        negative_score = probabilities[0][0].item()  # 안좋은 리뷰 (0)의 확률
+        neutral_score = probabilities[0][1].item()  # 평범한 리뷰 (1)의 확률
+        positive_score = probabilities[0][2].item()  # 좋은 리뷰 (2)의 확률
         
-        # 긍정 점수에서 부정 점수를 뺀 결과 계산
-        sentiment_score = positive_score - negative_score
-        # 재수정 필요함 (모델복구하고 수정)
-        sentiment_score = positive_score
-        # print(positive_score)
-        # print(negative_score)
-        # print(f"Sentiment Score: {sentiment_score}")
-        
+        # 감정 점수 계산
+        sentiment_score = (-1.5 * negative_score) + (0.5 * neutral_score) + (1.5 * positive_score)
+        # print(f"P: {positive_score}")
+        # print(f"n: {neutral_score}")
+        # print(f"N: {negative_score}")
+        # print(f"Sentiment Score: {sentiment_score}")    
         return sentiment_score
+    
     except Exception as e:
         print(f"Error processing review: {review_text}")
         print(f"Error: {e}")
@@ -55,33 +51,99 @@ def rank_restaurants(reviews):
             # 리뷰 텍스트 리스트를 전처리하여 가져옴
             processed_reviews = process_reviews('||'.join(store_reviews))
             total_score = 0.0
-            
+            num_reviews = len(processed_reviews)
+
             for review_text in processed_reviews:
                 # print("-------------------------------")
                 # print(f"Processing review: {review_text}")
-                # 각 리뷰 텍스트에 대해 긍정 점수를 예측
-                positive_score = predict_review_score(review_text)
-                # print(f"score: {positive_score}")
-                total_score += positive_score
+                # 각 리뷰 텍스트에 대해 리뷰 점수를 예측
+                review_score = predict_review_score(review_text)
+                # print(f"score: {review_score}")
+                total_score += review_score
             
-            # 긍정 확률의 평균 계산
-            num_reviews = len(processed_reviews) if len(processed_reviews) > 0 else 1
-            avg_positive_score = total_score / num_reviews
+            # 리뷰 점수의 평균 계산
+            avg_positive_score = total_score / num_reviews if num_reviews > 0 else 0
 
-            # print(avg_positive_score)
+            # 리뷰 수에 따른 가중치 계산 (예: log 스케일로 신뢰도를 증가시킴)
+            weight = math.log(1 + num_reviews)  # log 스케일을 이용하여 가중치 계산
+            
+            # 최종 신뢰도 반영 점수 계산
+            weighted_score = avg_positive_score * weight
+
+            # print(f"Weighted Score for {store_name}: {weighted_score}")
             # print("\n")
             
             recommendations.append({
                 "store_name": store_name,
                 "address": store_address,
-                "positive_score": avg_positive_score,
+                "positive_score": weighted_score,
             })
         except Exception as e:
             print(f"Error processing store: {store_name}")
             print(f"Error: {e}")
 
-    # 가게를 긍정 점수에 따라 내림차순으로 정렬
+    # 가게를 신뢰도 반영 점수에 따라 내림차순으로 정렬
     ranked_recommendations = sorted(recommendations, key=lambda x: x['positive_score'], reverse=True)
     # print(f"\n\n{ranked_recommendations}\n\n")
 
     return ranked_recommendations
+
+# def rank_restaurants_keywords(reviews, target_keywords):
+#     recommendations = []
+    
+#     for store in reviews:
+#         try:
+#             store_name, store_score, store_address, store_reviews = store
+#             print("-------------------------------")
+#             print(f"Processing store: {store_name}")
+            
+#             # 리뷰 텍스트 리스트를 전처리하여 가져옴
+#             processed_reviews = process_reviews('||'.join(store_reviews))
+#             total_score = 0.0
+#             keyword_count = 0
+#             num_reviews = len(processed_reviews)
+
+#             for review_text in processed_reviews:
+#                 print("-------------------------------")
+#                 print(f"Processing review: {review_text}")
+#                 # 각 리뷰 텍스트에 대해 리뷰 점수를 예측
+#                 review_score = predict_review_score(review_text)
+#                 print(f"score: {review_score}")
+#                 total_score += review_score
+                
+#                 # 키워드가 리뷰에 포함되어 있는지 확인
+#                 for keyword in target_keywords:
+#                     if re.search(keyword, review_text, re.IGNORECASE):
+#                         keyword_count += 1
+#                         break  # 키워드가 하나라도 있으면 더 이상 체크하지 않음
+
+#             # 리뷰 점수의 평균 계산
+#             avg_positive_score = total_score / num_reviews if num_reviews > 0 else 0
+
+#             # 리뷰 수에 따른 가중치 계산 (예: log 스케일로 신뢰도를 증가시킴)
+#             review_weight = math.log(1 + num_reviews)
+            
+#             # 키워드 가중치 계산 (키워드가 포함된 리뷰의 비율)
+#             keyword_weight = keyword_count / num_reviews if num_reviews > 0 else 0
+            
+#             # 최종 점수 계산 (리뷰 점수에 키워드 가중치와 리뷰 수 가중치를 곱함)
+#             weighted_score = avg_positive_score * review_weight * (1 + keyword_weight)
+
+#             print(f"Weighted Score for {store_name}: {weighted_score}")
+#             print("\n")
+            
+#             recommendations.append({
+#                 "store_name": store_name,
+#                 "address": store_address,
+#                 "positive_score": weighted_score,
+#                 "keyword_mention_count": keyword_count
+#             })
+#         except Exception as e:
+#             print(f"Error processing store: {store_name}")
+#             print(f"Error: {e}")
+
+#     # 가게를 신뢰도 반영 점수에 따라 내림차순으로 정렬
+#     ranked_recommendations = sorted(recommendations, key=lambda x: x['positive_score'], reverse=True)
+#     print(f"\n\n{ranked_recommendations}\n\n")
+
+#     return ranked_recommendations
