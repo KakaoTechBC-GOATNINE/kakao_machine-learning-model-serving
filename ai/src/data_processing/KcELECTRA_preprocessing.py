@@ -72,10 +72,10 @@ def label_by_absolute_difference(row):
     rating_diff = row['Restaurant_Rating'] - avg_rating
 
     # 레이블 범위 조정
-    if abs(rating_diff) > avg_rating * 0.35:
-        return 0 if rating_diff < 0 else 4  # 아주 나쁨 / 아주 좋음
-    elif abs(rating_diff) > avg_rating * 0.10:
-        return 1 if rating_diff < 0 else 3  # 나쁨 / 좋음
+    if abs(rating_diff) >= avg_rating * 0.40:
+        return 0 if rating_diff < 0.40 else 4  # 아주 나쁨 / 아주 좋음
+    elif abs(rating_diff) >= avg_rating * 0.02:  # 0.02로 범위를 조정
+        return 1 if rating_diff < 0.02 else 3  # 나쁨 / 좋음
     else:
         return 2  # 평균
 
@@ -133,12 +133,12 @@ def save_data(processed_df, output_csv_file_path):
     processed_df.to_csv(output_csv_file_path, index=False, encoding='utf-8-sig')
 
 def split_data(processed_df, train_csv_file_path, test_csv_file_path, test_size=0.25):
-    """레이블이 0과 4인 데이터만 필터링하여 train/test로 나누고 각각 CSV 파일로 저장합니다."""
-    # 레이블이 0과 4인 데이터만 필터링
-    filtered_df = processed_df[processed_df['Label'].isin([0, 4])]
+    """레이블이 0, 2, 4인 데이터만 필터링하여 train/test로 나누고 각각 CSV 파일로 저장합니다."""
+    # 레이블이 0, 2, 4인 데이터만 필터링
+    filtered_df = processed_df[processed_df['Label'].isin([0, 2, 4])]
 
-    # 레이블 4를 1로 변환
-    filtered_df.loc[:, 'Label'] = filtered_df['Label'].map({0: 0, 4: 1})
+    # 레이블 4를 1로 변환, 2는 그대로 유지
+    filtered_df.loc[:, 'Label'] = filtered_df['Label'].map({0: 0, 2: 1, 4: 2})
     
     # train/test split
     train_df, test_df = train_test_split(filtered_df, test_size=test_size, random_state=42, stratify=filtered_df['Label'])
@@ -152,11 +152,11 @@ if __name__ == "__main__":
     input_csv_file_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'raw', 'restaurant_reviews.csv')
     output_csv_file_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KoBert_preprocessed_reviews.csv')
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KcELECTRA_preprocessed_reviews.csv')
     train_csv_file_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KoBert_review_train_set_v.csv')
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KcELECTRA_review_train_set_v2.01.csv')
     test_csv_file_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KoBert_review_test_set_v.csv')
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'processed', 'KcELECTRA_review_test_set_v2.01.csv')
 
     # 데이터 로드
     df = load_data(input_csv_file_path)
