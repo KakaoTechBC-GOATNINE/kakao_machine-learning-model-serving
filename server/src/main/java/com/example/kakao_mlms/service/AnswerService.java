@@ -29,9 +29,15 @@ public class AnswerService {
         User adminUser = userRepository.findById(adminId).orElseThrow(EntityNotFoundException::new);
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(EntityNotFoundException::new);
 
-        Answer answer = Answer.builder().content(content).qna(qna).user(adminUser).build();
+        if (qna.getIsAnswer()) {
+            Answer oldAnswer = answerRepository.findByQna_Id(qnaId).orElseThrow();
+            oldAnswer.update(content);
+        } else{
+            Answer answer = Answer.builder().content(content).qna(qna).user(adminUser).build();
+            answerRepository.save(answer);
+            qna.reply();
+        }
 
-        answerRepository.save(answer);
     }
 
     public AnswerDto getAnswer(Long qnaId) {

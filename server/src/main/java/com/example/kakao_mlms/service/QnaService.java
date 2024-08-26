@@ -13,6 +13,7 @@ import com.example.kakao_mlms.dto.response.AllDto;
 import com.example.kakao_mlms.dto.response.QnaListDto;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
+import com.example.kakao_mlms.repository.AnswerRepository;
 import com.example.kakao_mlms.repository.QnaRepository;
 import com.example.kakao_mlms.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,6 +36,7 @@ public class QnaService {
     private final QnaRepository qnaRepository;
     private final UserRepository userRepository;
     private final ImageService imageService;
+    private final AnswerRepository answerRepository;
 
     public void createQna(QnaDto qnaDto, List<ImageDto> imageDtos) {
         Qna qna = qnaDto.toEntity();
@@ -125,17 +127,28 @@ public class QnaService {
             qna = qnaRepository.findQnaById(qnaId)
                     .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_QNA));
 
+        answerRepository.deleteByQna_Id(qnaId);
         qnaRepository.delete(qna);
 
         return Boolean.TRUE;
     }
 
     @Transactional(readOnly = true)
-    public Page<QnaDto> searchQnas(String title, Category category, Pageable pageable) {
-        if (StringUtils.hasText(title)) {
-            return qnaRepository.findByTitleContainingAndCategory(title, category, pageable).map(QnaDto::from);
+    public Page<QnaDto> searchQnas(String title, Category category, Boolean notAnswered, Pageable pageable) {
+        if (notAnswered) {
+            if (Objects.isNull(category) && !StringUtils.hasText(title)) {
+                return qnaRepository.findByIsAnswer(false, pageable).map(QnaDto::from);
+            } else if (Objects.isNull(category)) {
+                return qnaRepository.findByIsAnswerAndTitle(false, title, pageable).map(QnaDto::from);
+            } else if (StringUtils.hasText(title)) {
+                return qnaRepository.findByIsAnswerAndTitleAndCategory(false, title, category, pageable).map(QnaDto::from);
+            } else {
+                return qnaRepository.findByIsAnswerAndCategory(false, category, pageable).map(QnaDto::from);
+            }
+        } else {
+            return getQnaDtos(title, category, pageable);
         }
-        return qnaRepository.findAll(pageable).map(QnaDto::from);
+
     }
 
     @Transactional(readOnly = true)
@@ -151,15 +164,19 @@ public class QnaService {
                 return qnaRepository.findByUserIdAndCategory(userId, category, pageable).map(QnaDto::from);
             }
         } else {
-            if (Objects.isNull(category) && !StringUtils.hasText(title)) {
-                return qnaRepository.findAll(pageable).map(QnaDto::from);
-            } else if (Objects.isNull(category)) {
-                return qnaRepository.findByTitle(title, pageable).map(QnaDto::from);
-            } else if (StringUtils.hasText(title)) {
-                return qnaRepository.findByTitleAndCategory(title, category, pageable).map(QnaDto::from);
-            } else {
-                return qnaRepository.findByCategory(category, pageable).map(QnaDto::from);
-            }
+            return getQnaDtos(title, category, pageable);
+        }
+    }
+
+    private Page<QnaDto> getQnaDtos(String title, Category category, Pageable pageable) {
+        if (Objects.isNull(category) && !StringUtils.hasText(title)) {
+            return qnaRepository.findAll(pageable).map(QnaDto::from);
+        } else if (Objects.isNull(category)) {
+            return qnaRepository.findByTitle(title, pageable).map(QnaDto::from);
+        } else if (StringUtils.hasText(title)) {
+            return qnaRepository.findByTitleAndCategory(title, category, pageable).map(QnaDto::from);
+        } else {
+            return qnaRepository.findByCategory(category, pageable).map(QnaDto::from);
         }
     }
 

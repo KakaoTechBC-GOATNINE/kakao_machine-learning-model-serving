@@ -17,7 +17,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import api from '../../components/Api';  // api.js 파일을 가져옵니다.
+import Alert from '@mui/material/Alert';
+import api from '../../components/Api';
 
 export default function NewQna() {
     const [category, setCategory] = React.useState('');
@@ -25,6 +26,7 @@ export default function NewQna() {
     const [content, setContent] = React.useState('');
     const [files, setFiles] = React.useState([]);
     const [isBlind, setIsBlind] = React.useState(false);
+    const [error, setError] = React.useState(null); // 에러 상태 추가
     const navigate = useNavigate();
 
     const handleChange = (event) => {
@@ -52,14 +54,15 @@ export default function NewQna() {
     };
 
     const handleSubmit = async () => {
+        setError(null); // 에러 상태 초기화
+
         if (!title || !content || !category) {
-            alert('모든 필드를 채워주세요.');
+            setError('모든 값을 채워주세요.');
             return;
         }
 
         const formData = new FormData();
 
-        // JSON 데이터를 Blob으로 추가
         const json = JSON.stringify({
             title,
             content,
@@ -69,7 +72,6 @@ export default function NewQna() {
         const jsonBlob = new Blob([json], { type: 'application/json' });
         formData.append('qnaRequestDto', jsonBlob);
 
-        // 모든 파일을 FormData에 추가
         files.forEach(({ file }) => {
             formData.append('images', file);
         });
@@ -80,11 +82,10 @@ export default function NewQna() {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            alert('작성되었습니다.');
             navigate('/qnas');
         } catch (error) {
             console.error('작성 실패:', error);
-            alert('작성에 실패했습니다.');
+            setError('작성에 실패했습니다.');
         }
     };
 
@@ -103,6 +104,9 @@ export default function NewQna() {
     return (
         <Container component="main" maxWidth="sm" sx={{ marginTop: 4, marginBottom: 4 }}>
             <Stack spacing={3}>
+                {error && (
+                    <Alert severity="error">{error}</Alert>
+                )}
                 <FormControl fullWidth>
                     <FormControlLabel
                         control={
@@ -182,7 +186,7 @@ export default function NewQna() {
                         <VisuallyHiddenInput
                             type="file"
                             accept="image/*"
-                            multiple  // 여러 파일을 선택 가능하게 함
+                            multiple
                             onChange={fileChange}
                         />
                     </Button>

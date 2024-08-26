@@ -83,4 +83,8 @@ public class Qna {
         this.content = content;
         this.category = category;
     }
+
+    public void reply() {
+        this.isAnswer = true;
+    }
 }

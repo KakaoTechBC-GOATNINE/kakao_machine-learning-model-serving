@@ -21,7 +21,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserDto> searchUsers(String name, Pageable pageable) {
         if(StringUtils.hasText(name)) {
-            return userRepository.findByNicknameContaining(name, pageable).map(UserDto::from);
+            return userRepository.findByNicknameContainingIgnoreCase(name, pageable).map(UserDto::from);
         }
         return userRepository.findAll(pageable).map(UserDto::from);
     }
