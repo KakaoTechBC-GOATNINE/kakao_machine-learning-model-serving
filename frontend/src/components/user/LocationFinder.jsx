@@ -10,6 +10,7 @@ import axios from 'axios';
 import StoreList from './StoreList';
 import Map from './Map'; // Map 컴포넌트 임포트
 import rankingData from './Ranking.json'; // JSON 파일을 import
+import api from '../../components/Api';
 
 export default function LocationFinder() {
     const open = useDaumPostcodePopup();
@@ -105,23 +106,23 @@ export default function LocationFinder() {
         console.log("coords: ", coords);
 
         try {
-            const response = await axios.post(
+            const response = await api.post(
                 `${process.env.REACT_APP_API_BASE_URL}/api/v1/reviews/ai`, 
-                {}, // POST 요청의 body 데이터가 없을 경우, 빈 객체를 전달합니다.
                 {
-                    params: {
-                        keyword: keyword,
-                        latitude: coords.latitude,
-                        longitude: coords.longitude
-                    }
-                }
+                    keyword: keyword,
+                    latitude: coords.latitude,
+                    longitude: coords.longitude
+                } // POST 요청의 body에 데이터를 포함
             );
 
-            const rankedResturants = response.data.ranked_resturant.map((store) => ({
+            const rankedResturants = response.data.data.reviews.map((store) => ({
                 storeName: store.store_name,
                 address: store.address,
                 score: store.score
             }));
+
+            // API 응답 데이터를 콘솔에 출력
+            console.log("API Response:", response.data);
 
             rankedResturants.sort((a, b) => b.score - a.score);
 
