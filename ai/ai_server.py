@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List
 from src.data_processing.location_keyword import get_location_name, extract_dong_name
 from src.data_processing.kakao_review_data_crawling import crawl_restaurant_reviews, save_to_csv
-from src.api.model_runner import rank_restaurants
+from src.api.ensemble_ranking import rank_restaurants
 
 # FastAPI 애플리케이션 생성
 app = FastAPI()

@@ -1,46 +1,12 @@
 import math, re
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
 from src.data_processing.api_preprocessing import process_reviews
+from src.api.KcELENTRA_runner import KcELECTRA_predict_review_score
+from src.api.BiLSTM_runner import BiLSTM_predict_review_score
 
-# 모델 로드
-model_name = "ilmin/KcELECTRA_sentiment_model_v1.01"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=3)
-model.eval()
-
-def predict_review_score(review_text: str) -> float:
-    try:
-        # 텍스트를 전처리하고, 토큰화된 입력 데이터 생성
-        inputs = tokenizer(review_text, return_tensors="pt", truncation=True, padding=True)
-        # print(f"Tokenized Input: {inputs}")
-        
-        # 모델 예측 (평가 모드에서)
-        with torch.no_grad():
-            outputs = model(**inputs)
-        # print(f"Model Outputs: {outputs.logits}")
-        
-        # 소프트맥스를 통해 긍정 및 부정 확률 계산
-        probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
-        negative_score = probabilities[0][0].item()  # 안좋은 리뷰 (0)의 확률
-        neutral_score = probabilities[0][1].item()  # 평범한 리뷰 (1)의 확률
-        positive_score = probabilities[0][2].item()  # 좋은 리뷰 (2)의 확률
-        
-        # 감정 점수 계산
-        sentiment_score = (-1.5 * negative_score) + (0.5 * neutral_score) + (1.5 * positive_score)
-        # print(f"P: {positive_score}")
-        # print(f"n: {neutral_score}")
-        # print(f"N: {negative_score}")
-        # print(f"Sentiment Score: {sentiment_score}")    
-        return sentiment_score
-    
-    except Exception as e:
-        print(f"Error processing review: {review_text}")
-        print(f"Error: {e}")
-        return 0.0  # 오류 발생 시 기본값 반환
-    
 def rank_restaurants(reviews):
     recommendations = []
+    electra_weight = 0.85
+    bilstm_weight = 0.15
     
     for store in reviews:
         try:
@@ -50,25 +16,29 @@ def rank_restaurants(reviews):
             
             # 리뷰 텍스트 리스트를 전처리하여 가져옴
             processed_reviews = process_reviews('||'.join(store_reviews))
-            total_score = 0.0
+            total_score_electra = 0.0
             num_reviews = len(processed_reviews)
 
+            # KcELECTRA 모델을 사용하여 각 리뷰의 점수를 예측
             for review_text in processed_reviews:
                 # print("-------------------------------")
                 # print(f"Processing review: {review_text}")
-                # 각 리뷰 텍스트에 대해 리뷰 점수를 예측
-                review_score = predict_review_score(review_text)
+                review_score = KcELECTRA_predict_review_score(review_text)
                 # print(f"score: {review_score}")
-                total_score += review_score
+                total_score_electra += review_score
             
-            # 리뷰 점수의 평균 계산
-            avg_positive_score = total_score / num_reviews if num_reviews > 0 else 0
+            # KcELECTRA 평균 점수 계산
+            avg_positive_score_electra = total_score_electra / num_reviews if num_reviews > 0 else 0
+
+            # BiLSTM 모델을 사용하여 모든 리뷰를 하나의 문자열로 결합하여 점수 예측
+            combined_reviews = ' '.join(processed_reviews)
+            avg_positive_score_bilstm = BiLSTM_predict_review_score(combined_reviews)
 
             # 리뷰 수에 따른 가중치 계산 (예: log 스케일로 신뢰도를 증가시킴)
             weight = math.log(1 + num_reviews)  # log 스케일을 이용하여 가중치 계산
             
             # 최종 신뢰도 반영 점수 계산
-            weighted_score = avg_positive_score * weight
+            weighted_score = (electra_weight * avg_positive_score_electra + bilstm_weight * avg_positive_score_bilstm) * weight
 
             # print(f"Weighted Score for {store_name}: {weighted_score}")
             # print("\n")
@@ -88,6 +58,9 @@ def rank_restaurants(reviews):
 
     return ranked_recommendations
 
+
+
+# 키워드기반으로 랭킹화하는 함수 - 개선필요함
 # def rank_restaurants_keywords(reviews, target_keywords):
 #     recommendations = []
     
