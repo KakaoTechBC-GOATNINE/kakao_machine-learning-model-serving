@@ -15,6 +15,7 @@ import AdminQnaDetail from "./pages/admin/AdminQnaDetail";
 import MyPage from "./pages/user/MyPage";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminQna from "./pages/admin/AdminQna";
+import RestaurantMap from "./pages/user/RestaurantMap"; 
 
 function App() {
     const location = useLocation();
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/sign-up" element={<SignUp/>}/>
                 <Route path="/qnas/:id" element={<QnaDetail/>}/>
                 <Route path="/qnas/edit/:id" element={<EditQna/>}/>
+                <Route path="/RestaurantMap" element={<RestaurantMap/>}/>
 
                 {/* 관리자 경로 */}
                 <Route path="/admin" element={<AdminQna/>}/>
