@@ -41,8 +41,8 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            e.printStackTrace();
-            log.error("FilterException throw ExpiredJwtException Exception : {}", e.getMessage());
+//            e.printStackTrace();
+            log.warn("FilterException throw ExpiredJwtException Exception : {}", e.getMessage());
             request.setAttribute("exception", ErrorCode.EXPIRED_TOKEN_ERROR);
 
             filterChain.doFilter(request, response);

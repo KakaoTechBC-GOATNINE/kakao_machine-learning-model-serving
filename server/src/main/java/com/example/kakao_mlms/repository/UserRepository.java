@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "update User u set u.refreshToken = :refreshToken where u.id = :userId")
     void updateRefreshToken(@Param("userId") Long userId, @Param("refreshToken") String refreshToken);
 
-    Page<User> findByNicknameContaining(String nickname, Pageable pageable);
+    Page<User> findByNicknameContainingIgnoreCase(String nickname, Pageable pageable);
 
     Optional<User> findByIdAndProvider(Long userId, EProvider provider);
 

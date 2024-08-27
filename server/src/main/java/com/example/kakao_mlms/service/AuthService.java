@@ -10,7 +10,11 @@ import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
 import com.example.kakao_mlms.repository.QnaRepository;
 import com.example.kakao_mlms.repository.UserRepository;
+import com.example.kakao_mlms.util.CookieUtil;
 import com.example.kakao_mlms.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,5 +78,23 @@ public class AuthService {
         user.updateInfo(requestDto.nickname());
 
         return Boolean.TRUE;
+    }
+
+    public String getRefreshToken(HttpServletRequest request) {
+        String refreshToken = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookie.getName().equals("refreshToken")) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        return refreshToken;
+    }
+
+    public void renewSecretCookie(HttpServletResponse response, JwtTokenDto tokenDto) {
+        CookieUtil.addSecureCookie(response, "refreshToken", tokenDto.getRefreshToken(), jwtUtil.getWebRefreshTokenExpirationSecond());
     }
 }

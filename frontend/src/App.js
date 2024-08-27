@@ -1,7 +1,7 @@
 import './App.css';
 import Header from "./components/user/Header";
 import AdminHeader from "./components/admin/AdminHeader";
-import {Routes, Route, useLocation} from "react-router-dom";
+import {Route, Routes, useLocation} from "react-router-dom";
 import Recommend from "./pages/user/Recommend";
 import Qna from "./pages/user/Qna";
 import Login from "./pages/user/Login";
@@ -37,6 +37,7 @@ function App() {
                 <Route path="/qnas/edit/:id" element={<EditQna/>}/>
 
                 {/* 관리자 경로 */}
+                <Route path="/admin" element={<AdminQna/>}/>
                 <Route path="/admin/users" element={<AdminUsers/>}/>
                 <Route path="/admin/qnas" element={<AdminQna/>}/>
                 <Route path="/admin/qnas/:id" element={<AdminQnaDetail />}/>

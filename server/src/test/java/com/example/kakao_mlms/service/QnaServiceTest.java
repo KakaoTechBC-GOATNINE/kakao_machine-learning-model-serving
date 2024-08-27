@@ -2,7 +2,6 @@ package com.example.kakao_mlms.service;
 
 import com.example.kakao_mlms.domain.type.Category;
 import com.example.kakao_mlms.dto.QnaDto;
-import com.example.kakao_mlms.dto.QnaDtoWithImages;
 import com.example.kakao_mlms.repository.QnaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,14 +76,14 @@ class QnaServiceTest {
         Boolean isBlind = false;
         Category category = Category.ACCOUNT;
         Pageable pageable = Pageable.ofSize(5);
-        given(qnaRepository.findByUserIdOrIsBlindAndTitleAndCategory(userId, isBlind, title, category, pageable)).willReturn(Page.empty(pageable));
+        given(qnaRepository.findByUserIdAndTitleAndCategory(userId, isBlind, title, category, pageable)).willReturn(Page.empty(pageable));
 
         // When
         Page<QnaDto> qnaDtoWithImages = sut.searchQnasByUser(title, userId, category, pageable);
 
         // Then
         assertThat(qnaDtoWithImages).isEmpty();
-        then(qnaRepository).should().findByUserIdOrIsBlindAndTitleAndCategory(userId, isBlind, title, category, pageable);
+        then(qnaRepository).should().findByUserIdAndTitleAndCategory(userId, isBlind, title, category, pageable);
 
     }
 }

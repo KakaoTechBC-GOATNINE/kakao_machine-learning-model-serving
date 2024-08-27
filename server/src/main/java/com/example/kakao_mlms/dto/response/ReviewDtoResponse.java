@@ -5,14 +5,13 @@ import java.util.List;
 public record ReviewDtoResponse(
         float latitude,
         float longitude,
-        String location,
+        String keyword,
         List<Review> reviews
 ) {
     public static record Review(
             String storeName,
-            double rating,
             String address,
-            List<String> comments
+            double score
     ) {
     }
 }

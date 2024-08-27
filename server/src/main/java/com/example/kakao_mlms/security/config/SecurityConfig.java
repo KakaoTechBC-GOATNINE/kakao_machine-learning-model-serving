@@ -18,6 +18,7 @@ import com.example.kakao_mlms.security.service.CustomOAuth2UserService;
 import com.example.kakao_mlms.security.service.CustomUserDetailService;
 import com.example.kakao_mlms.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,7 +31,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -63,6 +63,7 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(Constants.NO_NEED_AUTH_URLS).permitAll()
                         .requestMatchers("/api/v1/admins/**").hasRole(ERole.ADMIN.name())
                         .anyRequest().authenticated())
@@ -91,7 +92,7 @@ public class SecurityConfig {
                                 .logoutUrl("/api/v1/logout")
                                 .addLogoutHandler(customSignOutProcessHandler)
                                 .logoutSuccessHandler(customSignOutResultHandler)
-                                .deleteCookies("JSESSIONID", "nickname", "accessToken", "refreshToken") // 쿠키 삭제 설정
+                                .deleteCookies("JSESSIONID", "nickname", "accessToken", "refreshToken", "role") // 쿠키 삭제 설정
                 )
 
                 //예외 처리 설정
