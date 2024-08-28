@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Slf4j
 @Service
 @Transactional
@@ -32,10 +35,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public Boolean resisterUser(UserSignUpDto requestDto) {
-        userRepository.findBySerialIdOrNickname(requestDto.serialId(), requestDto.nickname())
-                .ifPresent(u -> {
-                    throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
-                });
+        Boolean result = userRepository.existsBySerialIdOrNickname(requestDto.serialId(), requestDto.nickname());
+        if (result) throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
 
         userRepository.save(User.signUp(new AuthSignUpDto(requestDto.serialId(),
                         requestDto.nickname()),
@@ -62,18 +63,28 @@ public class AuthService {
         return Boolean.TRUE;
     }
 
-    public JwtTokenDto registerUserInfo(Long userId, UserResisterDto requestDto) {
+    public void registerUserInfo(Long userId, UserResisterDto requestDto, HttpServletResponse response) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
+        if(userRepository.existsByNickname(requestDto.nickname()))
+            throw new CommonException(ErrorCode.DUPLICATION_NICKNAME);
+
         user.register(requestDto.nickname());
-        JwtTokenDto jwtTokenDto = jwtUtil.generateTokens(userId, ERole.USER);
-        return jwtTokenDto;
+        JwtTokenDto tokenDto = jwtUtil.generateTokens(userId, ERole.USER);
+
+        CookieUtil.addSecureCookie(response, "refreshToken", tokenDto.getRefreshToken(), jwtUtil.getWebRefreshTokenExpirationSecond());
+        CookieUtil.addCookie(response, "accessToken", tokenDto.getAccessToken());
+        CookieUtil.addCookie(response, "nickname", URLEncoder.encode(requestDto.nickname(), StandardCharsets.UTF_8));
+        CookieUtil.addCookie(response, "role", user.getRole().getDisplayName());
     }
 
     public Boolean updateUserInfo(Long userId, UserResisterDto requestDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+
+        if(userRepository.existsByNickname(requestDto.nickname()))
+            throw new CommonException(ErrorCode.DUPLICATION_NICKNAME);
 
         user.updateInfo(requestDto.nickname());
 

@@ -29,6 +29,7 @@ public enum ErrorCode {
     MISSING_REQUEST_PARAMETER("4006", HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
     DUPLICATION_USER("4007", HttpStatus.BAD_REQUEST, "해당 유저가 이미 있습니다"),
     DUPLICATION_IDORNICKNAME("4008", HttpStatus.BAD_REQUEST, "해당 아이디 혹은 닉네임이 이미 존재합니다"),
+    DUPLICATION_NICKNAME("4009", HttpStatus.BAD_REQUEST, "해당 닉네임이 이미 존재합니다"),
     /**
      * 502 Bad Gateway: Gateway Server Error
      */

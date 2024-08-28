@@ -21,9 +21,22 @@ function getCookie(name) {
 api.interceptors.request.use(
     (config) => {
         const accessToken = getCookie('accessToken');
+        const role = getCookie('role');
+
+        // /logout 경로가 포함되어 있으면 role 체크를 제외
+        if (!config.url.includes('/logout')) {
+            if (!role) {
+                alert('닉네임을 등록해주세요.');
+                // 경고창을 띄운 후 / 경로로 리디렉션
+                window.location.href = '/sign-up-kakao';
+                return Promise.reject(new Error('Role is missing. Please register a nickname.'));
+            }
+        }
+
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
+
         return config;
     },
     (error) => Promise.reject(error)
@@ -38,7 +51,6 @@ api.interceptors.response.use(
         if (error.response && error.response.data?.error?.code === '4010') {
             try {
                 // 서버에서 리프레시 토큰을 사용해 재발급 요청
-                // const { data } = await api.post(`/api/v1/auth/reissue`);
                 const response = await axios.post(
                     `${process.env.REACT_APP_API_BASE_URL}/api/v1/auth/reissue`,
                     {},  // 요청 본문이 없으면 빈 객체를 전달

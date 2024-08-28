@@ -24,16 +24,26 @@ export default function SocialSignUp() {
         }
 
         try {
-            await api.post('/api/v1/auth/update', { nickname });
-            setError(null);
-            setCookie('nickname', nickname);
-            alert('닉네임이 등록되었습니다.');
-            navigate('/'); // 등록 후 홈 페이지로 이동
-            window.location.reload();
+            const response = await api.post('/api/v1/auth/register', { nickname });
+
+            if (response.data.success === false && response.data.error) {
+                // 서버에서 에러 응답이 왔을 때
+                alert(`${response.data.error.message}`);
+                setError(response.data.error.message);
+            } else {
+                // 정상적으로 닉네임이 등록된 경우
+                setError(null);
+                setCookie('nickname', nickname);
+                alert('닉네임이 등록되었습니다.');
+                navigate('/'); // 등록 후 홈 페이지로 이동
+                window.location.reload();
+            }
         } catch (err) {
             setError('닉네임 등록에 실패했습니다. 다시 시도해 주세요.');
+            alert('닉네임 등록에 실패했습니다. 다시 시도해 주세요.');
         }
     };
+
 
     return (
         <Container component="main" maxWidth="xs">

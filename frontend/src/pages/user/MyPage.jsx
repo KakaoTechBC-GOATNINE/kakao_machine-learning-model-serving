@@ -50,16 +50,26 @@ const MyPage = () => {
         }
 
         try {
-            await api.post('/api/v1/auth/update', { nickname });
-            setIsEditing(false);
-            setError(null);
-            setCookie('nickname', nickname);
-            alert('내 정보가 변경되었습니다.');
-            window.location.reload();
+            const response = await api.post('/api/v1/auth/update', { nickname });
+
+            if (response.data.success === false && response.data.error) {
+                // 서버에서 에러 응답이 왔을 때
+                alert(`${response.data.error.message}`);
+                setError(response.data.error.message);
+            } else {
+                // 정상적으로 닉네임이 변경된 경우
+                setIsEditing(false);
+                setError(null);
+                setCookie('nickname', nickname);
+                alert('내 정보가 변경되었습니다.');
+                window.location.reload();
+            }
         } catch (err) {
             setError('Failed to update nickname.');
+            alert('닉네임 변경에 실패했습니다. 다시 시도해 주세요.');
         }
     };
+
 
     if (loading) {
         return <div style={styles.loading}>Loading...</div>;
