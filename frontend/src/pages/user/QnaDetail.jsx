@@ -23,29 +23,40 @@ export default function QnaDetail() {
 
             try {
                 const response = await api.get(`/api/v1/qnas/${id}`);
+                if (response.data.error) {
+                    alert(response.data.error.message);
+                    navigate(-1);
+                } else {
+                    const data = response.data;
 
-                const data = response.data;
-                setQnaData(data);
+                    // 데이터가 없을 경우 초기화
+                    if (!data || !data.images) {
+                        setError('Q&A 데이터를 불러오는데 실패했습니다.');
+                        return;
+                    }
 
-                const imagePromises = data.images.map(async (image) => {
-                    const imageResponse = await api.get(`/api/v1/qnas/image/${image.uuidName}`, {
-                        responseType: 'blob',
+                    setQnaData(data);
+
+                    const imagePromises = data.images.map(async (image) => {
+                        const imageResponse = await api.get(`/api/v1/qnas/image/${image.uuidName}`, {
+                            responseType: 'blob',
+                        });
+                        return {
+                            url: URL.createObjectURL(imageResponse.data),
+                            originName: image.originName
+                        };
                     });
-                    return {
-                        url: URL.createObjectURL(imageResponse.data),
-                        originName: image.originName
-                    };
-                });
 
-                const urls = await Promise.all(imagePromises);
-                setImageUrls(urls);
+                    const urls = await Promise.all(imagePromises);
+                    setImageUrls(urls);
+                }
             } catch (error) {
+                console.log(error);
                 if (error.response && error.response.status === 400) {
                     alert('비공개 게시물입니다.');
                     navigate('/qnas');
                 } else {
                     setError('Q&A 데이터를 불러오는데 실패했습니다.');
-                    console.error('Failed to fetch Q&A data:', error);
                 }
             } finally {
                 setLoading(false);
