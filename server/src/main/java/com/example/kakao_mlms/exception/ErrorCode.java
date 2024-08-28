@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     // Not Found Error
     NOT_FOUND_USER("4040", HttpStatus.NOT_FOUND, "해당 사용자가 존재하지 않습니다."),
-    NOT_FOUND_QNA("4041", HttpStatus.NOT_FOUND, "해당 Qna가 존재하지 않습니다."),
+    NOT_FOUND_QNA("4041", HttpStatus.NOT_FOUND, "해당 Q&A가 존재하지 않습니다."),
     NOT_FOUND_END_POINT("4042", HttpStatus.NOT_FOUND, "존재하지 않는 API 엔드포인트입니다."),
     NOT_FOUND_FILE("4043", HttpStatus.NOT_FOUND, "해당 파일을 찾을 수 없습니다."),
 
