@@ -32,7 +32,7 @@ public class AuthController {
     }
 
     //소셜 로그인 사용자 정보 등록
-    @PatchMapping("/resister")
+    @PostMapping("/register")
     public ResponseEntity<Void> resister(@UserId Long id,
                                    @RequestBody UserResisterDto requestDto,
                                    HttpServletResponse response) {

@@ -35,10 +35,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public Boolean resisterUser(UserSignUpDto requestDto) {
-        userRepository.findBySerialIdOrNickname(requestDto.serialId(), requestDto.nickname())
-                .ifPresent(u -> {
-                    throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
-                });
+        Boolean result = userRepository.existsBySerialIdOrNickname(requestDto.serialId(), requestDto.nickname());
+        if (result) throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
 
         userRepository.save(User.signUp(new AuthSignUpDto(requestDto.serialId(),
                         requestDto.nickname()),
@@ -70,7 +68,7 @@ public class AuthService {
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
         if(userRepository.existsByNickname(requestDto.nickname()))
-            throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
+            throw new CommonException(ErrorCode.DUPLICATION_NICKNAME);
 
         user.register(requestDto.nickname());
         JwtTokenDto tokenDto = jwtUtil.generateTokens(userId, ERole.USER);
@@ -86,7 +84,7 @@ public class AuthService {
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
         if(userRepository.existsByNickname(requestDto.nickname()))
-            throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
+            throw new CommonException(ErrorCode.DUPLICATION_NICKNAME);
 
         user.updateInfo(requestDto.nickname());
 
