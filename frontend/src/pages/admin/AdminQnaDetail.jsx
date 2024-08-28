@@ -27,8 +27,14 @@ export default function QnaDetail() {
 
             try {
                 const response = await api.get(`/api/v1/admins/qnas/${id}`);
+                console.log(response);
                 const data = response.data;
+                if (response.data.error) {
+                    alert(response.data.error.message);
+                    navigate(-1);
+                }
                 setQnaData(data);
+
 
                 const imagePromises = data.images.map(async (image) => {
                     const imageResponse = await api.get(`/api/v1/qnas/image/${image.uuidName}`, {
@@ -77,7 +83,26 @@ export default function QnaDetail() {
                 }
             });
             alert('답변이 등록되었습니다.');
-            window.location.reload(); // 페이지 새로고침
+            const now = new Date();
+
+            setQnaData(prevData => ({
+                ...prevData,
+                isAnswer: true,
+                answer: {
+                    ...prevData.answer,
+                    content: answerContent,
+                    createdDate: {
+                        0: now.getFullYear(),      // 연도
+                        1: now.getMonth() + 1,     // 월 (0이 1월이므로 +1 필요)
+                        2: now.getDate(),          // 일
+                        3: now.getHours(),         // 시
+                        4: now.getMinutes(),       // 분
+                        5: now.getSeconds(),       // 초
+                        6: now.getTime()
+                    }
+                }
+            }));
+            setIsEditing(false);
         } catch (error) {
             console.error('답변 등록 실패:', error);
             setError('답변 등록에 실패했습니다.');
