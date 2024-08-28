@@ -194,24 +194,28 @@ export default function QnaDetail() {
                 )}
             </Box>
             <Grid container spacing={2} sx={{ marginTop: '30px', justifyContent: 'flex-end' }}>
-                {!qnaData.isAnswer && (
-                    <Grid xs={3}>
-                        <Button variant="contained" size="large" fullWidth onClick={handleEdit}>
-                            수정
-                        </Button>
-                    </Grid>
+                {qnaData.isMine && (
+                    <>
+                        {!qnaData.isAnswer && (
+                            <Grid xs={3}>
+                                <Button variant="contained" size="large" fullWidth onClick={handleEdit}>
+                                    수정
+                                </Button>
+                            </Grid>
+                        )}
+                        <Grid xs={3}>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                size="large"
+                                fullWidth
+                                onClick={handleDelete}
+                            >
+                                삭제
+                            </Button>
+                        </Grid>
+                    </>
                 )}
-                <Grid xs={3}>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        size="large"
-                        fullWidth
-                        onClick={handleDelete}
-                    >
-                        삭제
-                    </Button>
-                </Grid>
             </Grid>
         </Container>
     );
