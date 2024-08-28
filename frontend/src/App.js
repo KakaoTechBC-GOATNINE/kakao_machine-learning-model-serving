@@ -9,6 +9,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import React from "react";
 import NewQna from "./pages/user/NewQna";
 import SignUp from "./pages/user/SignUp";
+import SignUpKakao from "./pages/user/SignUpKakao";
 import QnaDetail from "./pages/user/QnaDetail";
 import EditQna from "./pages/user/EditQna";
 import AdminQnaDetail from "./pages/admin/AdminQnaDetail";
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/mypage" element={<MyPage/>}/>
                 <Route path="/qnas/new" element={<NewQna/>}/>
                 <Route path="/sign-up" element={<SignUp/>}/>
+                <Route path="/sign-up-kakao" element={<SignUpKakao/>}/>
                 <Route path="/qnas/:id" element={<QnaDetail/>}/>
                 <Route path="/qnas/edit/:id" element={<EditQna/>}/>
                 <Route path="/RestaurantMap" element={<RestaurantMap/>}/>
