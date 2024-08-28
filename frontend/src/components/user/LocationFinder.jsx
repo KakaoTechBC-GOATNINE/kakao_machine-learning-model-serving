@@ -6,7 +6,8 @@ import Button from "@mui/material/Button";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import { IconButton } from "@mui/material";
-import axios from 'axios'
+import axios from 'axios';
+import api from '../../components/Api';
 
 export default function LocationFinder({ setCoords, setStores }) {
     const open = useDaumPostcodePopup();
@@ -15,46 +16,50 @@ export default function LocationFinder({ setCoords, setStores }) {
     const [localCoords, setLocalCoords] = useState({ latitude: "", longitude: "" });
 
     // 주소를 좌표로 변환하는 함수
-    function addressToCoords(address) {
-        return axios.get(
-            `https://dapi.kakao.com/v2/local/search/address.json?query=${address}`,
-            {
-                headers: {
-                    Authorization: 'KakaoAK 72a40f848446b331a895daaba6400196',
-                },
-            }
-        )
-        .then(response => {
+    async function addressToCoords(address) {
+        try {
+            const response = await axios.get(
+                `https://dapi.kakao.com/v2/local/search/address.json?query=${address}`,
+                {
+                    headers: {
+                        Authorization: 'KakaoAK 72a40f848446b331a895daaba6400196',
+                    },
+                }
+            );
+
             if (response.data.documents.length > 0) {
                 const data = response.data.documents[0];
                 return { latitude: data.y, longitude: data.x };
             } else {
                 throw new Error("No coordinates found for address");
             }
-        })
-        .catch(error => {
+        } catch (error) {
             console.error("Error in addressToCoords:", error);
-        });
+        }
     }
 
     // 좌표를 주소로 변환하는 함수
-    function coordsToAddress(lat, lng) {
-        axios.get(
-            `https://dapi.kakao.com/v2/local/geo/coord2address.json?input_coord=WGS84&x=${lng}&y=${lat}`,
-            {
-                headers: {
-                    Authorization: 'KakaoAK 72a40f848446b331a895daaba6400196',
-                },
+    async function coordsToAddress(lat, lng) {
+        try {
+            const response = await axios.get(
+                `https://dapi.kakao.com/v2/local/geo/coord2address.json?input_coord=WGS84&x=${lng}&y=${lat}`,
+                {
+                    headers: {
+                        Authorization: 'KakaoAK 72a40f848446b331a895daaba6400196',
+                    },
+                }
+            );
+
+            if (response.data.documents.length > 0) {
+                const location = response.data.documents[0];
+                const tempAddress = `${location.address.region_1depth_name} ${location.address.region_2depth_name} ${location.address.region_3depth_name}`;
+                setAddress(tempAddress);
+            } else {
+                throw new Error("No address found for coordinates");
             }
-        )
-        .then(response => {
-            const location = response.data.documents[0];
-            const tempAddress = `${location.address.region_1depth_name} ${location.address.region_2depth_name} ${location.address.region_3depth_name}`;
-            setAddress(tempAddress);
-        })
-        .catch(error => {
+        } catch (error) {
             console.error("Error in coordsToAddress:", error);
-        });
+        }
     }
 
     // 현재 위치 설정 함수
@@ -76,7 +81,51 @@ export default function LocationFinder({ setCoords, setStores }) {
         }
     };
 
-    // 주소 검색 이벤트 핸들러
+    const onChangeKeyword = (e) => {
+        setKeyword(e.target.value);
+    };
+
+    // 키워드 검색 핸들러
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            recommendApi();
+        }
+    };
+
+    // 추천 API 호출 함수
+    const recommendApi = async () => {
+        console.log("keyword: ", keyword);
+        console.log("address: ", address);
+        console.log("coords: ", localCoords);
+
+        try {
+            const response = await api.post(
+                `${process.env.REACT_APP_API_BASE_URL}/api/v1/reviews/ai`, 
+                {
+                    keyword: keyword,
+                    latitude: localCoords.latitude,
+                    longitude: localCoords.longitude
+                } 
+            );
+
+            const rankedResturants = response.data.data.reviews.map((store) => ({
+                storeName: store.store_name,
+                address: store.address,
+                score: store.score
+            }));
+
+            rankedResturants.sort((a, b) => b.score - a.score);
+
+            setStores(rankedResturants);
+        } catch (error) {
+            console.error("Error fetching data from API", error);
+        }
+    };
+
+    const findButtonClick = () => {
+        open({ onComplete: handleAddressSearch });
+    };
+
     const handleAddressSearch = async (data) => {
         let fullAddress = data.address;
         if (data.addressType === 'R') {
@@ -94,41 +143,6 @@ export default function LocationFinder({ setCoords, setStores }) {
         } catch (error) {
             console.error("Error in handleAddressSearch:", error);
         }
-    };
-
-    // 키워드 검색 핸들러
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            recommendApi();
-        }
-    };
-
-    // 추천 API 호출 함수
-    const recommendApi = () => {
-        console.log("keyword: ", keyword);
-        console.log("address: ", address);
-
-        axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/v1/reviews/ai`, {
-            params: {
-                keyword: keyword,
-                latitude: localCoords.latitude,
-                longitude: localCoords.longitude
-            }
-        })
-        .then(response => {
-            const rankedRestaurants = response.data.ranked_resturant.map((store) => ({
-                storeName: store.store_name,
-                address: store.address,
-                score: store.score
-            }));
-
-            rankedRestaurants.sort((a, b) => b.score - a.score);
-
-            setStores(rankedRestaurants);
-        })
-        .catch(error => {
-            console.error("Error fetching data from API", error);
-        });
     };
 
     return (
@@ -152,7 +166,7 @@ export default function LocationFinder({ setCoords, setStores }) {
                 </IconButton>
             </Grid>
             <Grid xs={3}>
-                <Button variant="contained" color="primary" fullWidth onClick={() => open({ onComplete: handleAddressSearch })}>
+                <Button variant="contained" color="primary" fullWidth onClick={findButtonClick}>
                     주소 검색
                 </Button>
             </Grid>
