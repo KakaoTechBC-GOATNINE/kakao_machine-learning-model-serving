@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -32,8 +33,11 @@ public class AuthController {
 
     //소셜 로그인 사용자 정보 등록
     @PatchMapping("/resister")
-    public ResponseDto<?> resister(@UserId Long id, @RequestBody UserResisterDto requestDto) {
-        return ResponseDto.created(authService.registerUserInfo(id, requestDto));
+    public ResponseEntity<Void> resister(@UserId Long id,
+                                   @RequestBody UserResisterDto requestDto,
+                                   HttpServletResponse response) {
+        authService.registerUserInfo(id, requestDto, response);
+        return ResponseEntity.ok().build();
     }
 
     //사용자 정보 수정
