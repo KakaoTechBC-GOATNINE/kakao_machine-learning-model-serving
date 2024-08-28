@@ -23,11 +23,11 @@ api.interceptors.request.use(
         const accessToken = getCookie('accessToken');
         const role = getCookie('role');
 
-        // /logout 경로가 포함되어 있으면 role 체크를 제외
+        // /logout 경로가 포함되어 있지 않고, accessToken이 없을 때만 role을 검사
         if (!config.url.includes('/logout')) {
-            if (!role) {
+            if (!role && accessToken) {
                 alert('닉네임을 등록해주세요.');
-                // 경고창을 띄운 후 / 경로로 리디렉션
+                // 경고창을 띄운 후 /sign-up-kakao 경로로 리디렉션
                 window.location.href = '/sign-up-kakao';
                 return Promise.reject(new Error('Role is missing. Please register a nickname.'));
             }
@@ -41,6 +41,7 @@ api.interceptors.request.use(
     },
     (error) => Promise.reject(error)
 );
+
 
 // 응답 인터셉터
 api.interceptors.response.use(
