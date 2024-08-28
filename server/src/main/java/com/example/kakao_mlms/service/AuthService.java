@@ -69,8 +69,8 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
-        userRepository.findByNickname(requestDto.nickname())
-                .orElseThrow(() -> new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME));
+        if(userRepository.existsByNickname(requestDto.nickname()))
+            throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
 
         user.register(requestDto.nickname());
         JwtTokenDto tokenDto = jwtUtil.generateTokens(userId, ERole.USER);
@@ -85,8 +85,8 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
-        userRepository.findByNickname(requestDto.nickname())
-                .orElseThrow(() -> new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME));
+        if(userRepository.existsByNickname(requestDto.nickname()))
+            throw new CommonException(ErrorCode.DUPLICATION_IDORNICKNAME);
 
         user.updateInfo(requestDto.nickname());
 
