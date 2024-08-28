@@ -24,7 +24,7 @@ export default function SocialSignUp() {
         }
 
         try {
-            await api.post('/api/v1/auth/update', { nickname });
+            await api.post('/api/v1/auth/register', { nickname });
             setError(null);
             setCookie('nickname', nickname);
             alert('닉네임이 등록되었습니다.');
