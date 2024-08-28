@@ -65,7 +65,7 @@ public class QnaController {
     @GetMapping("/{qnaId}")
     public ResponseEntity<?> getQna(@UserId Long id, @PathVariable("qnaId") Long qnaId) {
         QnaDtoWithImagesResponse qnaWithImagesResponse =
-                QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId), answerService.getAnswer(qnaId));
+                QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId), answerService.getAnswer(qnaId), id);
         if (qnaWithImagesResponse.isBlind() && qnaWithImagesResponse.user().id().longValue() != id.longValue()) {
             return ResponseEntity.badRequest().build();
         }
