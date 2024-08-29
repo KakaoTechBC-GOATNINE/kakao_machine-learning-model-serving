@@ -59,7 +59,7 @@ def search_location(driver, location):
 def extract_reviews(driver):
     """음식점의 리뷰를 추출합니다."""
     reviews = []
-
+    reviews_count = 0
     while True:
         try:
             #  # 현재 리뷰 목록의 총 개수 저장 - 성능개선 sleep으로 변경
@@ -74,7 +74,7 @@ def extract_reviews(driver):
             more_reviews_button = soup.select_one('span:contains("후기 더보기")')
             
             # 더보기 버튼이 존재하지 않으면 루프 종료
-            if not more_reviews_button:
+            if not more_reviews_button or reviews_count == 8:
                 break
 
             # 후기 더보기 버튼을 기다림
@@ -84,6 +84,7 @@ def extract_reviews(driver):
             
             # 버튼 클릭 및 페이지 갱신을 기다림
             more_reviews_button.click()
+            reviews_count += 1 # 더보기버튼 한번 누를때마다 추가, (리뷰수 5개추가)
             time.sleep(0.5)
 
             # # 새로운 리뷰가 로드될 때까지 대기 (리뷰 총 개수가 증가할 때까지 대기) - 성능개선 sleep으로 변경
