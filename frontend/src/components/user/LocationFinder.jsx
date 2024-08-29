@@ -10,7 +10,7 @@ import axios from 'axios';
 import api from '../../components/Api';
 import { SyncLoader } from "react-spinners"; //스피너
 
-export default function LocationFinder({ setCoords, setStores }) {
+export default function LocationFinder({ setCoords, setStores, setRecommendedStores, setNotRecommendedStores }) {
     const open = useDaumPostcodePopup();
     const [address, setAddress] = useState("");
     const [keyword, setKeyword] = useState("");
@@ -80,7 +80,12 @@ export default function LocationFinder({ setCoords, setStores }) {
                     coordsToAddress(latitude, longitude);
                 },
                 (error) => {
-                    console.error(error.message);
+                    console.error("Error fetching current location:", error.message);
+                },
+                {
+                    enableHighAccuracy: true, // 위치 정확도 향상 (배터리 소모 증가 가능성 있음)
+                    timeout: 5000, // 5초 안에 위치 정보를 가져오지 못하면 오류 반환
+                    maximumAge: 0 // 캐시된 위치 정보를 사용하지 않음
                 }
             );
         } else {
@@ -105,26 +110,31 @@ export default function LocationFinder({ setCoords, setStores }) {
 
         try {
             const response = await api.post(
-                `${process.env.REACT_APP_API_BASE_URL}/api/v1/reviews/ai`, 
+                `${process.env.REACT_APP_API_BASE_URL}/api/v1/reviews/ai`,
                 {
                     keyword: keyword,
                     latitude: localCoords.latitude,
                     longitude: localCoords.longitude
-                } 
+                }
             );
 
-            const rankedResturants = response.data.data.reviews.map((store) => ({
-                storeName: store.store_name,
+            const rankedRestaurants = response.data.data.reviews.map((store) => ({
+                storeName: store.storeName,
                 address: store.address,
                 score: store.score,
-                clustered_terms: store.clustered_terms
+                clusteredTerms: store.clusteredTerms.map(term => term.term).join(', ')
             }));
 
-            setStores(rankedResturants);
+            setStores(rankedRestaurants);
+
+            // 상위 5개는 추천 리스트로, 나머지 5개는 비추천 리스트로 분류
+            setRecommendedStores(rankedRestaurants.slice(0, 5));
+            setNotRecommendedStores(rankedRestaurants.slice(5, 10));
+
         } catch (error) {
             console.error("Error fetching data from API", error);
         }
-        finally{
+        finally {
             setLoading(false); //로딩 스피너 비활성화
         }
     };
