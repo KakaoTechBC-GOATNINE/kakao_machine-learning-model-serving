@@ -29,6 +29,8 @@ function Map({ stores, searchCoords }) {
           position: coords
         });
 
+        marker.setMap(map);
+
         window.kakao.maps.event.addListener(marker, 'click', function() {
           const infowindow = new window.kakao.maps.InfoWindow({
             content: `<div style="padding:5px;">${store.store_name}</div>`
