@@ -6,8 +6,7 @@ import Button from "@mui/material/Button";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import { IconButton } from "@mui/material";
-import axios from 'axios';
-import api from '../../components/Api';
+import api from '../Api';
 import { SyncLoader } from "react-spinners"; //스피너
 
 export default function LocationFinder({ setCoords, setStores, setRecommendedStores, setNotRecommendedStores }) {
@@ -25,7 +24,7 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
     // 주소를 좌표로 변환하는 함수
     async function addressToCoords(address) {
         try {
-            const response = await axios.get(
+            const response = await api.get(
                 `https://dapi.kakao.com/v2/local/search/address.json?query=${address}`,
                 {
                     headers: {
@@ -48,7 +47,7 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
     // 좌표를 주소로 변환하는 함수
     async function coordsToAddress(lat, lng) {
         try {
-            const response = await axios.get(
+            const response = await api.get(
                 `https://dapi.kakao.com/v2/local/geo/coord2address.json?input_coord=WGS84&x=${lng}&y=${lat}`,
                 {
                     headers: {
@@ -110,7 +109,7 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
 
         try {
             const response = await api.post(
-                `${process.env.REACT_APP_API_BASE_URL}/api/v1/reviews/ai`,
+                '/api/v1/reviews/ai',
                 {
                     keyword: keyword,
                     latitude: localCoords.latitude,
@@ -132,12 +131,19 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
             setNotRecommendedStores(rankedRestaurants.slice(5, 10));
 
         } catch (error) {
-            console.error("Error fetching data from API", error);
-        }
-        finally {
+            // 400 에러 처리
+            if (error.response && error.response.status === 400) {
+                alert("로그인 후 사용할 수 있습니다.");
+                // 로그인이 필요한 경우, 로그인 페이지로 이동을 추가할 수도 있음
+                // window.location.href = "/login";
+            } else {
+                console.error("Error fetching data from API", error);
+            }
+        } finally {
             setLoading(false); //로딩 스피너 비활성화
         }
     };
+
 
     const findButtonClick = () => {
         open({ onComplete: handleAddressSearch });

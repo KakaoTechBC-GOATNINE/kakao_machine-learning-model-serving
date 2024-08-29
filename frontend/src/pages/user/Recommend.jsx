@@ -39,12 +39,17 @@ export default function Recommend() {
                 </div>
             </Container>
 
-            <Container component="main" maxWidth="lg" sx={{ marginTop: "20px" }}>
-                <RecommendedStores stores={recommendedStores} />
-            </Container>
-
-            <Container component="main" maxWidth="lg" sx={{ marginTop: "20px" }}>
-                <NotRecommendedStores stores={notRecommendedStores} />
+            <Container component="main" maxWidth="lg" sx={{ marginTop: "20px", display: 'flex', gap: '20px' }}>
+                {recommendedStores.length > 0 && (
+                    <div style={{ flex: 1 }}>
+                        <RecommendedStores stores={recommendedStores} />
+                    </div>
+                )}
+                {notRecommendedStores.length > 0 && (
+                    <div style={{ flex: 1 }}>
+                        <NotRecommendedStores stores={notRecommendedStores} />
+                    </div>
+                )}
             </Container>
         </div>
     );
