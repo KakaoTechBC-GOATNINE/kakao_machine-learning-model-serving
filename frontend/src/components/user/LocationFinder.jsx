@@ -87,7 +87,7 @@ export default function LocationFinder({ setCoords, setStores }) {
             alert("현재 위치를 찾지 못했습니다. 잠시 후 다시 시도해주세요.");
         }
     };
-    
+
     // 키워드 검색 핸들러
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
@@ -116,7 +116,8 @@ export default function LocationFinder({ setCoords, setStores }) {
             const rankedResturants = response.data.data.reviews.map((store) => ({
                 storeName: store.store_name,
                 address: store.address,
-                score: store.score
+                score: store.score,
+                clustered_terms: store.clustered_terms
             }));
 
             setStores(rankedResturants);
