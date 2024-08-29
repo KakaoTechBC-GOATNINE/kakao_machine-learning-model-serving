@@ -3,6 +3,7 @@ package com.example.kakao_mlms.service;
 import com.example.kakao_mlms.domain.User;
 import com.example.kakao_mlms.dto.request.ReviewDto;
 import com.example.kakao_mlms.dto.response.ReviewDtoResponse;
+import com.example.kakao_mlms.dto.response.ReviewDtoResponse.Review.ClusteredTerm;
 import com.example.kakao_mlms.exception.CommonException;
 import com.example.kakao_mlms.exception.ErrorCode;
 import com.example.kakao_mlms.repository.UserRepository;
@@ -69,7 +70,17 @@ public class ReviewService {
             String address = restaurantData.get("address").getAsString();
             double score = restaurantData.get("score").getAsDouble();
 
-            reviews.add(new ReviewDtoResponse.Review(storeName, address, score));
+            // 클러스터링된 용어 가져오기
+            JsonArray clusteredTermsArray = restaurantData.getAsJsonArray("clustered_terms");
+            List<ClusteredTerm> clusteredTerms = new ArrayList<>();
+            for (int j = 0; j < clusteredTermsArray.size(); j++) {
+                JsonArray termData = clusteredTermsArray.get(j).getAsJsonArray();
+                String term = termData.get(0).getAsString();
+                int frequency = termData.get(1).getAsInt();
+                clusteredTerms.add(new ClusteredTerm(term, frequency));
+            }
+
+            reviews.add(new ReviewDtoResponse.Review(storeName, address, score, clusteredTerms));
         }
 
         return new ReviewDtoResponse(requestDto.latitude(), requestDto.longitude(), location, reviews);
