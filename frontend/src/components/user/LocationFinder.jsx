@@ -87,11 +87,7 @@ export default function LocationFinder({ setCoords, setStores }) {
             alert("현재 위치를 찾지 못했습니다. 잠시 후 다시 시도해주세요.");
         }
     };
-
-    const onChangeKeyword = (e) => {
-        setKeyword(e.target.value);
-    };
-
+    
     // 키워드 검색 핸들러
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
