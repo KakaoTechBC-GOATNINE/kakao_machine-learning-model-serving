@@ -34,3 +34,9 @@ Keras
 
 # Hugging Face Transformers for NLP models
 transformers
+
+# clustering
+sentence-transformers
+umap-learn
+hdbscan
+tf-keras
