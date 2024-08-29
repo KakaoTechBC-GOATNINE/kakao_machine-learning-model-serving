@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pickle
 import os
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -63,12 +64,17 @@ class RestaurantRankingBiLSTMModel:
         print(f"Precision: {precision:.4f}")
         print(f"Recall: {recall:.4f}")
     
-    def save_model(self, model_path):
+    def save_model(self, model_path, tokenizer_path):
         # 모델 저장
         self.model.save(model_path)
         print(f"학습한 모델이{model_path}에 저장되었습니다.")
+
+        # 토크나이저 저장
+        with open(tokenizer_path, 'wb') as handle:
+            pickle.dump(self.tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f"토크나이저가 {tokenizer_path}에 저장되었습니다.")
     
-    def fit_and_evaluate(self, file_path):
+    def fit_and_evaluate(self, file_path, model_save_path, tokenizer_save_path):
         # 데이터 로드 및 전처리
         self.load_data(file_path)
         X, y = self.preprocess_data()
@@ -84,14 +90,15 @@ class RestaurantRankingBiLSTMModel:
         self.evaluate_model(X_val, y_val)
         
         # 모델 저장
-        self.save_model(model_save_path)
+        self.save_model(model_save_path, tokenizer_save_path)
 
 # 모델 훈련 및 평가 실행
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     input_csv_file_path = os.path.join(base_dir, 'data', 'processed', 'BiLSTM_review.csv')
     model_save_path = os.path.join(base_dir, 'models', 'restaurant_ranking_bilstm.h5')
+    tokenizer_save_path = os.path.join(base_dir, 'models', 'restaurant_ranking_tokenizer.pickle')
     #모델 저장부분에 경고가 뜨는데 딱히 문제가 있진않지만 확장자명을(.keras)로 바꾸는것이 호환성에 좋다고함.
     
     bilstm_model = RestaurantRankingBiLSTMModel()
-    bilstm_model.fit_and_evaluate(input_csv_file_path)
+    bilstm_model.fit_and_evaluate(input_csv_file_path, model_save_path, tokenizer_save_path)

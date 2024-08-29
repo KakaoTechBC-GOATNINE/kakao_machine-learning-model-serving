@@ -16,11 +16,12 @@ public record QnaDtoWithImagesResponse(Long id,
                                        LocalDateTime createdDate,
                                        Boolean isAnswer,
                                        Boolean isBlind,
+                                       Boolean isMine,
                                        UserDtoResponse user,
                                        List<ImageResponse> images,
                                        AnswerDtoResponse answer
 ) {
-    public static QnaDtoWithImagesResponse from(QnaDtoWithImages qnaDtoWithImages, AnswerDto answerDto) {
+    public static QnaDtoWithImagesResponse from(QnaDtoWithImages qnaDtoWithImages, AnswerDto answerDto, Long id) {
         return new QnaDtoWithImagesResponse(qnaDtoWithImages.id(),
                 qnaDtoWithImages.title(),
                 qnaDtoWithImages.content(),
@@ -28,6 +29,7 @@ public record QnaDtoWithImagesResponse(Long id,
                 qnaDtoWithImages.createdDate(),
                 qnaDtoWithImages.isAnswer(),
                 qnaDtoWithImages.isBlind(),
+                Objects.equals(qnaDtoWithImages.user().id(), id),
                 UserDtoResponse.from(qnaDtoWithImages.user()),
                 qnaDtoWithImages.images().stream()
                         .map(ImageResponse::from).toList(),

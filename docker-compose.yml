@@ -28,6 +28,8 @@ services:
       - postgresql
     networks:
       - app-network
+    volumes:
+      - images_data:/home/ubuntu/kakao_machine-learning-model-serving/images/
 
   fastapi:
     build:
@@ -60,6 +62,7 @@ services:
 
 volumes:
   postgres_data:
+  images_data:
 
 networks:
   app-network:

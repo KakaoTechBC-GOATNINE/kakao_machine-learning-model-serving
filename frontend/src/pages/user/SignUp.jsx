@@ -18,27 +18,35 @@ export default function SignUp() {
         const baseUrl = process.env.REACT_APP_API_BASE_URL;
         console.log('Base URL:', process.env.REACT_APP_API_BASE_URL);
 
-        // 회원가입 데이터를 POST 요청으로 전송
-        const response = await fetch(`${baseUrl}/api/v1/auth/basic`, { //로컬에서는 http://localhost:8080/api/v1/auth/basic
+        try {
+            // 회원가입 데이터를 POST 요청으로 전송
+            const response = await fetch(`${baseUrl}/api/v1/auth/basic`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    serialId: serialId,
+                    password: password,
+                    nickname: nickname,
+                }),
+            });
 
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                serialId: serialId,
-                password: password,
-                nickname: nickname,
-            }),
-        });
+            const responseData = await response.json();
 
-        if (response.ok) {
-            alert('회원가입 성공!');
-            navigate('/login'); // 회원가입 성공 시 로그인 페이지로 이동
-        } else {
-            alert('회원가입 실패. 다시 시도해주세요.');
+            if (response.ok && responseData.success !== false) {
+                alert('회원가입 성공!');
+                navigate('/login'); // 회원가입 성공 시 로그인 페이지로 이동
+            } else {
+                const errorMessage = responseData.error?.message || '회원가입 실패. 다시 시도해주세요.';
+                alert(`${errorMessage}`);
+            }
+        } catch (err) {
+            alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+            console.error('회원가입 중 오류 발생:', err);
         }
     };
+
 
     return (
         <Container component="main" maxWidth="xs">

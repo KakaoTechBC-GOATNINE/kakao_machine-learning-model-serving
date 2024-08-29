@@ -51,9 +51,9 @@ public class AdminController {
     }
 
     @GetMapping("/qnas/{qnaId}")
-    public ResponseEntity<?> getQna(@PathVariable("qnaId") Long qnaId) {
+    public ResponseEntity<?> getQna(@UserId Long id, @PathVariable("qnaId") Long qnaId) {
         QnaDtoWithImagesResponse qnaWithImagesResponse =
-                QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId), answerService.getAnswer(qnaId));
+                QnaDtoWithImagesResponse.from(qnaService.getQnaWithImages(qnaId), answerService.getAnswer(qnaId), id);
         return ResponseEntity.ok(qnaWithImagesResponse);
     }
 

@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     // Not Found Error
     NOT_FOUND_USER("4040", HttpStatus.NOT_FOUND, "해당 사용자가 존재하지 않습니다."),
-    NOT_FOUND_QNA("4041", HttpStatus.NOT_FOUND, "해당 Qna가 존재하지 않습니다."),
+    NOT_FOUND_QNA("4041", HttpStatus.NOT_FOUND, "해당 Q&A가 존재하지 않습니다."),
     NOT_FOUND_END_POINT("4042", HttpStatus.NOT_FOUND, "존재하지 않는 API 엔드포인트입니다."),
     NOT_FOUND_FILE("4043", HttpStatus.NOT_FOUND, "해당 파일을 찾을 수 없습니다."),
 
@@ -29,6 +29,7 @@ public enum ErrorCode {
     MISSING_REQUEST_PARAMETER("4006", HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다."),
     DUPLICATION_USER("4007", HttpStatus.BAD_REQUEST, "해당 유저가 이미 있습니다"),
     DUPLICATION_IDORNICKNAME("4008", HttpStatus.BAD_REQUEST, "해당 아이디 혹은 닉네임이 이미 존재합니다"),
+    DUPLICATION_NICKNAME("4009", HttpStatus.BAD_REQUEST, "해당 닉네임이 이미 존재합니다"),
     /**
      * 502 Bad Gateway: Gateway Server Error
      */

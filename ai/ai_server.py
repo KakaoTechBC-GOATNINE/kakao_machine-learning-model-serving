@@ -3,7 +3,8 @@ from pydantic import BaseModel
 from typing import List
 from src.data_processing.location_keyword import get_location_name, extract_dong_name
 from src.data_processing.kakao_review_data_crawling import crawl_restaurant_reviews, save_to_csv
-from src.api.model_runner import rank_restaurants
+from src.api.ensemble_ranking import rank_restaurants_keywords
+from src.api.HDBSCAN_runner import cluster_reviews_runner
 
 # FastAPI 애플리케이션 생성
 app = FastAPI()
@@ -38,13 +39,16 @@ def restaurant_recommendation_api(request: KeywordLocationRequest):
         # 동네 이름과 키워드 결합
         combined = f"{dong_name} {request.keyword}"
         # 리뷰 데이터 크롤링
-        reviews = crawl_restaurant_reviews(combined, pages=5) # 최대 5페이지 크롤링
+        reviews = crawl_restaurant_reviews(combined, pages=3) # 최대 3페이지 크롤링
 
         # 리뷰 데이터 수집용    
         # save_to_csv(reviews, 'restaurant_reviews.csv') 
 
-        # 가게 리뷰를 처리하고 랭킹화
-        ranked_recommendations = rank_restaurants(reviews)
+        # 가게 리뷰를 처리하고 랭킹화 및 클러스터링
+        ranked_recommendations = rank_restaurants_keywords(reviews, request.keyword)
+
+        # 랭킹화된 리뷰들중 10개(상,하위 5개씩) 클러스터링 한것 리스트에 추가 
+        ranked_recommendations = cluster_reviews_runner(ranked_recommendations, reviews, top_n=5)
 
         return {
             "status": "success",
@@ -53,9 +57,10 @@ def restaurant_recommendation_api(request: KeywordLocationRequest):
                 {
                     "store_name": rec["store_name"],
                     "address": rec["address"],
-                    "score": rec["positive_score"]
+                    "score": rec["positive_score"],
+                    "clustered_terms": rec["clustered_terms"] 
                 }
-                for rec in ranked_recommendations
+                for rec in ranked_recommendations[:5] + ranked_recommendations[-5:] # 상위 5개, 하위 5개
             ]
         }
     

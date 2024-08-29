@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -31,7 +32,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findUserBySerialId(String userId);
 
-    Optional<User> findBySerialIdOrNickname(String serialId, String nickname);
+    Boolean existsByNickname(String nickname);
+
+    Boolean existsBySerialIdOrNickname(String serialId, String nickname);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "update User u set u.refreshToken = :refreshToken, u.isLogin = :isLogin where u.id = :userId")

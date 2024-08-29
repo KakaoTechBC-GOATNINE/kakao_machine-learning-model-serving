@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
     Container,
     Box,
-    Typography,
     TextField,
     Button,
     Table,
@@ -23,6 +22,7 @@ import StarIcon from '@mui/icons-material/Star';
 import ClearIcon from '@mui/icons-material/Clear';
 import SortIcon from '@mui/icons-material/Sort';
 import api from '../../components/Api';
+import PageHeader from "../PageHeader";
 
 export default function AdminUsers() {
     const [users, setUsers] = useState([]);
@@ -149,10 +149,7 @@ export default function AdminUsers() {
 
     return (
         <Container component="main" maxWidth="lg" sx={{ marginTop: 4, marginBottom: 4 }}>
-            <Typography variant="h4" gutterBottom>
-                유저 관리
-            </Typography>
-
+            <PageHeader text={"유저 관리"}/>
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 2 }}>
                 <TextField
                     label="닉네임 검색"

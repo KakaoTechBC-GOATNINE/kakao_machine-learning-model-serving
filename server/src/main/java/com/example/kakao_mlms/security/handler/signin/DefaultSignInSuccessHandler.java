@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -87,7 +89,7 @@ public class DefaultSignInSuccessHandler implements AuthenticationSuccessHandler
     private void setSuccessWebResponse(HttpServletResponse response, JwtTokenDto tokenDto, String nickname, ERole eRole) throws IOException {
         CookieUtil.addSecureCookie(response, "refreshToken", tokenDto.getRefreshToken(), jwtUtil.getWebRefreshTokenExpirationSecond());
         CookieUtil.addCookie(response, "accessToken", tokenDto.getAccessToken());
-        CookieUtil.addCookie(response, "nickname", nickname);
+        CookieUtil.addCookie(response, "nickname", URLEncoder.encode(nickname, StandardCharsets.UTF_8));
         CookieUtil.addCookie(response, "role", eRole.getDisplayName());
 
         response.getWriter().println("OK");
