@@ -14,17 +14,17 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
     const [address, setAddress] = useState("");
     const [keyword, setKeyword] = useState("");
     const [localCoords, setLocalCoords] = useState({ latitude: "", longitude: "" });
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         // 컴포넌트가 처음 렌더링될 때 사용자의 현재 위치 설정
         handleCurrentLocation();
     }, []);
 
-    // 주소를 좌표로 변환하는 함수
+    // 주소를 좌표로 변환하는 함수 (fetch 사용)
     async function addressToCoords(address) {
         try {
-            const response = await api.get(
+            const response = await fetch(
                 `https://dapi.kakao.com/v2/local/search/address.json?query=${address}`,
                 {
                     headers: {
@@ -33,9 +33,11 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
                 }
             );
 
-            if (response.data.documents.length > 0) {
-                const data = response.data.documents[0];
-                return { latitude: data.y, longitude: data.x };
+            const data = await response.json();
+
+            if (data.documents.length > 0) {
+                const document = data.documents[0];
+                return { latitude: document.y, longitude: document.x };
             } else {
                 throw new Error("No coordinates found for address");
             }
@@ -44,10 +46,10 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
         }
     }
 
-    // 좌표를 주소로 변환하는 함수
+    // 좌표를 주소로 변환하는 함수 (fetch 사용)
     async function coordsToAddress(lat, lng) {
         try {
-            const response = await api.get(
+            const response = await fetch(
                 `https://dapi.kakao.com/v2/local/geo/coord2address.json?input_coord=WGS84&x=${lng}&y=${lat}`,
                 {
                     headers: {
@@ -56,8 +58,10 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
                 }
             );
 
-            if (response.data.documents.length > 0) {
-                const location = response.data.documents[0];
+            const data = await response.json();
+
+            if (data.documents.length > 0) {
+                const location = data.documents[0];
                 const tempAddress = `${location.address.region_1depth_name} ${location.address.region_2depth_name} ${location.address.region_3depth_name}`;
                 setAddress(tempAddress);
             } else {
@@ -99,7 +103,7 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
         }
     };
 
-    // 추천 API 호출 함수
+    // 추천 API 호출 함수 (api 컴포넌트 사용)
     const recommendApi = async () => {
         console.log("keyword: ", keyword);
         console.log("address: ", address);
@@ -143,7 +147,6 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
             setLoading(false); //로딩 스피너 비활성화
         }
     };
-
 
     const findButtonClick = () => {
         open({ onComplete: handleAddressSearch });
