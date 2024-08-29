@@ -1,19 +1,26 @@
 import Grid from '@mui/material/Unstable_Grid2';
 import TextField from "@mui/material/TextField";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import { IconButton } from "@mui/material";
 import axios from 'axios';
 import api from '../../components/Api';
+import { SyncLoader } from "react-spinners"; //스피너
 
 export default function LocationFinder({ setCoords, setStores }) {
     const open = useDaumPostcodePopup();
     const [address, setAddress] = useState("");
     const [keyword, setKeyword] = useState("");
     const [localCoords, setLocalCoords] = useState({ latitude: "", longitude: "" });
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        // 컴포넌트가 처음 렌더링될 때 사용자의 현재 위치 설정
+        handleCurrentLocation();
+    }, []);
 
     // 주소를 좌표로 변환하는 함수
     async function addressToCoords(address) {
@@ -98,6 +105,8 @@ export default function LocationFinder({ setCoords, setStores }) {
         console.log("address: ", address);
         console.log("coords: ", localCoords);
 
+        setLoading(true); //로딩 스피너 활성화
+
         try {
             const response = await api.post(
                 `${process.env.REACT_APP_API_BASE_URL}/api/v1/reviews/ai`, 
@@ -114,11 +123,12 @@ export default function LocationFinder({ setCoords, setStores }) {
                 score: store.score
             }));
 
-            rankedResturants.sort((a, b) => b.score - a.score);
-
             setStores(rankedResturants);
         } catch (error) {
             console.error("Error fetching data from API", error);
+        }
+        finally{
+            setLoading(false); //로딩 스피너 비활성화
         }
     };
 
@@ -188,6 +198,14 @@ export default function LocationFinder({ setCoords, setStores }) {
                     검색
                 </Button>
             </Grid>
+            {loading && (
+                <Grid xs={12}>
+                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                        <h3>잠시만 기다려주세요.</h3>
+                        <SyncLoader />
+                    </div>
+                </Grid>
+            )}
         </Grid>
     );
-};
+}
