@@ -2,6 +2,7 @@ import math, re
 from src.data_processing.api_preprocessing import process_reviews
 from src.api.KcELENTRA_runner import KcELECTRA_predict_review_score
 from src.api.BiLSTM_runner import BiLSTM_predict_review_score
+from src.models.HDBSCAN_clustering import analyze_reviews_by_clustering
 
 # 앙상블 기법으로 두 모델 식당랭킹화진행
 def rank_restaurants_keywords(reviews, keyword):
@@ -49,11 +50,18 @@ def rank_restaurants_keywords(reviews, keyword):
 
             # print(f"Weighted Score for {store_name}: {weighted_score}")
             # print("\n")
+
+            # # 가게별 리뷰 클러스터링 - 전체 클러스터링하던것 원하는 만큼 돌리도록 로직변경
+            # clusters_terms = analyze_reviews_by_clustering(processed_reviews, top_n=5) #상위 5개단어 추출
+
+            # print("가장 큰 군집에서 자주 언급된 단어들:")
+            # for term, freq in clusters_terms:
+            #     print(f"{term}: {freq}")
             
             recommendations.append({
                 "store_name": store_name,
                 "address": store_address,
-                "positive_score": weighted_score,
+                "positive_score": weighted_score
             })
         except Exception as e:
             print(f"Error processing store: {store_name}")
