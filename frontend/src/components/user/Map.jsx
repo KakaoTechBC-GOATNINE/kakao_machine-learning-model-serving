@@ -57,6 +57,15 @@ function Map({ stores, searchCoords }) {
 
     setMap(createdMap);  // 생성된 지도를 상태로 저장
 
+    // 현재 위치에 마커 추가 (다른 색상 또는 이미지 사용)
+    const currentLocationMarker = new window.kakao.maps.Marker({
+      position: new window.kakao.maps.LatLng(searchCoords.latitude, searchCoords.longitude),
+      map: createdMap,
+      image: new window.kakao.maps.MarkerImage(
+        'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', // 커스텀 이미지 URL
+        new window.kakao.maps.Size(24, 35) // 이미지 크기
+      )
+    });
   }, [searchCoords]);
 
   useEffect(() => {
