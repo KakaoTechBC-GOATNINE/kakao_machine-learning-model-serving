@@ -161,7 +161,7 @@ def extract_restaurant_info(driver, location, page_number):
         driver.switch_to.window(driver.window_handles[-1])
         time.sleep(1)
         reviews = extract_reviews(driver)
-        restaurant_list.append([name, score, addr[3:], reviews])
+        restaurant_list.append([name, score, addr, reviews])
 
     driver.quit()
     return restaurant_list
