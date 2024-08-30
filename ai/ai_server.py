@@ -66,7 +66,7 @@ def restaurant_recommendation_api(request: KeywordLocationRequest):
 
         return {
             "status": "success",
-            "keyword": address,
+            "keyword": combined,
             "ranked_resturant": [
                 {
                     "store_name": rec["store_name"],
