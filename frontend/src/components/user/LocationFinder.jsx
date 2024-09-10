@@ -87,7 +87,7 @@ export default function LocationFinder({ setCoords, setStores, setRecommendedSto
                 },
                 {
                     enableHighAccuracy: true, // 위치 정확도 향상 (배터리 소모 증가 가능성 있음)
-                    timeout: 5000, // 5초 안에 위치 정보를 가져오지 못하면 오류 반환
+                    timeout: 10000, // 10초 안에 위치 정보를 가져오지 못하면 오류 반환
                     maximumAge: 0 // 캐시된 위치 정보를 사용하지 않음
                 }
             );
